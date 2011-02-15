@@ -2,16 +2,15 @@ package com.bantouyan.json;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 
 /**
- * 用来表示Json数组对象。
+ * 用来表示Json数组实例。
  * @author bantouyan
  * @version 0.1
  */
 public class JsonArray extends Json
 {
-    //允许包含值为null的元素，但get及转换为Json文本时当NULL类型的Json对象处理
+    //允许包含值为null的元素，但get及转换为Json文本时当NULL类型的Json实例处理
     private ArrayList<Json> data;
     
     public JsonArray()
@@ -25,7 +24,7 @@ public class JsonArray extends Json
     }
     
     /**
-     * 获取指定位置的Json对象， 如果是null则返回 type是NULL类型的对象。
+     * 获取指定位置的Json实例， 如果是null则返回 type是NULL类型的实例。
      * @param index
      * @return
      */
@@ -42,7 +41,7 @@ public class JsonArray extends Json
     }
     
     /**
-     * 返回指定位置Json对象的字符串值。
+     * 返回指定位置Json实例的字符串值。
      * @param index
      * @return
      */
@@ -52,7 +51,7 @@ public class JsonArray extends Json
     }
     
     /**
-     * 返回指定位置Json对象的逻辑型（布尔型）值。
+     * 返回指定位置Json实例的逻辑型（布尔型）值。
      * @param index
      * @return
      * @throws JsonException
@@ -63,7 +62,7 @@ public class JsonArray extends Json
     }
 
     /**
-     * 返回指定位置Json对象的整型值。
+     * 返回指定位置Json实例的整型值。
      * @param index
      * @return
      * @throws JsonException
@@ -74,7 +73,7 @@ public class JsonArray extends Json
     }
 
     /**
-     * 返回指定位置Json对象的浮点型值。
+     * 返回指定位置Json实例的浮点型值。
      * @param index
      * @return
      * @throws JsonException
@@ -149,7 +148,7 @@ public class JsonArray extends Json
     }
     
     /**
-     * 向Json数组末尾添加一个NULL类型的Json对象
+     * 向Json数组末尾添加一个NULL类型的Json实例
      * @return JsonArray是否发生变动
      */
     public boolean append()
@@ -348,7 +347,7 @@ public class JsonArray extends Json
     }
 
     /**
-     * 设置Json数组指定位置的元素为NULL类型的Json对象。
+     * 设置Json数组指定位置的元素为NULL类型的Json实例。
      * @param index
      */
     public void set(int index)
@@ -393,36 +392,15 @@ public class JsonArray extends Json
     {
         return this.data.isEmpty();
     }
-
-    /**
-     * 生成Json文本。
-     * @param useStandard true生成标准文本，false则尝试在Object的name部分不加引号
-     * @param useStandard
-     * @return
-     * @throws JsonException
-     */
-    @Override
-    public String generateJsonText(boolean useStandard) throws JsonException
-    {
-        HashSet<Json> parentRef = new HashSet<Json>();        
-        return generateJsonText(useStandard, parentRef);
-    }
     
     /**
      * 生成Json文本。
      * @param useStandard true生成标准文本，false则尝试在Object的name部分不加引号
-     * @param parentRef parent to root Json reference, used to check error
      * @return
      */
     @Override
-    protected String generateJsonText(boolean useStandard, HashSet<Json> parentRef)
-            throws JsonException
+    protected String generateJsonTextWithoutCheck(boolean useStandard)
     {
-        if(parentRef.contains(this))
-        {
-            throw new JsonException("Circle reference occured in this Json.");
-        }
-        parentRef.add(this);
         StringBuilder build = new StringBuilder();
         
         build.append('[');
@@ -430,17 +408,16 @@ public class JsonArray extends Json
         for(int i=0; i<cnt; i++)
         {
             Json element = data.get(i);
-            build.append(element.generateJsonText(useStandard, parentRef));
+            build.append(element.generateJsonTextWithoutCheck(useStandard));
             if(i < cnt-1) build.append(',');
         }
         build.append(']');
         
-        parentRef.remove(this);
         return build.toString();
     }
 
     /**
-     * 返回 Json对象类型 JsonType.ARRAY。
+     * 返回 Json实例类型 JsonType.ARRAY。
      */
     @Override
     public JsonType getType()
@@ -449,7 +426,7 @@ public class JsonArray extends Json
     }
 
     /**
-     * 返回Json 对象的字符串值。
+     * 返回Json 实例的字符串值。
      * @return
      */
     @Override
@@ -459,7 +436,7 @@ public class JsonArray extends Json
     }
 
     /**
-     * 返回Json对象的整型值。
+     * 返回Json实例的整型值。
      * @return
      * @throws JsonException
      */
@@ -470,7 +447,7 @@ public class JsonArray extends Json
     }
 
     /**
-     * 返回Json对象的浮点型值。
+     * 返回Json实例的浮点型值。
      * @return
      * @throws JsonException
      */
@@ -481,7 +458,7 @@ public class JsonArray extends Json
     }
 
     /**
-     * 返回Json对象的逻辑型（布尔型）值。
+     * 返回Json实例的逻辑型（布尔型）值。
      * @return
      * @throws JsonException
      */
@@ -489,5 +466,23 @@ public class JsonArray extends Json
     public boolean getBoolean() throws JsonException
     {
         throw new JsonException("Cannot transfer JsonObject to boolean value.");
+    }
+
+    /**
+     * 判断Json对象内是否存在循环引用
+     * @param parentRef 上级Json对象的引用
+     * @return
+     */
+    @Override
+    public boolean existsCircle(IdentityStack parentRef)
+    {
+        boolean exists = false;
+        
+        for(Json element: data)
+        {
+            exists = exists || element.existsCircle(parentRef);
+        }
+        
+        return exists;
     }
 }

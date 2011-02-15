@@ -2,9 +2,6 @@ package com.bantouyan.json;
 
 public class JsonException extends Exception
 {
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
 
     protected JsonException()
