@@ -783,10 +783,4 @@ class JsonTextParser
         }
         return rtnValue;
     }
-
-    public static void main(String[] args)
-    {
-        
-    }
-
 }

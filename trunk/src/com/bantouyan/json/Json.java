@@ -205,7 +205,7 @@ public abstract class Json
         {
             throw new JsonException("Circle reference occured in this Json.");
         }    
-        return generateJsonText(useStandard);
+        return generateJsonTextWithoutCheck(useStandard);
     }
 
     /**
@@ -223,9 +223,7 @@ public abstract class Json
     public final boolean existsCircle()
     {
         IdentityStack parentRef = new IdentityStack();
-        parentRef.push(this);
         boolean rst = existsCircle(parentRef);
-        parentRef.pop();
         
         return rst;
     }
