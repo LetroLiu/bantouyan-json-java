@@ -532,6 +532,9 @@ public class JsonObject extends Json
     @Override
     public boolean existsCircle(IdentityStack parentRef)
     {
+        if(parentRef.contains(this)) return true;
+        
+        parentRef.push(this);
         boolean exists = false;
         
         Collection<Json> values = data.values();
@@ -540,6 +543,7 @@ public class JsonObject extends Json
             exists = exists || element.existsCircle(parentRef);
         }
         
+        parentRef.pop();
         return exists;
     }
 }

@@ -476,6 +476,9 @@ public class JsonArray extends Json
     @Override
     public boolean existsCircle(IdentityStack parentRef)
     {
+        if(parentRef.contains(this)) return true;
+        
+        parentRef.push(this);
         boolean exists = false;
         
         for(Json element: data)
@@ -483,6 +486,7 @@ public class JsonArray extends Json
             exists = exists || element.existsCircle(parentRef);
         }
         
+        parentRef.pop();
         return exists;
     }
 }
