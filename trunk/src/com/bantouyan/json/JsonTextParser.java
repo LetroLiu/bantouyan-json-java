@@ -60,8 +60,8 @@ class JsonTextParser
     
     /**
      * 
-     * 根据reader内容解析成Json对象或Json数组
-     * @return 解析后的Json对象或Json数组
+     * 根据reader内容解析成JsonObject或JsonArray
+     * @return 解析后的JsonObject或JsonArray
      * @throws IOException 读取reader有误
      * @throws JsonException 不符合Json格式
      */
@@ -94,9 +94,9 @@ class JsonTextParser
     }
     
     /**
-     * 从当前字符开始解析JsonObject对象，
+     * 从当前字符开始解析JsonObject实例，
      * 进入时pos指向字符'{'，退出时指向对应的'}'之后的第一个字符。
-     * @return 对应的JsonObject对象
+     * @return 对应的JsonObject实例
      * @throws IOException
      * @throws JsonException
      */
@@ -141,9 +141,9 @@ class JsonTextParser
     }
     
     /**
-     * 从当前字符开始解析JsonArray对象，
+     * 从当前字符开始解析JsonArray实例，
      * 进入时pos指向字符'['，退出时指向对应的']'之后的第一个字符。
-     * @return 对应的JsonArray对象
+     * @return 对应的JsonArray实例
      * @throws IOException
      * @throws JsonException
      */
@@ -231,7 +231,7 @@ class JsonTextParser
     }
     
     /**
-     * 解析子Json对象， 包括 JsonObject、JsonArray以及JsonPrimitive value，
+     * 解析子Json实例， 包括 JsonObject、JsonArray以及JsonPrimitive value，
      * 进入时指向表示value（包含空白）的第一个字符，
      * 退出时指向value（可不包含空白）之后的第一个字符。
      * @return

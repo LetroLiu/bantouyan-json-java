@@ -1,21 +1,21 @@
 package com.bantouyan.json;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * 用来表示Json Object对象。
+ * 用来表示Json Object实例。
  * @author bantouyan
  * @version 0.1
  */
 public class JsonObject extends Json
 {  
     //不允许出现key为null的entry，但允许value为null
-    //值为null的value，get以及转换为Json文本时当类型为NULL的Json对象处理
+    //值为null的value，get以及转换为Json文本时当类型为NULL的Json实例处理
     private HashMap<String, Json> data = null;
     
     public JsonObject()
@@ -31,7 +31,7 @@ public class JsonObject extends Json
     }
     
     /**
-     * 返回指定name的Json对象，如果获取的Json对象是null，则返回type是NULL类型的Json对象。
+     * 返回指定name的Json实例，如果获取的Json实例是null，则返回type是NULL类型的Json实例。
      * @param name
      * @return 如果name为null，或不包含此name，则返回null
      */
@@ -50,7 +50,7 @@ public class JsonObject extends Json
     }
     
     /**
-     * 返回指定name的Json对象的字符串值，如果获取的Json对象是null，则按NULL类型返回。
+     * 返回指定name的Json实例的字符串值，如果获取的Json实例是null，则按NULL类型返回。
      * @param name
      * @return 如果name为null，或不包含此name，则返回null
      */
@@ -62,7 +62,7 @@ public class JsonObject extends Json
     }
     
     /**
-     * 返回指定那么的Json对象的逻辑型（布尔型）值
+     * 返回指定那么的Json实例的逻辑型（布尔型）值
      * @param name
      * @return 如果name为null，或不包含此name，则返回null
      * @throws JsonException 如果name为null，或不存在此name，或类型bu匹配，则抛出异常
@@ -82,7 +82,7 @@ public class JsonObject extends Json
     }
     
     /**
-     * 返回指定那么的Json对象的整型值
+     * 返回指定那么的Json实例的整型值
      * @param name
      * @return 如果name为null，或不包含此name，则返回null
      * @throws JsonException 如果name为null，或不存在此name，或类型bu匹配，则抛出异常
@@ -102,7 +102,7 @@ public class JsonObject extends Json
     }
     
     /**
-     * 返回指定那么的Json对象的浮点型值
+     * 返回指定那么的Json实例的浮点型值
      * @param name
      * @return 如果name为null，或不包含此name，则返回null
      * @throws JsonException 如果name为null，或不存在此name，或类型bu匹配，则抛出异常
@@ -337,7 +337,7 @@ public class JsonObject extends Json
     }
 
     /**
-     * 设置指定Name的成员为NULL类型的Json对象， 如果不存在相应的Name，则创建新的成员。
+     * 设置指定Name的成员为NULL类型的Json实例， 如果不存在相应的Name，则创建新的成员。
      * @param name 如果name为null，则不执行任何操作
      * @return 如果name不为null，则返回先前与name对应的value，否则null
      */
@@ -392,7 +392,7 @@ public class JsonObject extends Json
     }
     
     /**
-     * 返回Json对象所有成员的Name。
+     * 返回Json实例所有成员的Name。
      * @return
      */
     public Set<String> nameSet()
@@ -410,7 +410,7 @@ public class JsonObject extends Json
     }
     
     /**
-     * 判断Json对象是否不含任何成员。
+     * 判断Json实例是否不含任何成员。
      * @return
      */
     @Override
@@ -428,36 +428,15 @@ public class JsonObject extends Json
     {
         return this.data.size();
     }
-    
-    /**
-     * 生成Json文本。
-     * @param useStandard true生成标准文本，false则尝试在name部分不加引号
-     * @return
-     * @throws JsonException
-     */
-    @Override 
-    public String generateJsonText(boolean useStandard) throws JsonException
-    {
-        HashSet<Json> parentRef = new HashSet<Json>();        
-        return generateJsonText(useStandard, parentRef);
-    }
-    
+        
     /**
      * 生成Json文本。
      * @param useStandard true生成标准文本，false则尝试在Object的name部分不加引号
-     * @param parentRef parent to root Json reference, used to check error
      * @return
      */
     @Override
-    protected String generateJsonText(boolean useStandard, HashSet<Json> parentRef)
-            throws JsonException
-    {
-        if(parentRef.contains(this))
-        {
-            throw new JsonException("Circle reference occured in this Json.");
-        }        
-        parentRef.add(this);
-        
+    protected String generateJsonTextWithoutCheck(boolean useStandard)
+    {        
         StringBuilder build = new StringBuilder();
         int cnt = data.size();
         int cur = 0;
@@ -482,7 +461,7 @@ public class JsonObject extends Json
             }
             else
             {
-                build.append(value.generateJsonText(useStandard, parentRef));
+                build.append(value.generateJsonTextWithoutCheck(useStandard));
             }
             
             cur++;
@@ -490,12 +469,11 @@ public class JsonObject extends Json
         }
         build.append('}');
         
-        parentRef.remove(this);
         return build.toString();
     }
 
     /**
-     * 返回 Json对象类型 JsonType.OBJECT。
+     * 返回 Json实例类型 JsonType.OBJECT。
      */
     @Override
     public JsonType getType()
@@ -504,7 +482,7 @@ public class JsonObject extends Json
     }
 
     /**
-     * 返回Json 对象的字符串值。
+     * 返回Json 实例的字符串值。
      * @return
      */
     @Override
@@ -514,7 +492,7 @@ public class JsonObject extends Json
     }
 
     /**
-     * 返回Json对象的整型值。
+     * 返回Json实例的整型值。
      * @return
      * @throws JsonException
      */
@@ -525,7 +503,7 @@ public class JsonObject extends Json
     }
 
     /**
-     * 返回Json对象的浮点型值。
+     * 返回Json实例的浮点型值。
      * @return
      * @throws JsonException
      */
@@ -536,7 +514,7 @@ public class JsonObject extends Json
     }
 
     /**
-     * 返回Json对象的逻辑型（布尔型）值。
+     * 返回Json实例的逻辑型（布尔型）值。
      * @return
      * @throws JsonException
      */
@@ -544,5 +522,24 @@ public class JsonObject extends Json
     public boolean getBoolean() throws JsonException
     {
         throw new JsonException("Cannot transfer JsonObject to boolean value.");
+    }
+
+    /**
+     * 判断Json对象内是否存在循环引用
+     * @param parentRef 上级Json对象的引用
+     * @return
+     */
+    @Override
+    public boolean existsCircle(IdentityStack parentRef)
+    {
+        boolean exists = false;
+        
+        Collection<Json> values = data.values();
+        for(Json element: values)
+        {
+            exists = exists || element.existsCircle(parentRef);
+        }
+        
+        return exists;
     }
 }

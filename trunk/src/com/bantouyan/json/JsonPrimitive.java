@@ -1,10 +1,9 @@
 package com.bantouyan.json;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
 
 /**
- * 用来表示String、Number、Boolean与null类型的Json对象，创建后不可更改。
+ * 用来表示String、Number、Boolean与null类型的Json实例，创建后不可更改。
  * @author bantouyan
  * @version 0.1
  */
@@ -13,8 +12,8 @@ public class JsonPrimitive extends Json
     private JsonType type = null;
     private Object data;
     
-    /*
-     * 创建值为null的Json对象
+    /**
+     * 创建值为null的Json实例
      */
     protected JsonPrimitive()
     {
@@ -23,7 +22,7 @@ public class JsonPrimitive extends Json
     }
     
     /**
-     * 创建浮点型的Json对象。
+     * 创建浮点型的Json实例。
      * @param data
      */
     protected JsonPrimitive(Double data)
@@ -33,7 +32,7 @@ public class JsonPrimitive extends Json
     }
 
     /**
-     * 创建整型的Json对象。
+     * 创建整型的Json实例。
      * @param data
      */
     protected JsonPrimitive(Long data)
@@ -43,7 +42,7 @@ public class JsonPrimitive extends Json
     }
     
     /**
-     * 创建数值型（整型或浮点型）Json对象。
+     * 创建数值型（整型或浮点型）Json实例。
      * @param data
      */
     protected JsonPrimitive(Number data)
@@ -63,7 +62,7 @@ public class JsonPrimitive extends Json
     }
     
     /**
-     * 创建字符串型Json对象。
+     * 创建字符串型Json实例。
      * @param data
      */
     protected JsonPrimitive(String data)
@@ -73,7 +72,7 @@ public class JsonPrimitive extends Json
     }
     
     /**
-     * 创建逻辑型（布尔型）Json对象。
+     * 创建逻辑型（布尔型）Json实例。
      * @param data
      */
     protected JsonPrimitive(Boolean data)
@@ -88,20 +87,7 @@ public class JsonPrimitive extends Json
      * @return
      */
     @Override
-    public String generateJsonText(boolean useStandard) throws JsonException
-    {
-        return generateJsonText(useStandard, null);
-    }
-
-    /**
-     * 生成Json文本。
-     * @param useStandard 无意义，被忽略
-     * @param parentRef 无意义，被忽略
-     * @return
-     */
-    @Override
-    protected String generateJsonText(boolean useStandard, HashSet<Json> parentRef)
-            throws JsonException
+    protected String generateJsonTextWithoutCheck(boolean useStandard)
     {
         String str = data.toString();
         if(this.type == JsonType.STRING)
@@ -112,7 +98,7 @@ public class JsonPrimitive extends Json
     }
 
     /**
-     * 返回 Json对象类型STRING, INTEGER, FLOAT, BOOLEAN或NULL。
+     * 返回 Json实例类型STRING, INTEGER, FLOAT, BOOLEAN或NULL。
      */
     @Override
     public JsonType getType()
@@ -121,7 +107,7 @@ public class JsonPrimitive extends Json
     }
     
     /**
-     * 返回Json 对象的字符串值。
+     * 返回Json 实例的字符串值。
      * @return
      */
     @Override
@@ -255,5 +241,16 @@ public class JsonPrimitive extends Json
     public int count()
     {
         return 1;
+    }
+
+    /**
+     * 判断Json对象内是否存在循环引用
+     * @param parentRef 上级Json对象的引用
+     * @return
+     */
+    @Override
+    protected boolean existsCircle(IdentityStack parentRef)
+    {
+        return false;
     }
 }
