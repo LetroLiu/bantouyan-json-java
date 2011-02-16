@@ -8,9 +8,28 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * 用来表示Json Object实例。
+ * <p>用来表示Json对象实例。Json对象是由Name Value对的无序集合构成（本文档中
+ * Name Value对中的Value部分称为子元素），可以通过Name存取对应的Value。</p>
+ * 
+ * <p><strong>创建JsonObject实例</strong>，除了可以通过调用Json类的parse开头
+ * 的方法创建JsonObject实例外，还可以直接创建空的JsonArray实例，或从Json实例集合创建。</p>
+ * 
+ * <p>调用方法get可以<strong>获取</strong>指定Name的子元素，方法<strong>getXXX
+ * </strong>返回指定Name子元素的某种原始类型值，方法<strong>canToXXX</strong>
+ * 判定指定Name的子元素是否可以转换为这种原始类型，<strong>重设</strong>
+ * 指定Name的子元素调用方法set，<strong>批量重设</strong>调用方法setAll，
+ * <strong>添加</strong>Name Value（子元素）对调用方法add，<strong>批量添加
+ * </strong>调用方法addAll，<strong>删除</strong>指定Name的子元素调用方法remove。
+ * （add与set的区别是如果指定Name的子元素存在，或Name为null，则add方法抛出异常，
+ * 但set方法不会）</p>
+ * 
+ * <p>方法<strong>isEmpty</strong>可以判断JsonObject实例是否包含
+ * 子元素，方法<strong>count</strong>返回子元素的的个数（即Name Value对的个数），
+ * 方法<strong>clear</strong>可以清除所有的子元素（Name Value对）。方法<strong>
+ * getType</strong>返回JsonObject实例的类型JsonType.OBJECT。</p>
+ * 
  * @author bantouyan
- * @version 0.1
+ * @version 1.00
  */
 public class JsonObject extends Json
 {  
@@ -472,7 +491,7 @@ public class JsonObject extends Json
     
     /**
      * 判断Json实例是否不含任何子元素。
-     * @return
+     * @return 不包含任何子元素返回true，否则返回false
      */
     @Override
     public boolean isEmpty()
@@ -555,7 +574,7 @@ public class JsonObject extends Json
     /**
      * 判断Json对象内是否存在循环引用
      * @param parentRef 上级Json对象的引用
-     * @return
+     * @return 存在循环引用返回true，不存在返回false
      */
     @Override
     public boolean existsCircle(IdentityStack parentRef)

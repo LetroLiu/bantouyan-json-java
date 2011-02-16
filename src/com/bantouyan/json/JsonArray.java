@@ -4,9 +4,26 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * 用来表示Json数组实例。
+ * <p>用来表示Json数组实例。Json数组是一组有序Json实例的集合，数组的每个子元素
+ * 都有特定的下标（从0开始），可以根据下标存取特定的子元素。</p>
+ * 
+ * <p><strong>创建JsonArray实例</strong>，除了可以通过调用Json类的parse开头
+ * 的方法创建JsonArray实例外，还可以直接创建空的JsonArray实例，或从Json实例集合创建。</p>
+ * 
+ * <p>调用方法get可以<strong>获取</strong>指定位置的子元素，方法<strong>getXXX
+ * </strong>返回指定位置子元素的某种原始类型值，方法<strong>canToXXX</strong>
+ * 判定指定位置的子元素是否可以转换为这种原始类型，<strong>重设</strong>
+ * 指定位置的子元素调用方法set，在数组尾<strong>追加</strong>子元素调用append方法，
+ * 在指定位置<strong>插入</strong>子元素调用insert方法，<strong>批量添加</strong>
+ * 子元素调用addAll方法，<strong>删除</strong>指定位置的子元素调用方法remove。</p>
+ * 
+ * <p>方法<strong>isEmpty</strong>可以判断JsonArray实例是否包含
+ * 子元素，方法<strong>count</strong>返回子元素的的个数，方法
+ * <strong>clear</strong>可以清除所有的子元素。方法<strong>getType</strong>
+ * 返回JsonArray实例的类型JsonType.ARRAY。</p>
+ * 
  * @author bantouyan
- * @version 0.1
+ * @version 1.00
  */
 public class JsonArray extends Json
 {
@@ -229,7 +246,6 @@ public class JsonArray extends Json
     /**
      * 在指定位置向Json数组添加一个新元素，原来的元素依次后移。
      * @param element 要添加的新元素
-     * @return JsonArray实例是否发生改变
      */
     public void insert(int index, Json element)
     {
@@ -242,7 +258,6 @@ public class JsonArray extends Json
     /**
      * 在指定位置向Json数组添加一个新元素，原来的元素依次后移。
      * @param element 要添加的新元素
-     * @return JsonArray实例是否发生改变
      */
     public void insert(int index, String element)
     {
@@ -255,7 +270,6 @@ public class JsonArray extends Json
     /**
      * 在指定位置向Json数组添加一个新元素，原来的元素依次后移。
      * @param element 要添加的新元素
-     * @return JsonArray实例是否发生改变
      */
     public void insert(int index, long element)
     {
@@ -265,7 +279,6 @@ public class JsonArray extends Json
     /**
      * 在指定位置向Json数组添加一个新元素，原来的元素依次后移。
      * @param element 要添加的新元素
-     * @return JsonArray实例是否发生改变
      */
     public void insert(int index, double element)
     {
@@ -275,7 +288,6 @@ public class JsonArray extends Json
     /**
      * 在指定位置向Json数组添加一个新元素，原来的元素依次后移。
      * @param element 要添加的新元素
-     * @return JsonArray实例是否发生改变
      */
     public void insert(int index, boolean element)
     {
@@ -284,7 +296,6 @@ public class JsonArray extends Json
     
     /**
      * 在指定位置向Json数组添加一个NULL元素，原来的元素依次后移。
-     * @return JsonArray实例是否发生改变
      */
     public void insert(int index)
     {

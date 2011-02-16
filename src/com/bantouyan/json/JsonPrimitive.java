@@ -3,9 +3,16 @@ package com.bantouyan.json;
 import java.math.BigDecimal;
 
 /**
- * 用来表示String、Number、Boolean与null类型的Json实例，创建后不可更改。
+ * <p>用来表示String、Number、Boolean与null类型的Json实例，创建后不可更改，
+ * 且无需显示创建。</p>
+ * 
+ * <p>方法<strong>getXXX</strong>获取Json实例某种原始类型的值，方法
+ * <strong>canToXXX</strong>判定Json实例值是否可以转换为这种原始类型。方法
+ * <strong>getType</strong>返回Json实例的类型，方法<strong>isEmpty、count、
+ * clear</strong>仅仅是从超类Json继承来的占位符，无实际意义。</p>
+ * 
  * @author bantouyan
- * @version 0.1
+ * @version 1.00
  */
 public class JsonPrimitive extends Json
 {

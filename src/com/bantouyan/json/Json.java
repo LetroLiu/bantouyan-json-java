@@ -1,6 +1,5 @@
 package com.bantouyan.json;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Collection;
@@ -8,9 +7,25 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * 所有Json实例的超类，用来提供操作Json的通用接口。
+ * <p>所有Json实例的超类，用来提供操作Json的通用接口。</p>
+ * 
+ * <p><strong>生成Json实例</strong>，把文本转换为Json实例可以调用Json的类方法
+ * parseJsonText或parseJsonReader，如果想从Java集合生成Json实例，则可以调用
+ * Json的类方法parseJavaMap或parseJavaCollection。</p>
+ * 
+ * <p><strong>生成Json文本</strong>，调用generateJsonText可以把Json实例转换
+ * 为对应的Json文本。重写方法toString方法返回Json实例对应的文本，等同于调用不
+ * 带参数的方法generateJsonText。</p>
+ * 
+ * <p>方法<strong>isEmpty</strong>可以判断Json实例是否包含子元素，方法<strong>
+ * count</strong>返回子元素的的个数，方法<strong>clear</strong>可以清除所有的
+ * 子元素。getType方法Json实例的类型。</p>
+ * 
+ * <p创建、修改Json实例的过程中可能会产生Json实例间的<strong>循环引用</strong>，
+ * 可以用方法existsCircle检测。</p>
+ * 
  * @author bantouyan
- * @version 0.1
+ * @version 1.00
  */
 public abstract class Json
 {
@@ -147,10 +162,10 @@ public abstract class Json
     
     /**
      * 将Java对象转换为Json实例
-     * @param value
-     * @return
+     * @param value Java对象
+     * @return 对应的Json实例
      * @throws JsonException 如果Java对象已被（上级Json实例）引用，或无法解析，则抛出异常
-     * @throws EOFException 
+     * @throws JsonException 如果存在循环引用，或有无法解析的对象，则抛出异常。
      */
     private static Json changeToJson(Object value, IdentityStack parentRef) throws JsonException
     {
@@ -257,14 +272,14 @@ public abstract class Json
     public abstract void clear();
     
     /**
-     * 判断Json实例是否不含有任何成员或元素，JsonPrimitive返回false。
-     * @return
+     * 判断Json实例是否不含有任何子元素，JsonPrimitive返回false。
+     * @return 不包含任何子元素返回true，否则返回false
      */
     public abstract boolean isEmpty();
     
     /**
      * 返回Json实例子元素的数目， JsonPrimitive返回0。
-     * @return
+     * @return Json实例子元素的数目
      */
     public abstract int count();
     
@@ -347,18 +362,52 @@ public abstract class Json
     
     /**
      * Json实例的类型。
-     * OBJECT Json对象
-     * ARRAY Json数组
-     * STRING Json字符串
-     * INTEGER Json整型数值，用Long类型存储
-     * FLOAT Json浮点型数值，用Double类型存储
-     * BOOLEAN Json逻辑型，用Boolean类型存储
-     * NULL Json null类型
+     * OBJECT表示Json对象；
+     * ARRAY表示Json数组；
+     * STRING表示Json字符串；
+     * INTEGER表示Json整型数值，用Long类型存储；
+     * FLOAT表示Json浮点型数值，用Double类型存储；
+     * BOOLEAN表示Json逻辑型，用Boolean类型存储；
+     * NULL表示Json null类型。
+     * 
+     * @author bantouyan
+     * @version 0.1
      */
-    public static enum JsonType{OBJECT, ARRAY, STRING, INTEGER, FLOAT, BOOLEAN, NULL};
-    
-    public static void main(String[] args) throws Exception
+    public static enum JsonType
     {
-    }
-
+        /**
+         * 表示Json对象类型
+         */
+        OBJECT, 
+        
+        /**
+         * 表示Json数组类型
+         */
+        ARRAY, 
+        
+        /**
+         * 表示Json字符串类型
+         */
+        STRING, 
+        
+        /**
+         * 表示Json数值（整型，用Long存储）类型
+         */
+        INTEGER, 
+        
+        /**
+         * 表示Json数值（浮点型，用Double存储）类型
+         */
+        FLOAT, 
+        
+        /**
+         * 表示Json逻辑型（布尔型）数据
+         */
+        BOOLEAN, 
+        
+        /**
+         * 表示Json null类型
+         */
+        NULL
+    };
 }
