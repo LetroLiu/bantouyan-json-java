@@ -18,22 +18,30 @@ public class JsonObject extends Json
     //值为null的value，get以及转换为Json文本时当类型为NULL的Json实例处理
     private HashMap<String, Json> data = null;
     
+    /**
+     * 创建空的JsonObject实例。
+     */
     public JsonObject()
     {
         this.data = new HashMap<String, Json>();
     }
     
-    public JsonObject(HashMap<String, Json> data)
+    /**
+     * 根据已有的Map创建JsonObject实例。
+     * @param map 创建JsonObject的源数据，但会去掉map中key为null的key vlaue对
+     */
+    public JsonObject(Map<String, ? extends Json> map)
     {
-        if(data.containsKey(null)) data.remove(null);
+        this.data = new HashMap<String, Json>();
         
-        this.data = data;
+        if(map.containsKey(null)) map.remove(null);
+        this.data.putAll(map);
     }
     
     /**
-     * 返回指定name的Json实例，如果获取的Json实例是null，则返回type是NULL类型的Json实例。
-     * @param name
-     * @return 如果name为null，或不包含此name，则返回null
+     * 返回指定Name的子元素，如果子元素是null，则返回type是NULL类型的Json实例。
+     * @param name 子元素的Name
+     * @return 如果name为null，或不包含此name，则返回null，否则返回对应的子元素
      */
     public Json get(String name)
     {
@@ -50,8 +58,8 @@ public class JsonObject extends Json
     }
     
     /**
-     * 返回指定name的Json实例的字符串值，如果获取的Json实例是null，则按NULL类型返回。
-     * @param name
+     * 返回指定Name的子元素字符串值，如果获取的子元素是null，则按NULL类型返回。
+     * @param name 子元素的Name
      * @return 如果name为null，或不包含此name，则返回null
      */
     public String getString(String name)
@@ -62,161 +70,216 @@ public class JsonObject extends Json
     }
     
     /**
-     * 返回指定那么的Json实例的逻辑型（布尔型）值
-     * @param name
-     * @return 如果name为null，或不包含此name，则返回null
-     * @throws JsonException 如果name为null，或不存在此name，或类型bu匹配，则抛出异常
+     * 判断指定Name的子元素是否可以转换为逻辑型（布尔型）值。
+     * @param name 子元素的Name
+     * @return 可以返回true，否则返回false
      */
-    public boolean getBoolean(String name) throws JsonException
+    public boolean canToBoolean(String name)
     {
-        Json json = this.get(name);
-        
+        Json json = get(name);
         if(json == null)
         {
-            throw new JsonException("Parameter name is null or this object not contain such name");
+            return false;
         }
-        else 
+        else if(json instanceof JsonPrimitive)
         {
-            return json.getBoolean();
-        }
-    }
-    
-    /**
-     * 返回指定那么的Json实例的整型值
-     * @param name
-     * @return 如果name为null，或不包含此name，则返回null
-     * @throws JsonException 如果name为null，或不存在此name，或类型bu匹配，则抛出异常
-     */
-    public long getLong(String name) throws JsonException
-    {
-        Json json = this.get(name);
-        
-        if(json == null)
-        {
-            throw new JsonException("Parameter name is null or this object not contain such name");
+            return ((JsonPrimitive)json).canToBoolean();
         }
         else
         {
-            return json.getLong();
+            return false;
         }
     }
     
     /**
-     * 返回指定那么的Json实例的浮点型值
-     * @param name
+     * 返回指定Name的子元素的逻辑型（布尔型）值。
+     * @param name 子元素的Name
      * @return 如果name为null，或不包含此name，则返回null
-     * @throws JsonException 如果name为null，或不存在此name，或类型bu匹配，则抛出异常
+     * @throws JsonException 如果name为null，或不存在此name，或类型不匹配，则抛出异常
+     */
+    public boolean getBoolean(String name) throws JsonException
+    {
+        if(canToBoolean(name))
+        {
+            return ((JsonPrimitive)get(name)).getBoolean();
+        }
+        else
+        {
+            throw new JsonException("Cannot transfer element corresponding " + name + " to boolean value.");
+        }
+    }
+    
+    /**
+     * 判断指定Name的子元素是否可以转换为整型值
+     * @param name 子元素的Name
+     * @return 可以返回true，否则返回false
+     */
+    public boolean canToLong(String name)
+    {
+        Json json = get(name);
+        if(json == null)
+        {
+            return false;
+        }
+        else if(json instanceof JsonPrimitive)
+        {
+            return ((JsonPrimitive)json).canToLong();
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
+    /**
+     * 返回指定Name的子元素的整型值。
+     * @param name 子元素的Name
+     * @return 如果name为null，或不包含此name，则返回null
+     * @throws JsonException 如果name为null，或不存在此name，或类型不匹配，则抛出异常
+     */
+    public long getLong(String name) throws JsonException
+    {
+        if(canToBoolean(name))
+        {
+            return ((JsonPrimitive)get(name)).getLong();
+        }
+        else
+        {
+            throw new JsonException("Cannot transfer element corresponding " + name + " to long value.");
+        }
+    }
+    
+    /**
+     * 判断指定Name的子元素是否可以转换为浮点型值。
+     * @param name 子元素的Name
+     * @return 可以返回true，否则返回false
+     */
+    public boolean canToDouble(String name)
+    {
+        Json json = get(name);
+        if(json == null)
+        {
+            return false;
+        }
+        else if(json instanceof JsonPrimitive)
+        {
+            return ((JsonPrimitive)json).canToDouble();
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
+    /**
+     * 返回指定Name的子元素的浮点型值。
+     * @param name 子元素的Name
+     * @return 如果name为null，或不包含此name，则返回null
+     * @throws JsonException 如果name为null，或不存在此name，或类型不匹配，则抛出异常
      */
     public double getDouble(String name) throws JsonException
     {
-        Json json = this.get(name);
-        
-        if(json == null)
+        if(canToBoolean(name))
         {
-            throw new JsonException("Parameter name is null or this object not contain such name");
+            return ((JsonPrimitive)get(name)).getDouble();
         }
-        else 
+        else
         {
-            return json.getDouble();
+            throw new JsonException("Cannot transfer element corresponding " + name + " to double value.");
         }
     }
     
     /**
-     * 添加一个新的成员, 如果Name已经存在，则抛出异常。
-     * @param name 如果name为null，则不执行任何操作
-     * @param value
-     * @return null
-     * @throws JsonException 
+     * 添加一个指定Name的新子元素。
+     * @param name 子元素的Name
+     * @param value 子元素的值
+     * @throws JsonException 如果name为null，或已存在同名Name，则抛出异常
      */
-    public Json add(String name, Json value) throws JsonException
+    public void add(String name, Json value) throws JsonException
     {
-        if(name == null) return null;
-        
-        if(this.data.containsKey(name))
+        if(name == null)
+        {
+            throw new JsonException("Element Name in JsonObject cannot be null.");
+        }
+        else if(this.data.containsKey(name))
         {
             String msg = "Name \"" + name + "\" already exist in this JsonObject.";
             throw new JsonException(msg);
         }
-        return this.data.put(name, value);
+        this.data.put(name, value);
     }
 
     /**
-     * 添加一个新的成员, 如果Name已经存在，则抛出异常。
-     * @param name 如果name为null，则不执行任何操作
-     * @param value
-     * @return null
-     * @throws JsonException 
+     * 添加一个指定Name的新子元素。
+     * @param name 子元素的Name
+     * @param value 子元素的值
+     * @throws JsonException 如果name为null，或已存在同名Name，则抛出异常
      */
-    public Json add(String name, Jsonable value) throws JsonException
+    public void add(String name, Jsonable value) throws JsonException
     {
         Json json = (value == null)? Json.nullJson: value.generateJson();
-        return add(name, json);
+        add(name, json);
     }
 
     /**
-     * 添加一个新的成员, 如果Name已经存在，则抛出异常。
-     * @param name 如果name为null，则不执行任何操作
-     * @param value
-     * @return null
-     * @throws JsonException 
+     * 添加一个指定Name的新子元素。
+     * @param name 子元素的Name
+     * @param value 子元素的值
+     * @throws JsonException 如果name为null，或已存在同名Name，则抛出异常
      */
-    public Json add(String name, String value) throws JsonException
+    public void add(String name, String value) throws JsonException
     {
         Json json = (value == null)? Json.nullJson: new JsonPrimitive(value);
-        return add(name, json);
+        add(name, json);
     }
 
     /**
-     * 添加一个新的成员, 如果Name已经存在，则抛出异常。
-     * @param name 如果name为null，则不执行任何操作
-     * @param value
-     * @return null
-     * @throws JsonException 
+     * 添加一个指定Name的新子元素。
+     * @param name 子元素的Name
+     * @param value 子元素的值
+     * @throws JsonException 如果name为null，或已存在同名Name，则抛出异常
      */
-    public Json add(String name, long value) throws JsonException
+    public void add(String name, long value) throws JsonException
     {
-        return add(name, new JsonPrimitive(value));
+        add(name, new JsonPrimitive(value));
     }
 
     /**
-     * 添加一个新的成员, 如果Name已经存在，则抛出异常。
-     * @param name 如果name为null，则不执行任何操作
-     * @param value
-     * @return null
-     * @throws JsonException 
+     * 添加一个指定Name的新子元素。
+     * @param name 子元素的Name
+     * @param value 子元素的值
+     * @throws JsonException 如果name为null，或已存在同名Name，则抛出异常
      */
-    public Json add(String name, double value) throws JsonException
+    public void add(String name, double value) throws JsonException
     {
-        return add(name, new JsonPrimitive(value));
+        add(name, new JsonPrimitive(value));
     }
 
     /**
-     * 添加一个新的成员, 如果Name已经存在，则抛出异常。
-     * @param name 如果name为null，则不执行任何操作
-     * @param value
-     * @return null
-     * @throws JsonException 
+     * 添加一个指定Name的新子元素。
+     * @param name 子元素的Name
+     * @param value 子元素的值
+     * @throws JsonException 如果name为null，或已存在同名Name，则抛出异常
      */
-    public Json add(String name, boolean value) throws JsonException
+    public void add(String name, boolean value) throws JsonException
     {
-        return add(name, Json.getBooleanJson(value));
+        add(name, Json.getBooleanJson(value));
     }
 
     /**
-     * 添加一个新的NULL类型的Json成员, 如果Name已经存在，则抛出异常。
-     * @param name 如果name为null，则不执行任何操作
-     * @param value
-     * @return null
-     * @throws JsonException 
+     * 添加一个指定Name的新子元素，子元素是NULL类型实例。
+     * @param name 子元素的Name
+     * @throws JsonException 如果name为null，或已存在同名Name，则抛出异常
      */
-    public Json add(String name) throws JsonException
+    public void add(String name) throws JsonException
     {
-        return add(name, Json.nullJson);
+        add(name, Json.nullJson);
     }
     
     /**
-     * 批量添加成员,但忽略name为null的entry。
-     * @param map
+     * 批量添加子元素,但忽略name为null的entry。
+     * @param map 要添加的子元素Map
+     * @throws JsonException， 如果有同名子元素被加入，则抛出异常
      */
     public void addAll(Map<String, ? extends Json> map) throws JsonException
     {
@@ -247,9 +310,9 @@ public class JsonObject extends Json
     }
 
     /**
-     * 批量添加成员，但忽略name为null的entry。
-     * @param map
-     * @throws JsonException 
+     * 批量添加子元素,但忽略name为null的entry。
+     * @param map 要添加的子元素Map
+     * @throws JsonException， 如果有同名子元素被加入，则抛出异常
      */
     public void addAllJsonable(Map<String, ? extends Jsonable> map) throws JsonException
     {
@@ -260,10 +323,10 @@ public class JsonObject extends Json
     }
     
     /**
-     * 设置指定Name的成员， 如果不存在相应的Name，则创建新的成员。
+     * 设置指定Name的子元素， 如果不存在相应的Name，则相当于add()。
      * @param name 如果name为null，则不执行任何操作
-     * @param value
-     * @return 如果name不为null，则返回先前与name对应的value，否则null
+     * @param value 子元素的新值
+     * @return 如果name不为null，则返回与name对应的先前子元素，否则null
      */
     public Json set(String name, Json value)
     {
@@ -273,10 +336,10 @@ public class JsonObject extends Json
     }
 
     /**
-     * 设置指定Name的成员， 如果不存在相应的Name，则创建新的成员。
+     * 设置指定Name的子元素， 如果不存在相应的Name，则相当于add()。
      * @param name 如果name为null，则不执行任何操作
-     * @param value
-     * @return 如果name不为null，则返回先前与name对应的value，否则null
+     * @param value 子元素的新值
+     * @return 如果name不为null，则返回与name对应的先前子元素，否则null
      */
     public Json set(String name, Jsonable value)
     {
@@ -288,10 +351,10 @@ public class JsonObject extends Json
     }
 
     /**
-     * 设置指定Name的成员， 如果不存在相应的Name，则创建新的成员。
+     * 设置指定Name的子元素， 如果不存在相应的Name，则相当于add()。
      * @param name 如果name为null，则不执行任何操作
-     * @param value
-     * @return 如果name不为null，则返回先前与name对应的value，否则null
+     * @param value 子元素的新值
+     * @return 如果name不为null，则返回与name对应的先前子元素，否则null
      */
     public Json set(String name, String value)
     {
@@ -301,10 +364,10 @@ public class JsonObject extends Json
     }
 
     /**
-     * 设置指定Name的成员， 如果不存在相应的Name，则创建新的成员。
+     * 设置指定Name的子元素， 如果不存在相应的Name，则相当于add()。
      * @param name 如果name为null，则不执行任何操作
-     * @param value
-     * @return 如果name不为null，则返回先前与name对应的value，否则null
+     * @param value 子元素的新值
+     * @return 如果name不为null，则返回与name对应的先前子元素，否则null
      */
     public Json set(String name, long value)
     {
@@ -313,10 +376,10 @@ public class JsonObject extends Json
     }
 
     /**
-     * 设置指定Name的成员， 如果不存在相应的Name，则创建新的成员。
+     * 设置指定Name的子元素， 如果不存在相应的Name，则相当于add()。
      * @param name 如果name为null，则不执行任何操作
-     * @param value
-     * @return 如果name不为null，则返回先前与name对应的value，否则null
+     * @param value 子元素的新值
+     * @return 如果name不为null，则返回与name对应的先前子元素，否则null
      */
     public Json set(String name, double value)
     {
@@ -325,10 +388,10 @@ public class JsonObject extends Json
     }
 
     /**
-     * 设置指定Name的成员， 如果不存在相应的Name，则创建新的成员。
+     * 设置指定Name的子元素， 如果不存在相应的Name，则相当于add()。
      * @param name 如果name为null，则不执行任何操作
-     * @param value
-     * @return 如果name不为null，则返回先前与name对应的value，否则null
+     * @param value 子元素的新值
+     * @return 如果name不为null，则返回与name对应的先前子元素，否则null
      */
     public Json set(String name, boolean value)
     {
@@ -337,9 +400,9 @@ public class JsonObject extends Json
     }
 
     /**
-     * 设置指定Name的成员为NULL类型的Json实例， 如果不存在相应的Name，则创建新的成员。
+     * 设置指定Name的子元素为NULL类型的实例， 如果不存在相应的Name，则相当于add()。
      * @param name 如果name为null，则不执行任何操作
-     * @return 如果name不为null，则返回先前与name对应的value，否则null
+     * @return 如果name不为null，则返回与name对应的先前子元素，否则null
      */
     public Json set(String name)
     {
@@ -348,9 +411,8 @@ public class JsonObject extends Json
     }
 
     /**
-     * 批量设置成员，但忽略name为null的entry。
-     * @param name
-     * @param map
+     * 批量设置子元素，但忽略name为null的entry。
+     * @param map 批量子元素
      */
     public void setAll(Map<String, ? extends Json> map)
     {
@@ -359,9 +421,8 @@ public class JsonObject extends Json
     }
 
     /**
-     * 批量设置成员，但忽略name为null的entry。
-     * @param name
-     * @param map
+     * 批量设置子元素，但忽略name为null的entry。
+     * @param map 批量子元素
      */
     public void setAllJsonable(Map<String, ? extends Jsonable> map)
     { 
@@ -373,8 +434,8 @@ public class JsonObject extends Json
     }
     
     /**
-     * 删除指定Name的成员。
-     * @param name
+     * 删除指定Name的子元素。
+     * @param name 子元素的Name
      */
     public void remove(String name)
     {
@@ -382,9 +443,9 @@ public class JsonObject extends Json
     }
     
     /**
-     * 判断是否存在同名的name。
-     * @param name
-     * @return
+     * 判断是否存在指定Name的子元素。
+     * @param name 子元素的名字
+     * @return 存在返回true，否则返回false
      */
     public boolean containsName(String name)
     { 
@@ -392,8 +453,8 @@ public class JsonObject extends Json
     }
     
     /**
-     * 返回Json实例所有成员的Name。
-     * @return
+     * 返回Json实例所有子元素的Name组成的集合。
+     * @return 所有子元素的Name
      */
     public Set<String> nameSet()
     {
@@ -401,7 +462,7 @@ public class JsonObject extends Json
     }
     
     /**
-     * 清除所有的成员。
+     * 清除所有的子元素及其Name。
      */
     @Override
     public void clear()
@@ -410,7 +471,7 @@ public class JsonObject extends Json
     }
     
     /**
-     * 判断Json实例是否不含任何成员。
+     * 判断Json实例是否不含任何子元素。
      * @return
      */
     @Override
@@ -420,8 +481,8 @@ public class JsonObject extends Json
     }
     
     /**
-     * 返回所有的成员的数量。
-     * @return
+     * 返回所有的子元素的数量（按子元素的Name计算）。
+     * @return 子元素的数量
      */
     @Override
     public int count()
@@ -430,9 +491,9 @@ public class JsonObject extends Json
     }
         
     /**
-     * 生成Json文本。
+     * 生成Json文本，但不检测是否存在循环引用。
      * @param useStandard true生成标准文本，false则尝试在Object的name部分不加引号
-     * @return
+     * @return 对应的Json文本
      */
     @Override
     protected String generateJsonTextWithoutCheck(boolean useStandard)
@@ -480,50 +541,17 @@ public class JsonObject extends Json
     {
         return JsonType.OBJECT;
     }
-
+    
     /**
-     * 返回Json 实例的字符串值。
-     * @return
+     * 返回Json实例对应的字符串。
+     * @return 返回对应的标准Json文本
      */
     @Override
     public String getString()
     {
-        return this.toString();
+        return this.generateJsonText();
     }
-
-    /**
-     * 返回Json实例的整型值。
-     * @return
-     * @throws JsonException
-     */
-    @Override
-    public long getLong() throws JsonException
-    {
-        throw new JsonException("Cannot transfer JsonObject to long value.");
-    }
-
-    /**
-     * 返回Json实例的浮点型值。
-     * @return
-     * @throws JsonException
-     */
-    @Override
-    public double getDouble() throws JsonException
-    {
-        throw new JsonException("Cannot transfer JsonObject to double value.");
-    }
-
-    /**
-     * 返回Json实例的逻辑型（布尔型）值。
-     * @return
-     * @throws JsonException
-     */
-    @Override
-    public boolean getBoolean() throws JsonException
-    {
-        throw new JsonException("Cannot transfer JsonObject to boolean value.");
-    }
-
+    
     /**
      * 判断Json对象内是否存在循环引用
      * @param parentRef 上级Json对象的引用

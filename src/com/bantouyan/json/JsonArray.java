@@ -13,20 +13,28 @@ public class JsonArray extends Json
     //允许包含值为null的元素，但get及转换为Json文本时当NULL类型的Json实例处理
     private ArrayList<Json> data;
     
+    /**
+     * 创建空的JsonArray实例。
+     */
     public JsonArray()
     {
         this.data = new ArrayList<Json>();
     }
     
-    public JsonArray(ArrayList<Json> data)
-    {
-        this.data = data;
-    }
-    
     /**
-     * 获取指定位置的Json实例， 如果是null则返回 type是NULL类型的实例。
-     * @param index
-     * @return
+     * 根据Json集合创建JsonArray实例
+     * @param collection 源Json集合
+     */
+    public JsonArray(Collection<? extends Json> collection)
+    {
+        this.data = new ArrayList<Json>();
+        this.data.addAll(collection);
+    }
+        
+    /**
+     * 获取指定位置的子元素。
+     * @param index 子元素的位置
+     * @return 对应子元素的值， 如果是null则返回 type是NULL类型的实例
      */
     public Json get(int index)
     {
@@ -41,9 +49,9 @@ public class JsonArray extends Json
     }
     
     /**
-     * 返回指定位置Json实例的字符串值。
-     * @param index
-     * @return
+     * 获取指定位置子元素的字符串值。
+     * @param index 子元素的位置
+     * @return 子元素对应的字符串值，如果子元素是JsonPrimitive类型则无双引号，否则是对应的标准Json文本
      */
     public String getString(int index)
     {
@@ -51,65 +59,127 @@ public class JsonArray extends Json
     }
     
     /**
-     * 返回指定位置Json实例的逻辑型（布尔型）值。
-     * @param index
-     * @return
-     * @throws JsonException
+     * 判断指定位置的子元素是否可以转换为逻辑型（布尔型）值
+     * @param index 子元素的位置
+     * @return 可以返回true，否则返回false
+     */
+    public boolean canToBoolean(int index)
+    {
+        Json json = get(index);
+        if(json instanceof JsonPrimitive)
+        {
+            return ((JsonPrimitive)json).canToBoolean();
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
+    /**
+     * 返回指定位置子元素的逻辑型（布尔型）值。
+     * @param index 子元素的位置
+     * @return 子元素对应的逻辑型（布尔型）值
+     * @throws JsonException 如果子元素无法转换为逻辑型（布尔型）值则抛出异常
      */
     public boolean getBoolean(int index) throws JsonException
     {
-        return get(index).getBoolean();
+        if(canToBoolean(index))
+        {
+            return ((JsonPrimitive)get(index)).getBoolean();
+        }
+        else
+        {
+            throw new JsonException("Cannot transfer element at " + index + " to boolean value.");
+        }
     }
 
     /**
-     * 返回指定位置Json实例的整型值。
-     * @param index
-     * @return
-     * @throws JsonException
+     * 判断指定位置的子元素是否可以转换为整型值
+     * @param index 子元素的位置
+     * @return 可以返回true，否则返回false
+     */
+    public boolean canToLong(int index)
+    {
+        Json json = get(index);
+        if(json instanceof JsonPrimitive)
+        {
+            return ((JsonPrimitive)json).canToLong();
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
+    /**
+     * 返回指定位置子元素的整型值。
+     * @param index 子元素的位置
+     * @return 子元素对应的整型值
+     * @throws JsonException 如果子元素无法转换为整型值，则抛出异常
      */
     public long getLong(int index) throws JsonException
     {
-        return get(index).getLong();
+        if(canToBoolean(index))
+        {
+            return ((JsonPrimitive)get(index)).getLong();
+        }
+        else
+        {
+            throw new JsonException("Cannot transfer element at " + index + " to long value.");
+        }
     }
 
     /**
-     * 返回指定位置Json实例的浮点型值。
-     * @param index
-     * @return
-     * @throws JsonException
+     * 判断指定位置的子元素是否可以转换为浮点型值
+     * @param index 子元素的位置
+     * @return 可以返回true，否则返回false
+     */
+    public boolean canToDouble(int index)
+    {
+        Json json = get(index);
+        if(json instanceof JsonPrimitive)
+        {
+            return ((JsonPrimitive)json).canToDouble();
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
+    /**
+     * 返回指定位置子元素的浮点型值。
+     * @param index 子元素的位置
+     * @return 子元素对应的浮点型值
+     * @throws JsonException 如果子元素无法转换为浮点型值，则抛出异常
      */
     public double getDouble(int index) throws JsonException
     {
-        return get(index).getDouble();
+        if(canToBoolean(index))
+        {
+            return ((JsonPrimitive)get(index)).getDouble();
+        }
+        else
+        {
+            throw new JsonException("Cannot transfer element at " + index + " to double value.");
+        }
     }
     
     /**
      * 向Json数组末尾添加一个新元素。
-     * @param element
-     * @return JsonArray是否发生变动
+     * @param element 要添加的新元素
+     * @return JsonArray实例是否发生改变
      */
     public boolean append(Json element)
     {
         return this.data.add(element);
-    }    
+    } 
 
     /**
      * 向Json数组末尾添加一个新元素。
-     * @param element
-     * @return JsonArray是否发生变动
-     */
-    public boolean append(Jsonable element)
-    {
-        if(element == null)
-            return this.data.add(Json.nullJson);
-        
-        return this.data.add(element.generateJson());
-    }
-
-    /**
-     * 向Json数组末尾添加一个新元素。
-     * @param element
-     * @return JsonArray是否发生变动
+     * @param element 要添加的新元素
+     * @return JsonArray实例是否发生改变
      */
     public boolean append(String element)
     {
@@ -119,8 +189,8 @@ public class JsonArray extends Json
     
     /**
      * 向Json数组末尾添加一个新元素。
-     * @param element
-     * @return JsonArray是否发生变动
+     * @param element 要添加的新元素
+     * @return JsonArray实例是否发生改变
      */
     public boolean append(long element)
     {
@@ -129,8 +199,8 @@ public class JsonArray extends Json
     
     /**
      * 向Json数组末尾添加一个新元素。
-     * @param element
-     * @return JsonArray是否发生变动
+     * @param element 要添加的新元素
+     * @return JsonArray实例是否发生改变
      */
     public boolean append(double element)
     {
@@ -139,8 +209,8 @@ public class JsonArray extends Json
     
     /**
      * 向Json数组末尾添加一个新元素。
-     * @param element
-     * @return JsonArray是否发生变动
+     * @param element 要添加的新元素
+     * @return JsonArray实例是否发生改变
      */
     public boolean append(boolean element)
     {
@@ -149,7 +219,7 @@ public class JsonArray extends Json
     
     /**
      * 向Json数组末尾添加一个NULL类型的Json实例
-     * @return JsonArray是否发生变动
+     * @return JsonArray实例是否发生改变
      */
     public boolean append()
     {
@@ -158,8 +228,8 @@ public class JsonArray extends Json
     
     /**
      * 在指定位置向Json数组添加一个新元素，原来的元素依次后移。
-     * @param index
-     * @param element
+     * @param element 要添加的新元素
+     * @return JsonArray实例是否发生改变
      */
     public void insert(int index, Json element)
     {
@@ -171,21 +241,8 @@ public class JsonArray extends Json
 
     /**
      * 在指定位置向Json数组添加一个新元素，原来的元素依次后移。
-     * @param index
-     * @param element
-     */
-    public void insert(int index, Jsonable element)
-    {
-        if(element == null)
-            this.data.add(Json.nullJson);
-        else
-            this.data.add(index, element.generateJson());
-    }
-
-    /**
-     * 在指定位置向Json数组添加一个新元素，原来的元素依次后移。
-     * @param index
-     * @param element
+     * @param element 要添加的新元素
+     * @return JsonArray实例是否发生改变
      */
     public void insert(int index, String element)
     {
@@ -197,8 +254,8 @@ public class JsonArray extends Json
 
     /**
      * 在指定位置向Json数组添加一个新元素，原来的元素依次后移。
-     * @param index
-     * @param element
+     * @param element 要添加的新元素
+     * @return JsonArray实例是否发生改变
      */
     public void insert(int index, long element)
     {
@@ -207,8 +264,8 @@ public class JsonArray extends Json
 
     /**
      * 在指定位置向Json数组添加一个新元素，原来的元素依次后移。
-     * @param index
-     * @param element
+     * @param element 要添加的新元素
+     * @return JsonArray实例是否发生改变
      */
     public void insert(int index, double element)
     {
@@ -217,8 +274,8 @@ public class JsonArray extends Json
 
     /**
      * 在指定位置向Json数组添加一个新元素，原来的元素依次后移。
-     * @param index
-     * @param element
+     * @param element 要添加的新元素
+     * @return JsonArray实例是否发生改变
      */
     public void insert(int index, boolean element)
     {
@@ -227,7 +284,7 @@ public class JsonArray extends Json
     
     /**
      * 在指定位置向Json数组添加一个NULL元素，原来的元素依次后移。
-     * @param index
+     * @return JsonArray实例是否发生改变
      */
     public void insert(int index)
     {
@@ -236,7 +293,7 @@ public class JsonArray extends Json
     
     /**
      * 向Json数组末尾批量添加元素。
-     * @param list
+     * @param list 要添加的元素
      */
     public void addAll(Collection<? extends Json> list)
     {
@@ -245,8 +302,8 @@ public class JsonArray extends Json
     
     /**
      * 在指定位置向Json数组批量添加元素，原来的元素依次后移。
-     * @param index
-     * @param list
+     * @param index 指定的位置
+     * @param list 要添加的元素
      */
     public void addAll(int index, Collection<? extends Json> list)
     {
@@ -255,7 +312,7 @@ public class JsonArray extends Json
     
     /**
      * 向Json数组末尾批量添加元素。
-     * @param list
+     * @param list 要添加的元素
      */
     public void addAllJsonable(Collection<? extends Jsonable> list)
     {
@@ -267,8 +324,8 @@ public class JsonArray extends Json
     
     /**
      * 在指定位置向Json数组批量添加元素，原来的元素依次后移。
-     * @param index
-     * @param list
+     * @param index 指定的位置
+     * @param list 要添加的元素
      */
     public void addAllJsonable(int index, Collection<? extends Jsonable> list)
     {
@@ -282,31 +339,21 @@ public class JsonArray extends Json
     
     /**
      * 设置Json数组指定位置的元素。
-     * @param index
-     * @param element
+     * @param index 指定的位置
+     * @param element 子元素的新值
      */
     public void set(int index, Json element)
-    {
-        this.data.set(index, element);
-    }
-
-    /**
-     * 设置Json数组指定位置的元素。
-     * @param index
-     * @param element
-     */
-    public void set(int index, Jsonable element)
     {
         if(element == null)
             this.data.set(index, Json.nullJson);
         else
-            this.data.set(index, element.generateJson());
+            this.data.set(index, element);
     }
 
     /**
      * 设置Json数组指定位置的元素。
-     * @param index
-     * @param element
+     * @param index 指定的位置
+     * @param element 子元素的新值
      */
     public void set(int index, String element)
     {
@@ -318,8 +365,8 @@ public class JsonArray extends Json
 
     /**
      * 设置Json数组指定位置的元素。
-     * @param index
-     * @param element
+     * @param index 指定的位置
+     * @param element 子元素的新值
      */
     public void set(int index, long element)
     {
@@ -328,8 +375,8 @@ public class JsonArray extends Json
 
     /**
      * 设置Json数组指定位置的元素。
-     * @param index
-     * @param element
+     * @param index 指定的位置
+     * @param element 子元素的新值
      */
     public void set(int index, double element)
     {
@@ -338,8 +385,8 @@ public class JsonArray extends Json
 
     /**
      * 设置Json数组指定位置的元素。
-     * @param index
-     * @param element
+     * @param index 指定的位置
+     * @param element 子元素的新值
      */
     public void set(int index, boolean element)
     {
@@ -348,7 +395,7 @@ public class JsonArray extends Json
 
     /**
      * 设置Json数组指定位置的元素为NULL类型的Json实例。
-     * @param index
+     * @param index 指定的位置
      */
     public void set(int index)
     {
@@ -357,7 +404,7 @@ public class JsonArray extends Json
     
     /**
      * 删除Json数组指定位置的元素，后续的元素依次前移。
-     * @param index
+     * @param index 指定的位置
      */
     public void remove(int index)
     {
@@ -365,8 +412,8 @@ public class JsonArray extends Json
     }
     
     /**
-     * 返回Json数组的元素个数。
-     * @return
+     * 返回Json数组的子元素个数。
+     * @return Json数组内元素的个数
      */
     @Override
     public int count()
@@ -375,7 +422,7 @@ public class JsonArray extends Json
     }
     
     /**
-     * 清楚Json数组中的所有元素。
+     * 清除Json数组中的所有元素。
      */
     @Override
     public void clear()
@@ -385,7 +432,7 @@ public class JsonArray extends Json
     
     /**
      * 判断Json数组是否为空数组。
-     * @return
+     * @return 空数组返回true，否则返回false
      */
     @Override
     public boolean isEmpty()
@@ -394,9 +441,9 @@ public class JsonArray extends Json
     }
     
     /**
-     * 生成Json文本。
+     * 生成Json文本，但不检测循环引用。
      * @param useStandard true生成标准文本，false则尝试在Object的name部分不加引号
-     * @return
+     * @return 对应的Json文本
      */
     @Override
     protected String generateJsonTextWithoutCheck(boolean useStandard)
@@ -424,57 +471,24 @@ public class JsonArray extends Json
     {
         return JsonType.ARRAY;
     }
-
+    
     /**
-     * 返回Json 实例的字符串值。
-     * @return
+     * 返回Json实例对应的字符串。
+     * @return 对应的标准Json文本
      */
     @Override
     public String getString()
     {
-        return this.toString();
+        return this.generateJsonText();
     }
 
     /**
-     * 返回Json实例的整型值。
-     * @return
-     * @throws JsonException
+     * 判断Json实例内是否存在循环引用。
+     * @param parentRef 上级Json对象堆栈，用于检测循环引用
+     * @return 有循环引用返回true，否则返回false
      */
     @Override
-    public long getLong() throws JsonException
-    {
-        throw new JsonException("Cannot transfer JsonObject to long value.");
-    }
-
-    /**
-     * 返回Json实例的浮点型值。
-     * @return
-     * @throws JsonException
-     */
-    @Override
-    public double getDouble() throws JsonException
-    {
-        throw new JsonException("Cannot transfer JsonObject to double value.");
-    }
-
-    /**
-     * 返回Json实例的逻辑型（布尔型）值。
-     * @return
-     * @throws JsonException
-     */
-    @Override
-    public boolean getBoolean() throws JsonException
-    {
-        throw new JsonException("Cannot transfer JsonObject to boolean value.");
-    }
-
-    /**
-     * 判断Json对象内是否存在循环引用
-     * @param parentRef 上级Json对象的引用
-     * @return
-     */
-    @Override
-    public boolean existsCircle(IdentityStack parentRef)
+    protected boolean existsCircle(IdentityStack parentRef)
     {
         if(parentRef.contains(this)) return true;
         

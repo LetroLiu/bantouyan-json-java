@@ -2,12 +2,13 @@ package com.bantouyan.json;
 
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * 所有Json类的超类，用来提供操作Json的通用接口。
+ * 所有Json实例的超类，用来提供操作Json的通用接口。
  * @author bantouyan
  * @version 0.1
  */
@@ -18,9 +19,9 @@ public abstract class Json
     protected static Json falseJson = new JsonPrimitive(false);
     
     /**
-     * 返回逻辑型的Json实例
-     * @param value
-     * @return
+     * 返回逻辑型的Json实例。
+     * @param value 所需要的Json实例对应的逻辑型值
+     * @return 对应的Json实例
      */
     protected static Json getBooleanJson(boolean value)
     {
@@ -29,10 +30,10 @@ public abstract class Json
     
     /**
      * 解析Json字符串为Json实例。
-     * @param jsonText
-     * @return
-     * @throws IOException
-     * @throws JsonException
+     * @param jsonText Json文本
+     * @return 对应的Json实例
+     * @throws IOException 发生了IO异常
+     * @throws JsonException Json文本格式不正确
      */
     public static Json parseJsonText(String jsonText) throws IOException, JsonException
     {
@@ -45,9 +46,26 @@ public abstract class Json
     }
     
     /**
+     * 解析reader包含的Json文本流为Json实例。
+     * @param reader 包含Json文本的Reader实例
+     * @return 对应的Json实例
+     * @throws IOException 读写reader发生异常
+     * @throws JsonException reader所包含的Json文本格式不正确
+     */
+    public static Json parseJsonReader(Reader reader) throws IOException, JsonException
+    {
+        Json json = null;
+        
+        JsonTextParser jsonParser = new JsonTextParser(reader);
+        json = jsonParser.parse();
+        
+        return json;
+    }
+    
+    /**
      * 将Java Map实例解析为JsonObject实例。
-     * @param map
-     * @return JsonObject实例
+     * @param map 要解析的Java Map实例
+     * @return 对应的JsonObject实例
      * @throws JsonException 如果Map内存在循环引用，或有无法解析的对象，则抛出异常。
      */
     public static JsonObject parseJavaMap(Map<?, ?> map) throws JsonException
@@ -58,10 +76,10 @@ public abstract class Json
     
     /**
      * 将Java Map实例解析为JsonObject实例。
-     * @param map
-     * @param parentRef 直系上级Json实例的集合
-     * @return
-     * @throws JsonException 如果Map元素已被（上级Json实例）引用，或有无法解析的对象，则抛出异常。
+     * @param map 要解析的Java Map实例
+     * @param parentRef 上级对象的堆栈，用于检测循环引用
+     * @return 对应的JsonObject实例
+     * @throws JsonException 如果Map元素已被（上级对象）引用，或有无法解析的对象，则抛出异常。
      */
     private static JsonObject parseJavaMap(Map<?, ?> map, IdentityStack parentRef)
     throws JsonException
@@ -91,8 +109,8 @@ public abstract class Json
     
     /**
      * 将Java Collection实例解析为JsonArray实例。
-     * @param collection
-     * @return JsonArray实例
+     * @param collection 要解析的Java Collection实例
+     * @return 对应的JsonArray实例
      * @throws JsonException 如果Collection内存在循环引用，或有无法解析的对象，则抛出异常。
      */
     public static JsonArray parseJavaCollection(Collection<?> collection) throws JsonException
@@ -103,10 +121,10 @@ public abstract class Json
     
     /**
      * 将Java Collection实例解析为JsonArray实例。
-     * @param collection
-     * @param parentRef 直系上级Json实例的集合
-     * @return
-     * @throws JsonException 如果Collection元素已被（上级Json实例）引用，或无法解析，则抛出异常
+     * @param collection 要解析的Java Collection实例
+     * @param parentRef 上级对象的堆栈，用于检测循环引用
+     * @return 对应的JsonArray实例
+     * @throws JsonException 如果Collection内存在循环引用，或有无法解析的对象，则抛出异常。
      */
     private static JsonArray parseJavaCollection(Collection<?> collection, IdentityStack parentRef)
     throws JsonException
@@ -195,8 +213,7 @@ public abstract class Json
     /**
      * 生成Json文本。
      * @param useStandard true生成标准文本，false则尝试在Object的name部分不加引号
-     * @param useStandard
-     * @return
+     * @return 对应的Json文本
      * @throws JsonException 如果Json实例内出现了循环引用，则抛出此异常
      */
     public final String generateJsonText(boolean useStandard)throws JsonException
@@ -209,16 +226,15 @@ public abstract class Json
     }
 
     /**
-     * 生成Json文本。
+     * 生成Json文本，但不检测循环引用。
      * @param useStandard true生成标准文本，false则尝试在Object的name部分不加引号
-     * @param useStandard
-     * @return
+     * @return 对应的Json文本
      */
     protected abstract String generateJsonTextWithoutCheck(boolean useStandard);
     
     /**
-     * 判断Json对象内是否存在循环引用
-     * @return
+     * 判断Json对象内是否存在循环引用。
+     * @return 有循环引用返回true，否则返回false
      */
     public final boolean existsCircle()
     {
@@ -229,9 +245,9 @@ public abstract class Json
     }
     
     /**
-     * 判断Json对象内是否存在循环引用
-     * @param parentRef 上级Json对象的引用
-     * @return
+     * 判断Json实例内是否存在循环引用。
+     * @param parentRef 上级Json对象堆栈，用于检测循环引用
+     * @return 有循环引用返回true，否则返回false
      */
     protected abstract boolean existsCircle(IdentityStack parentRef);
     
@@ -247,43 +263,22 @@ public abstract class Json
     public abstract boolean isEmpty();
     
     /**
-     * 返回Json实例成员或元素的数目， JsonPrimitive返回1。
+     * 返回Json实例子元素的数目， JsonPrimitive返回0。
      * @return
      */
     public abstract int count();
     
     /**
      * 返回Json实例的类型。
-     * @return
+     * @return 对应的Json类型
      */
     public abstract JsonType getType();
     
     /**
-     * 如果是STRING类型，返回Json实例的原始字符串值，否则返回对应的Json文本。
-     * @return
+     * 返回Json实例对应的字符串。
+     * @return Primitive实例返回不带引号的字符串，其他实例返回标准Json文本
      */
     public abstract String getString();
-    
-    /**
-     * 返回Json实例的整型值。
-     * @return
-     * @throws JsonException
-     */
-    public abstract long getLong() throws JsonException;
-    
-    /**
-     * 返回Json实例的浮点型值。
-     * @return
-     * @throws JsonException
-     */
-    public abstract double getDouble() throws JsonException;
-    
-    /** 
-     * 返回Json实例的逻辑型（布尔型）值。
-     * @return
-     * @throws JsonException
-     */
-    public abstract boolean getBoolean() throws JsonException;
     
     /**
      * 转换为标准的Json字符串。
@@ -294,6 +289,11 @@ public abstract class Json
         return generateJsonText();
     }
     
+    /**
+     * 判断是否相等。
+     * @param obj 要比较的对象
+     * @return 如果都是Json实例，且对应的标准Json文本相等，则返回true，否则返回false
+     */
     @Override
     public final boolean equals(Object obj)
     {
@@ -328,6 +328,10 @@ public abstract class Json
         }
     }
     
+    /**
+     * Json实例的hash值
+     * @return 根据对应的标准Json文本生成hash值
+     */
     @Override
     public final int hashCode()
     {
@@ -343,10 +347,17 @@ public abstract class Json
     
     /**
      * Json实例的类型。
+     * OBJECT Json对象
+     * ARRAY Json数组
+     * STRING Json字符串
+     * INTEGER Json整型数值，用Long类型存储
+     * FLOAT Json浮点型数值，用Double类型存储
+     * BOOLEAN Json逻辑型，用Boolean类型存储
+     * NULL Json null类型
      */
     public static enum JsonType{OBJECT, ARRAY, STRING, INTEGER, FLOAT, BOOLEAN, NULL};
     
-    public static void main(String[] args) throws IOException, JsonException
+    public static void main(String[] args) throws Exception
     {
     }
 
