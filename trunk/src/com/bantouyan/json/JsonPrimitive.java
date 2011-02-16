@@ -13,7 +13,7 @@ public class JsonPrimitive extends Json
     private Object data;
     
     /**
-     * 创建值为null的Json实例
+     * 创建值为null的Json实例。
      */
     protected JsonPrimitive()
     {
@@ -23,7 +23,7 @@ public class JsonPrimitive extends Json
     
     /**
      * 创建浮点型的Json实例。
-     * @param data
+     * @param data 创建Json的浮点型数值
      */
     protected JsonPrimitive(Double data)
     {
@@ -33,7 +33,7 @@ public class JsonPrimitive extends Json
 
     /**
      * 创建整型的Json实例。
-     * @param data
+     * @param data 创建Json的整型数值
      */
     protected JsonPrimitive(Long data)
     {
@@ -43,7 +43,7 @@ public class JsonPrimitive extends Json
     
     /**
      * 创建数值型（整型或浮点型）Json实例。
-     * @param data
+     * @param data 创建Json的数值
      */
     protected JsonPrimitive(Number data)
     {
@@ -63,7 +63,7 @@ public class JsonPrimitive extends Json
     
     /**
      * 创建字符串型Json实例。
-     * @param data
+     * @param data 创建Json的字符串
      */
     protected JsonPrimitive(String data)
     {
@@ -73,7 +73,7 @@ public class JsonPrimitive extends Json
     
     /**
      * 创建逻辑型（布尔型）Json实例。
-     * @param data
+     * @param data 创建Json的逻辑型（布尔型）值
      */
     protected JsonPrimitive(Boolean data)
     {
@@ -83,8 +83,8 @@ public class JsonPrimitive extends Json
 
     /**
      * 生成Json文本。
-     * @param useStandard 无意义，被忽略
-     * @return
+     * @param useStandard 无意义，此方法内被被忽略
+     * @return 对应的Json文本，字符串型返回带双引号的字符串，其他原始类型返回不带引号的字符串
      */
     @Override
     protected String generateJsonTextWithoutCheck(boolean useStandard)
@@ -108,7 +108,7 @@ public class JsonPrimitive extends Json
     
     /**
      * 返回Json 实例的字符串值。
-     * @return
+     * @return 返回对应的字符串，不带引号
      */
     @Override
     public String getString()
@@ -117,11 +117,33 @@ public class JsonPrimitive extends Json
     }
     
     /**
-     * 返回逻辑型（布尔型）值。
-     * @return
-     * @throws JsonException
+     * 判断是否可以转换为逻辑型（布尔型）值
+     * @return 是返回true，否则返回false
      */
-    @Override
+    public boolean canToBoolean()
+    {
+        if(this.type == JsonType.BOOLEAN)
+        {
+            return true;
+        }
+        else if(this.type == JsonType.STRING)
+        {
+            String str = this.data.toString();
+            str = str.trim().toLowerCase();
+            return (str.equals("true") || str.equals("false"))? true: false;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
+    
+    /**
+     * 返回逻辑型（布尔型）值，当Json类型不是BOOLEAN也不是字符串true、false时抛出异常。
+     * @return 对应的逻辑型（布尔型）值
+     * @throws JsonException 无法转换为逻辑型值
+     */
     public boolean getBoolean() throws JsonException
     {
         if(this.type == JsonType.BOOLEAN)
@@ -131,6 +153,7 @@ public class JsonPrimitive extends Json
         else if(this.type == JsonType.STRING)
         {
             String str = this.data.toString();
+            str = str.trim().toLowerCase();
             if(str.equals("true"))
             {
                 return true;
@@ -151,11 +174,32 @@ public class JsonPrimitive extends Json
     }
     
     /**
-     * 返回整型值。
-     * @return
-     * @throws JsonException
+     * 判断是否可以转换为整型值。
+     * @return 是返回true，否则返回false
      */
-    @Override
+    public boolean canToLong()
+    {
+        if(this.type == JsonType.INTEGER)
+        {
+            return true;
+        }
+        else if(this.type == JsonType.STRING)
+        {
+            String str = this.data.toString();
+            return (str.matches("\\s*-?\\d+\\s*"))? true: false;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
+    
+    /**
+     * 返回整型值，当Json类型不是INTEGER也不是可以转换为整型数值的字符串时抛出异常。
+     * @return 对应的整型值
+     * @throws JsonException 无法转换为整型值
+     */
     public long getLong() throws JsonException
     {
         if(this.type == JsonType.INTEGER)
@@ -167,11 +211,11 @@ public class JsonPrimitive extends Json
             Long value = null;
             try
             {
-                value = Long.parseLong(this.data.toString());
+                value = Long.parseLong(this.data.toString().trim());
             } 
             catch (NumberFormatException e)
             {
-                throw new JsonException("Cannot transfer String \"" + this.data.toString() + "\" to integer value.");
+                throw new JsonException("Cannot transfer String \"" + this.data.toString() + "\" to long value.");
             }
             return value;
         }
@@ -182,11 +226,32 @@ public class JsonPrimitive extends Json
     }
     
     /**
-     * 返回浮点型值。
-     * @return
-     * @throws JsonException
+     * 判断是否可以转换为浮点型值。
+     * @return 是返回true，否则返回false
      */
-    @Override
+    public boolean canToDouble()
+    {
+        if(this.type == JsonType.FLOAT || this.type == JsonType.INTEGER)
+        {
+            return true;
+        }
+        else if(this.type == JsonType.STRING)
+        {
+            String str = this.data.toString();
+            return (str.matches("\\s*[+-]?\\d+(\\.\\d*)?([eE][+-]?\\d+)?\\s*"))? true: false;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
+    
+    /**
+     * 返回浮点型值，当Json类型不是FLOAT也不是可以转换为浮点型数值的字符串时抛出异常。
+     * @return 对应的浮点型值
+     * @throws JsonException 无法转换为浮点型值
+     */
     public double getDouble() throws JsonException
     {
         if(this.type == JsonType.FLOAT)
@@ -207,7 +272,7 @@ public class JsonPrimitive extends Json
             } 
             catch (NumberFormatException e)
             {
-                throw new JsonException("Cannot transfer String \"" + this.data.toString() + "\" to float value.");
+                throw new JsonException("Cannot transfer String \"" + this.data.toString() + "\" to double value.");
             }
             return value;
         }
@@ -216,17 +281,20 @@ public class JsonPrimitive extends Json
             throw new JsonException("Cannot transfer to double value for type is not FLOAT.");
         }
     }
+    
 
     /**
-     * 无意义，不做任何操作。
+     * 清空Json实例的所有子元素，对Primitive类型的Json实例无意义，故不做任何操作。
      */
     @Override
     public void clear()
     {
     }
 
+    
     /**
-     * 无意义，返回false。
+     * Json实例是否包含子元素，对Primitive类型的Json实例无意义，返回true。
+     * @return true
      */
     @Override
     public boolean isEmpty()
@@ -234,19 +302,22 @@ public class JsonPrimitive extends Json
         return false;
     }
 
+    
     /**
-     * 无意义，返回1。
+     * Json实例子元素的个数，对Primitive类型的Json实例无意义，返回0。
+     * @return 0
      */
     @Override
     public int count()
     {
-        return 1;
+        return 0;
     }
 
+    
     /**
-     * 判断Json对象内是否存在循环引用
+     * 判断Json实例内是否存在循环引用，对Primitive类型的Json实例无意义，返回false
      * @param parentRef 上级Json对象的引用
-     * @return
+     * @return false
      */
     @Override
     protected boolean existsCircle(IdentityStack parentRef)

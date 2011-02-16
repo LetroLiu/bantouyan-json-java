@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.StringReader;
 
 /**
- * 内部类，用来将Reader或String解析成Json类实例
+ * 内部类，用来将Reader或String解析成Json类实例，仅供此Json库内部使用。
  * @author bantouyan
  * @version 0.1
  */
@@ -33,9 +33,9 @@ class JsonTextParser
 //    private char c; // the variant c used to debug, so needn't it
     
     /**
-     * 用Reader新建一个JsonTextParser对象
-     * @param reader
-     * @throws IOException
+     * 用Reader新建一个JsonTextParser对象。
+     * @param reader 提供Json字符流
+     * @throws IOException 读写Reader发生异常
      */
     public JsonTextParser(Reader reader) throws IOException
     {
@@ -45,9 +45,9 @@ class JsonTextParser
     }
     
     /**
-     * 用字符串新建一个JsonTextParser对象
-     * @param text
-     * @throws IOException
+     * 用字符串新建一个JsonTextParser对象。
+     * @param text Json文本
+     * @throws IOException 读取Reader（内部使用）发生异常
      */
     public JsonTextParser(String text)throws IOException
     {
@@ -60,7 +60,7 @@ class JsonTextParser
     
     /**
      * 
-     * 根据reader内容解析成JsonObject或JsonArray
+     * 根据reader内容解析成JsonObject或JsonArray。
      * @return 解析后的JsonObject或JsonArray
      * @throws IOException 读取reader有误
      * @throws JsonException 不符合Json格式
@@ -97,8 +97,8 @@ class JsonTextParser
      * 从当前字符开始解析JsonObject实例，
      * 进入时pos指向字符'{'，退出时指向对应的'}'之后的第一个字符。
      * @return 对应的JsonObject实例
-     * @throws IOException
-     * @throws JsonException
+     * @throws IOException 读取Reader发生异常
+     * @throws JsonException Json格式不正确（无法解析成JsonObject）或Name出现重复
      */
     private Json parseObject() throws IOException, JsonException
     {
@@ -144,8 +144,8 @@ class JsonTextParser
      * 从当前字符开始解析JsonArray实例，
      * 进入时pos指向字符'['，退出时指向对应的']'之后的第一个字符。
      * @return 对应的JsonArray实例
-     * @throws IOException
-     * @throws JsonException
+     * @throws IOException 读取Reader发生异常
+     * @throws JsonException Json格式不正确（无法解析成JsonArray）
      */
     private Json parseArray() throws IOException, JsonException
     {
@@ -179,11 +179,11 @@ class JsonTextParser
     }
     
     /**
-     * 解析Json Object的name部分，进入时指向name部分（包括开始的空白）的第一个字符，
+     * 解析Json Object的name部分，进入时指向name部分（包括前导空白）的第一个字符，
      * 退出时指向字符':'后的第一个字符。
      * @return 表示name的String
-     * @throws IOException
-     * @throws JsonException
+     * @throws IOException 读取Reader发生异常
+     * @throws JsonException Json格式不正确（无法解析出一个表示Name的字符串或无法找到结束字符“:”）
      */
     private String parseName() throws IOException, JsonException
     {
@@ -232,11 +232,11 @@ class JsonTextParser
     
     /**
      * 解析子Json实例， 包括 JsonObject、JsonArray以及JsonPrimitive value，
-     * 进入时指向表示value（包含空白）的第一个字符，
-     * 退出时指向value（可不包含空白）之后的第一个字符。
-     * @return
-     * @throws IOException
-     * @throws JsonException
+     * 进入时指向表示value（包含前导空白）的第一个字符，
+     * 退出时指向value（可不包含尾空白）之后的第一个字符。
+     * @return Json实例
+     * @throws IOException 读取Reader发生异常
+     * @throws JsonException Json格式不正确（无法解析成Json实例）
      */
     private Json parseValue(int endChar) throws IOException, JsonException
     {
@@ -334,10 +334,10 @@ class JsonTextParser
     }
     
     /**
-     * 解析不带引号的字符串，进入时pos指向字符串的开头，退出时指向字符串的下一个字符
-     * @return
-     * @throws IOException
-     * @throws JsonException
+     * 解析不带引号的字符串，进入时pos指向字符串的开头，退出时指向字符串的下一个字符。
+     * @return 所解析的字符串
+     * @throws IOException 读取Reader发生异常
+     * @throws JsonException Json格式不正确（无法解析出一个不带引号的String）
      */
     private String parseString() throws IOException, JsonException
     {
@@ -371,11 +371,11 @@ class JsonTextParser
     }
     
     /**
-     * 解析带引号的字符串，进入时pos指向开头的引号，退出时指向结尾的引号的下一个字符
+     * 解析带引号的字符串，进入时pos指向开头的引号，退出时指向结尾的引号的下一个字符。
      * @param quoteChar 字符串所使用的引号，' or "
-     * @return
-     * @throws IOException
-     * @throws JsonException
+     * @return 所解析的字符串
+     * @throws IOException 读取Reader发生异常
+     * @throws JsonException Json格式不正确（无法解析出一个带引号String）
      */
     private String parseString(int quoteChar) throws IOException, JsonException
     {
@@ -466,9 +466,9 @@ class JsonTextParser
     
     /**
      * 解析Number字符串， 进入时pos指向Number的第一个字符，退出时指向Number的下一个字符
-     * @return
-     * @throws IOException
-     * @throws JsonException
+     * @return Number对象（Long或Double类型）
+     * @throws IOException 读取Reader发生异常
+     * @throws JsonException Json格式不正确（无法解析成一个Json Number）
      */
     private Number parseNumber() throws IOException, JsonException
     {
@@ -574,10 +574,10 @@ class JsonTextParser
      * 从当前字符开始解析剩余的空白字符串，遇到终止字符前出现其他字符或EOF为异常。
      * 进入时pos指向空白字符，或endsChar中的字符，
      * 退出时指向遇到的第一个endsChar字符。
-     * @param endChar1 不能是-1
-     * @param endChar2 不能是-1
-     * @throws IOException
-     * @throws JsonException
+     * @param endChar1 终止字符，不能是-1（-1表示Reader已到达尾部，即EOF）
+     * @param endChar2 终止字符，不能是-1（-1表示Reader已到达尾部，即EOF）
+     * @throws IOException 读取Reader发生异常
+     * @throws JsonException Json格式不正确（遇到终止字符前读到非空白字符或已到达Reader尾部）
      */
     private void parseTailBlank(int endChar1, int endChar2) throws IOException, JsonException
     {
@@ -610,9 +610,9 @@ class JsonTextParser
      * 从当前字符开始解析剩余的空白字符串，遇到终止字符前出现其他字符或EOF为异常。
      * 进入时pos指向空白字符，或endsChar中的字符，
      * 退出时指向遇到的第一个endsChar字符。
-     * @param endChar 可以用-1表示终止字符为EOF
-     * @throws IOException
-     * @throws JsonException
+     * @param endChar 可以用-1表示期望到达Reader尾部，即EOF
+     * @throws IOException 读取Reader发生异常
+     * @throws JsonException Json格式不正确（遇到终止字符前读到非空白字符，或当终止字符不是-1时已到达Reader尾部）
      */
     private void parseTailBlank(int endChar) throws IOException, JsonException
     {
@@ -642,9 +642,9 @@ class JsonTextParser
     }
     
     /**
-     * 检测字符c是否属于空白字符
-     * @param c
-     * @return
+     * 检测字符c是否属于空白字符（空格、回车、换行、制表符）。
+     * @param c 被检测字符
+     * @return 是空白返回true，否则返回false
      */
     private boolean isBlankCharacter(int c)
     {
@@ -652,8 +652,8 @@ class JsonTextParser
     }
     
     /**
-     * 读取下一个字符，并更新ch与pos
-     * @throws IOException
+     * 读取下一个字符，并更新ch与pos。
+     * @throws IOException 读取Reader发生异常
      */
     private void next() throws IOException
     {
@@ -663,9 +663,9 @@ class JsonTextParser
     }
     
     /**
-     * 判断字符串是否为Javascript关键字或保留字
-     * @param str
-     * @return
+     * 判断字符串是否为JavaScript关键字或保留字。
+     * @param str 被判断的字符串
+     * @return 是JavaScript关键字或保留字返回true，否则返回false
      */
     protected static boolean isJsKeywords(String str)
     {
@@ -677,9 +677,9 @@ class JsonTextParser
     }
     
     /**
-     * 将字符串转换为带双引号的Json字符串
-     * @param str
-     * @return
+     * 将字符串转换为带双引号的Json字符串。
+     * @param str 源字符串
+     * @return 转换后的字符串
      */
     protected static String toJsonString(String str)
     {
@@ -744,9 +744,9 @@ class JsonTextParser
     }
     
     /**
-     * 将字符串转换为不带引号的Json字符串，如果无法成功，则转换为带引号的Json字符串
-     * @param str
-     * @return
+     * 将字符串转换为不带引号的Json字符串，如果无法成功，则转换为带引号的Json字符串。
+     * @param str 源字符串
+     * @return 转换后的字符串
      */
     protected static String toJsonNoquoteString(String str)
     {

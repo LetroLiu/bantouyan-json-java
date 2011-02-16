@@ -1,14 +1,15 @@
 package com.bantouyan.json;
 
 /**
- * 使用==运算符来进行比较的堆栈，因为Java集合对象使用hashcode来进行比较，
- * 当Java集合出现循环引用时hashcode方法会抛出StackOverflowError错误，
- * 所以开发了此类。
+ * 使用==运算符来进行比较的堆栈。
+ * 因为Java集合对象使用hashcode来进行比较，
+ * 当Java集合内出现循环引用时hashcode方法会抛出StackOverflowError错误，
+ * 所以开发了此类，仅供此Json库内部使用。
  * @author bantouyan
  * @version 0.1
  *
  */
-public class IdentityStack
+class IdentityStack
 {
     private Object[] datas;
     private int pos = 0;
@@ -32,7 +33,7 @@ public class IdentityStack
     
     /**
      * 添加一个新元素入栈，如果栈空间不够则自动增加。
-     * @param e
+     * @param e 入栈元素
      */
     public void push(Object e)
     {
@@ -61,8 +62,8 @@ public class IdentityStack
     
     /**
      * 判断堆栈是否含有指定的元素。
-     * @param e
-     * @return
+     * @param e 要检查的元素
+     * @return 如果堆栈内包含指定元素，则返回true，否则返回false。
      */
     public boolean contains(Object e)
     {
