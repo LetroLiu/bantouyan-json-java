@@ -7,7 +7,7 @@ import java.io.StringReader;
 /**
  * 内部类，用来将Reader或String解析成Json类实例，仅供此Json库内部使用。
  * @author bantouyan
- * @version 0.1
+ * @version 1.00
  */
 class JsonTextParser
 {

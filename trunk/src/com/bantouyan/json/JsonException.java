@@ -4,7 +4,7 @@ package com.bantouyan.json;
  * Json异常，如果因为源数据格式问题无法从文本或Java对象解析为Json实例，
  * 或无法对Json实例执行操作（如修改、生成Json文本等），则应该抛出此异常
  * @author bantouyan
- * @version 0.1
+ * @version 1.00
  */
 public class JsonException extends Exception
 {

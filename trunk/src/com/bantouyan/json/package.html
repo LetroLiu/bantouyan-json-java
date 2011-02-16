@@ -6,7 +6,62 @@
 <title>Insert title here</title>
 </head>
 <body>
- <p>这是包注释</p>
+ <p>本软件包定义了一组类和接口，以方便对Json的操作。</p>
+ 
+ <p>接口Jsonable为自定义Java类提供了一个统一的生成Json实例的接口，
+ 只有一个generateJson方法，用户可根据具体需求决定是否实现该接口。</p>
+ 
+ <p>抽象类Json是所有Json实例的超类，它提供了文本、Reader、Java集合对象创建
+ Json实例的方法。可以通过实例方法generateJsonText生成对应的Json文本。</p>
+ 
+ <p>类JsonArray与JsonObject分别表示Json数组和Json对象，提供了操作Json数组和Json
+ 对象的方法，是操作Json实例有用的两个类。类JsonPrimitive用来表示Json的原始类型值，
+ 是一个辅助类，无需手工创建。</p>
+ 
+ <p><strong>示例</strong>：</br>
+ <code> 
+ </br>       
+&nbsp;&nbsp;&nbsp;&nbsp;String strAry = "[\"a\", \"b\", \"c\", true, null, false, 1, 2, 3]";</br>
+&nbsp;&nbsp;&nbsp;&nbsp;String strObj = "{\"a\": \"A\", \"yes\": true, \"empty\": null, \"one\": 1}";</br>
+</br>
+&nbsp;&nbsp;&nbsp;&nbsp;//generate Json instance from String</br>
+&nbsp;&nbsp;&nbsp;&nbsp;JsonArray jsonAry = (JsonArray)Json.parseJsonText(strAry);</br>
+&nbsp;&nbsp;&nbsp;&nbsp;JsonObject jsonObj = (JsonObject)Json.parseJsonText(strObj);</br>
+</br>
+&nbsp;&nbsp;&nbsp;&nbsp;//generate Json Array instance</br>
+&nbsp;&nbsp;&nbsp;&nbsp;JsonArray subAry = new JsonArray();</br>
+&nbsp;&nbsp;&nbsp;&nbsp;subAry.append(); //add null</br>
+&nbsp;&nbsp;&nbsp;&nbsp;subAry.append(true);</br>
+&nbsp;&nbsp;&nbsp;&nbsp;subAry.insert(1, 345L);</br>
+&nbsp;&nbsp;&nbsp;&nbsp;subAry.append(3.1415926);</br>
+&nbsp;&nbsp;&nbsp;&nbsp;subAry.remove(0);</br>
+</br>
+&nbsp;&nbsp;&nbsp;&nbsp;//generate Json Object instance</br>
+&nbsp;&nbsp;&nbsp;&nbsp;JsonObject subObj = new JsonObject();</br>
+&nbsp;&nbsp;&nbsp;&nbsp;subObj.add("empty"); // add a null</br>
+&nbsp;&nbsp;&nbsp;&nbsp;subObj.set("empty", "NULL");</br>
+&nbsp;&nbsp;&nbsp;&nbsp;subObj.add("integer", 66);</br>
+&nbsp;&nbsp;&nbsp;&nbsp;if(subObj.containsName("integer")) subObj.remove("integer");</br>
+</br>
+&nbsp;&nbsp;&nbsp;&nbsp;jsonAry.insert(3, jsonObj);</br>
+&nbsp;&nbsp;&nbsp;&nbsp;jsonObj.add("list", subAry);</br>
+&nbsp;&nbsp;&nbsp;&nbsp;jsonObj.set("obj", subObj);</br>
+&nbsp;&nbsp;&nbsp;&nbsp;subAry.append(subObj);</br>
+</br>
+&nbsp;&nbsp;&nbsp;&nbsp;//next line will deal exception(circle reference)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;//subAry.append(jsonObj);</br>
+</br>
+&nbsp;&nbsp;&nbsp;&nbsp;//check circle reference</br>
+&nbsp;&nbsp;&nbsp;&nbsp;if(jsonAry.existsCircle())</br>
+&nbsp;&nbsp;&nbsp;&nbsp;{</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            System.out.println("Exists circle reference in Json instance.");</br>
+&nbsp;&nbsp;&nbsp;&nbsp;}</br>
+</br>
+&nbsp;&nbsp;&nbsp;&nbsp;String jsonText = jsonAry.generateJsonText(false);</br>
+&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(jsonText);  </br>
+ </code>
+ </p>
 
 </body>
 </html>
