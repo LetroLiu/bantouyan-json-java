@@ -2,6 +2,7 @@ package com.bantouyan.json;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * <p>用来表示Json数组实例。Json数组是一组有序Json实例的集合，数组的每个子元素
@@ -25,17 +26,17 @@ import java.util.Collection;
  * @author bantouyan
  * @version 1.00
  */
-public class JsonArray extends Json
+public class JsonArray extends Json implements Iterable<Json>
 {
     //允许包含值为null的元素，但get及转换为Json文本时当NULL类型的Json实例处理
-    private ArrayList<Json> data;
+    private ArrayList<Json> elements;
     
     /**
      * 创建空的JsonArray实例。
      */
     public JsonArray()
     {
-        this.data = new ArrayList<Json>();
+        this.elements = new ArrayList<Json>();
     }
     
     /**
@@ -44,8 +45,8 @@ public class JsonArray extends Json
      */
     public JsonArray(Collection<? extends Json> collection)
     {
-        this.data = new ArrayList<Json>();
-        this.data.addAll(collection);
+        this.elements = new ArrayList<Json>();
+        this.elements.addAll(collection);
     }
         
     /**
@@ -55,11 +56,11 @@ public class JsonArray extends Json
      */
     public Json get(int index)
     {
-        Json json = this.data.get(index);
+        Json json = this.elements.get(index);
         if(json == null)
         {
             json = Json.nullJson;
-            this.data.set(index, json);
+            this.elements.set(index, json);
         }
         
         return json;
@@ -72,7 +73,15 @@ public class JsonArray extends Json
      */
     public String getString(int index)
     {
-        return get(index).getString();
+        Json json = get(index);
+        if(json instanceof JsonPrimitive)
+        {
+            return ((JsonPrimitive)json).getString();
+        }
+        else
+        {
+            return json.toString();
+        }
     }
     
     /**
@@ -137,7 +146,7 @@ public class JsonArray extends Json
      */
     public long getLong(int index) throws JsonException
     {
-        if(canToBoolean(index))
+        if(canToLong(index))
         {
             return ((JsonPrimitive)get(index)).getLong();
         }
@@ -173,7 +182,7 @@ public class JsonArray extends Json
      */
     public double getDouble(int index) throws JsonException
     {
-        if(canToBoolean(index))
+        if(canToDouble(index))
         {
             return ((JsonPrimitive)get(index)).getDouble();
         }
@@ -184,14 +193,82 @@ public class JsonArray extends Json
     }
     
     /**
+     * 判断指定位置的子元素是否可以转换为JsonArray值
+     * @param index 子元素的位置
+     * @return 可以返回true，否则返回false
+     */
+    public boolean canToJsonArray(int index)
+    {
+        Json json = get(index);
+        return (json instanceof JsonArray)? true: false;
+    }
+    
+    /**
+     * 返回指定位置子元素的JsonArray值。
+     * @param index 子元素的位置
+     * @return 子元素对应的浮点型值
+     * @throws JsonException 如果子元素无法转换为浮点型值，则抛出异常
+     */
+    public JsonArray getJsonArray(int index) throws JsonException
+    {
+        if(canToJsonArray(index))
+        {
+            return (JsonArray)get(index);
+        }
+        else
+        {
+            throw new JsonException("Cannot transfer element at " + index + " to JsonArray value.");
+        }
+    }
+    
+    /**
+     * 判断指定位置的子元素是否可以转换为JsonObject值
+     * @param index 子元素的位置
+     * @return 可以返回true，否则返回false
+     */
+    public boolean canToJsonObject(int index)
+    {
+        Json json = get(index);
+        return (json instanceof JsonObject)? true: false;
+    }
+    
+    /**
+     * 返回指定位置子元素的JsonObject值。
+     * @param index 子元素的位置
+     * @return 子元素对应的浮点型值
+     * @throws JsonException 如果子元素无法转换为浮点型值，则抛出异常
+     */
+    public JsonObject getJsonObject(int index) throws JsonException
+    {
+        if(canToJsonObject(index))
+        {
+            return (JsonObject)get(index);
+        }
+        else
+        {
+            throw new JsonException("Cannot transfer element at " + index + " to JsonObject value.");
+        }
+    }
+    
+    /**
      * 向Json数组末尾添加一个新元素。
      * @param element 要添加的新元素
      * @return JsonArray实例是否发生改变
      */
     public boolean append(Json element)
     {
-        return this.data.add(element);
+        return this.elements.add(element);
     } 
+    
+    /**
+     * 向Json数组末尾添加一个新元素
+     * @param element 要添加的新元素, 如果是null则抛出空指针异常
+     * @return JsonArray实例是否发生改变
+     */
+    public boolean append(Jsonable element)
+    {
+        return this.elements.add(element.generateJson());
+    }
 
     /**
      * 向Json数组末尾添加一个新元素。
@@ -201,7 +278,7 @@ public class JsonArray extends Json
     public boolean append(String element)
     {
         Json json = (element == null)? Json.nullJson: new JsonPrimitive(element);
-        return this.data.add(json);
+        return this.elements.add(json);
     }
     
     /**
@@ -211,7 +288,7 @@ public class JsonArray extends Json
      */
     public boolean append(long element)
     {
-        return this.data.add(new JsonPrimitive(element));
+        return this.elements.add(new JsonPrimitive(element));
     }
     
     /**
@@ -221,7 +298,7 @@ public class JsonArray extends Json
      */
     public boolean append(double element)
     {
-        return this.data.add(new JsonPrimitive(element));
+        return this.elements.add(new JsonPrimitive(element));
     }
     
     /**
@@ -231,7 +308,7 @@ public class JsonArray extends Json
      */
     public boolean append(boolean element)
     {
-        return this.data.add(Json.getBooleanJson(element));
+        return this.elements.add(Json.getBooleanJson(element));
     }
     
     /**
@@ -240,66 +317,84 @@ public class JsonArray extends Json
      */
     public boolean append()
     {
-        return this.data.add(Json.nullJson);
+        return this.elements.add(Json.nullJson);
     }
     
     /**
      * 在指定位置向Json数组添加一个新元素，原来的元素依次后移。
+     * @param index 新元素插入的位置
      * @param element 要添加的新元素
      */
     public void insert(int index, Json element)
     {
         if(element == null)
-            this.data.add(Json.nullJson);
+            this.elements.add(index, Json.nullJson);
         else
-            this.data.add(index, element);
+            this.elements.add(index, element);
+    }
+    
+    /**
+     * 
+     * 在指定位置向Json数组添加一个新元素，原来的元素依次后移。
+     * @param index 新元素插入的位置
+     * @param element 要添加的新元素, 如果是null则抛出空指针异常
+     */
+    public void insert(int index, Jsonable element)
+    {
+        this.elements.add(index, element.generateJson());
     }
 
     /**
      * 在指定位置向Json数组添加一个新元素，原来的元素依次后移。
+     * @param index 新元素插入的位置
      * @param element 要添加的新元素
      */
     public void insert(int index, String element)
     {
         if(element == null)
-            this.data.add(index, Json.nullJson);
+            this.elements.add(index, Json.nullJson);
         else
-            this.data.add(index, new JsonPrimitive(element));
+            this.elements.add(index, new JsonPrimitive(element));
     }
 
     /**
      * 在指定位置向Json数组添加一个新元素，原来的元素依次后移。
+     * @param index 新元素插入的位置
      * @param element 要添加的新元素
      */
     public void insert(int index, long element)
     {
-        this.data.add(index, new JsonPrimitive(element));
+        this.elements.add(index, new JsonPrimitive(element));
     }
 
     /**
      * 在指定位置向Json数组添加一个新元素，原来的元素依次后移。
+     * @param index 新元素插入的位置
      * @param element 要添加的新元素
      */
     public void insert(int index, double element)
     {
-        this.data.add(index, new JsonPrimitive(element));
+        this.elements.add(index, new JsonPrimitive(element));
     }
 
     /**
      * 在指定位置向Json数组添加一个新元素，原来的元素依次后移。
+     * @param index 新元素插入的位置
      * @param element 要添加的新元素
      */
     public void insert(int index, boolean element)
     {
-        this.data.add(index, Json.getBooleanJson(element));
+        this.elements.add(index, Json.getBooleanJson(element));
     }
     
     /**
      * 在指定位置向Json数组添加一个NULL元素，原来的元素依次后移。
+     * @param index 新元素插入的位置
+     * @param index 新元素插入的位置
      */
     public void insert(int index)
     {
-        this.data.add(index, Json.nullJson);
+        this.elements.add(index, Json.nullJson);
     }
     
     /**
@@ -308,7 +403,7 @@ public class JsonArray extends Json
      */
     public void addAll(Collection<? extends Json> list)
     {
-        this.data.addAll(list);
+        this.elements.addAll(list);
     }
     
     /**
@@ -318,7 +413,7 @@ public class JsonArray extends Json
      */
     public void addAll(int index, Collection<? extends Json> list)
     {
-        this.data.addAll(index, list);
+        this.elements.addAll(index, list);
     }
     
     /**
@@ -329,7 +424,7 @@ public class JsonArray extends Json
     {
         for(Jsonable jsonable: list)
         {
-            this.data.add(jsonable.generateJson());
+            this.elements.add(jsonable.generateJson());
         }
     }
     
@@ -345,7 +440,7 @@ public class JsonArray extends Json
         {
             jsonList.add(jsonable.generateJson());
         }
-        this.data.addAll(index, jsonList);
+        this.elements.addAll(index, jsonList);
     }
     
     /**
@@ -356,9 +451,19 @@ public class JsonArray extends Json
     public void set(int index, Json element)
     {
         if(element == null)
-            this.data.set(index, Json.nullJson);
+            this.elements.set(index, Json.nullJson);
         else
-            this.data.set(index, element);
+            this.elements.set(index, element);
+    }
+    
+    /**
+     * 设置Json数组指定位置的元素。
+     * @param index 指定的位置
+     * @param element 子元素的新值, 如果是null则抛出空指针异常
+     */
+    public void set(int index, Jsonable element)
+    {
+        this.elements.set(index, element.generateJson());
     }
 
     /**
@@ -369,9 +474,9 @@ public class JsonArray extends Json
     public void set(int index, String element)
     {
         if(element == null)
-            this.data.set(index, Json.nullJson);
+            this.elements.set(index, Json.nullJson);
         else
-            this.data.set(index, new JsonPrimitive(element));
+            this.elements.set(index, new JsonPrimitive(element));
     }
 
     /**
@@ -381,7 +486,7 @@ public class JsonArray extends Json
      */
     public void set(int index, long element)
     {
-        this.data.set(index, new JsonPrimitive(element));
+        this.elements.set(index, new JsonPrimitive(element));
     }
 
     /**
@@ -391,7 +496,7 @@ public class JsonArray extends Json
      */
     public void set(int index, double element)
     {
-        this.data.set(index, new JsonPrimitive(element));
+        this.elements.set(index, new JsonPrimitive(element));
     }
 
     /**
@@ -401,7 +506,7 @@ public class JsonArray extends Json
      */
     public void set(int index, boolean element)
     {
-        this.data.set(index, Json.getBooleanJson(element));
+        this.elements.set(index, Json.getBooleanJson(element));
     }
 
     /**
@@ -410,7 +515,7 @@ public class JsonArray extends Json
      */
     public void set(int index)
     {
-        this.data.set(index, Json.nullJson);
+        this.elements.set(index, Json.nullJson);
     }
     
     /**
@@ -419,7 +524,45 @@ public class JsonArray extends Json
      */
     public void remove(int index)
     {
-        this.data.remove(index);
+        this.elements.remove(index);
+    }
+
+
+    /**
+     * 判断两个Json实例表示的数据是否一致。
+     * @param obj 被比较的Json实例
+     * @return 一致返回true，不一致返回false
+     */
+    @Override
+    protected boolean same(Json obj)
+    {
+        if(obj == null)
+        {
+            return false;
+        }
+        else if(this == obj)
+        {
+            return true;
+        }
+        else if(obj.getType() != JsonType.ARRAY)
+        {
+            return false;
+        }
+        else
+        {
+            int cnt = this.count();
+            if(cnt != obj.count()) return false;
+            
+            JsonArray objAry = (JsonArray)obj;
+            for(int i=0; i<cnt; i++)
+            {
+                if(! this.get(i).same(objAry.get(i)))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
     
     /**
@@ -429,7 +572,7 @@ public class JsonArray extends Json
     @Override
     public int count()
     {
-        return this.data.size();
+        return this.elements.size();
     }
     
     /**
@@ -438,7 +581,7 @@ public class JsonArray extends Json
     @Override
     public void clear()
     {
-        this.data.clear();
+        this.elements.clear();
     }
     
     /**
@@ -448,7 +591,7 @@ public class JsonArray extends Json
     @Override
     public boolean isEmpty()
     {
-        return this.data.isEmpty();
+        return this.elements.isEmpty();
     }
     
     /**
@@ -462,10 +605,10 @@ public class JsonArray extends Json
         StringBuilder build = new StringBuilder();
         
         build.append('[');
-        int cnt = data.size();
+        int cnt = elements.size();
         for(int i=0; i<cnt; i++)
         {
-            Json element = data.get(i);
+            Json element = elements.get(i);
             build.append(element.generateJsonTextWithoutCheck(useStandard));
             if(i < cnt-1) build.append(',');
         }
@@ -484,13 +627,13 @@ public class JsonArray extends Json
     }
     
     /**
-     * 返回Json实例对应的字符串。
-     * @return 对应的标准Json文本
+     * 返回指定下标的元素的JsonType
+     * @param index 元素的下标
+     * @return 元素的Type
      */
-    @Override
-    public String getString()
+    public JsonType getType(int index)
     {
-        return this.generateJsonText();
+        return get(index).getType();
     }
 
     /**
@@ -506,12 +649,22 @@ public class JsonArray extends Json
         parentRef.push(this);
         boolean exists = false;
         
-        for(Json element: data)
+        for(Json element: elements)
         {
             exists = exists || element.existsCircle(parentRef);
         }
         
         parentRef.pop();
         return exists;
+    }
+
+    /**
+     * 返回迭代器，用于for each循环
+     * @return JsonArray的迭代器
+     */
+    @Override
+    public Iterator<Json> iterator()
+    {
+        return elements.iterator();
     }
 }

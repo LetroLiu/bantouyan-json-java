@@ -1,21 +1,19 @@
 package com.bantouyan.json;
 
 /**
- * 运行时异常，当对Json数据进行了错误的类型转换时，或者不打算覆盖JsonObject 
- * Name 对应的Value时重设已有的Name对应的Value，或者构造的Json
- * 实例含有循环引用导致无法转换为Json文本，就应该抛出此异常。
+ * 解析Json字符串、Reader或者Java对象时如果源数据格式错误，则抛出该异常。
  * 
  * @author bantouyan
  * @version 1.00
  */
-public class JsonException extends RuntimeException
+public class JsonParseException extends Exception
 {
     private static final long serialVersionUID = 1L;
 
     /**
      * 创建JsonException。
      */
-    protected JsonException()
+    protected JsonParseException()
     {
         super();
     }
@@ -24,7 +22,7 @@ public class JsonException extends RuntimeException
      * 创建JsonException。
      * @param msg 对异常的描述
      */
-    protected JsonException(String msg)
+    protected JsonParseException(String msg)
     {
         super(msg);
     }
@@ -33,7 +31,7 @@ public class JsonException extends RuntimeException
      * 创建JsonException。
      * @param e 源异常
      */
-    protected JsonException(Exception e)
+    protected JsonParseException(Exception e)
     {
         super(e);
     }
@@ -43,7 +41,7 @@ public class JsonException extends RuntimeException
      * @param msg 对异常的描述
      * @param e 源异常
      */
-    protected JsonException(String msg, Exception e)
+    protected JsonParseException(String msg, Exception e)
     {
         super(msg, e);
     }
