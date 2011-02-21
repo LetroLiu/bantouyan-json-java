@@ -73,48 +73,4 @@ class IdentityStack
         }
         return false;
     }
-    
-    public static void main(String[] args) throws Exception
-    {
-        /*
-        String strAry = "[\"a\", \"b\", \"c\", true, null, false, 1, 2, 3]";
-        String strObj = "{\"a\": \"A\", \"yes\": true, \"empty\": null, \"one\": 1}";
-        
-        //generate Json instance from String
-        JsonArray jsonAry = (JsonArray)Json.parseJsonText(strAry);
-        JsonObject jsonObj = (JsonObject)Json.parseJsonText(strObj);
-        
-        //generate Json Array instance
-        JsonArray subAry = new JsonArray();
-        subAry.append(); //add null
-        subAry.append(true);
-        subAry.insert(1, 345L);
-        subAry.append(3.1415926);
-        subAry.remove(0);
-        
-        //generate Json Object instance
-        JsonObject subObj = new JsonObject();
-        subObj.add("empty"); // add a null
-        subObj.set("empty", "NULL");
-        subObj.add("integer", 66);
-        if(subObj.containsName("integer")) subObj.remove("integer");
-        
-        jsonAry.insert(3, jsonObj);
-        jsonObj.add("list", subAry);
-        jsonObj.set("obj", subObj);
-        subAry.append(subObj);
-        
-        //next line will deal exception(circle reference)
-        //subAry.append(jsonObj);
-        
-        //check circle reference
-        if(jsonAry.existsCircle())
-        {
-            System.out.println("Exists circle reference in Json instance.");
-        }
-        
-        String jsonText = jsonAry.generateJsonText(false);
-        System.out.println(jsonText);  
-*/    
-    }
 }

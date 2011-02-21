@@ -3,8 +3,8 @@ package com.bantouyan.json;
 import java.math.BigDecimal;
 
 /**
- * <p>用来表示String、Number、Boolean与null类型的Json实例，创建后不可更改，
- * 且无需显示创建。</p>
+ * <p>用来表示String、Number、Boolean与null类型的Json实例，
+ * 创建后不可更改，且无需显示创建。</p>
  * 
  * <p>方法<strong>getXXX</strong>获取Json实例某种原始类型的值，方法
  * <strong>canToXXX</strong>判定Json实例值是否可以转换为这种原始类型。方法
@@ -47,7 +47,7 @@ public class JsonPrimitive extends Json
         this.type = JsonType.INTEGER;
         this.data = data;
     }
-    
+
     /**
      * 创建数值型（整型或浮点型）Json实例。
      * @param data 创建Json的数值
@@ -59,13 +59,13 @@ public class JsonPrimitive extends Json
             || (data instanceof Double))
         {
             this.type = JsonType.FLOAT;
+            this.data = (Double)data.doubleValue();
         }
         else
         {
             this.type = JsonType.INTEGER;
+            this.data = (Long)data.longValue();
         }
-        
-        this.data = data;
     }
     
     /**
@@ -117,7 +117,6 @@ public class JsonPrimitive extends Json
      * 返回Json 实例的字符串值。
      * @return 返回对应的字符串，不带引号
      */
-    @Override
     public String getString()
     {
         return this.data.toString();
@@ -288,7 +287,43 @@ public class JsonPrimitive extends Json
             throw new JsonException("Cannot transfer to double value for type is not FLOAT.");
         }
     }
-    
+
+    /**
+     * 判断两个Json实例表示的数据是否一致。
+     * @param obj 被比较的Json实例
+     * @return 一致返回true，不一致返回false
+     */
+    @Override
+    protected boolean same(Json obj)
+    {
+        if(obj == null)
+        {
+            return false;
+        }
+        else if(this.type != obj.getType())
+        {
+            return false;
+        }
+        else if(this.type == JsonType.FLOAT)
+        {
+            Double tv = (Double)this.data;
+            Double ov = (Double)((JsonPrimitive)obj).data;
+            if(tv.isNaN() && ov.isNaN())
+            {
+                return true;
+            }
+            else
+            {
+                double td = tv;
+                double od = ov;
+                return td == od;
+            }
+        }
+        else
+        {
+            return this.data.equals(((JsonPrimitive)obj).data);
+        }
+    }
 
     /**
      * 清空Json实例的所有子元素，对Primitive类型的Json实例无意义，故不做任何操作。

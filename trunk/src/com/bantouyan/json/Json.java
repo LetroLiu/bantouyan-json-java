@@ -48,9 +48,9 @@ public abstract class Json
      * @param jsonText Json文本
      * @return 对应的Json实例
      * @throws IOException 发生了IO异常
-     * @throws JsonException Json文本格式不正确
+     * @throws JsonParseException Json文本格式不正确
      */
-    public static Json parseJsonText(String jsonText) throws IOException, JsonException
+    public static Json parseJsonText(String jsonText) throws IOException, JsonParseException
     {
         Json json = null;
         
@@ -65,9 +65,9 @@ public abstract class Json
      * @param reader 包含Json文本的Reader实例
      * @return 对应的Json实例
      * @throws IOException 读写reader发生异常
-     * @throws JsonException reader所包含的Json文本格式不正确
+     * @throws JsonParseException reader所包含的Json文本格式不正确
      */
-    public static Json parseJsonReader(Reader reader) throws IOException, JsonException
+    public static Json parseJsonReader(Reader reader) throws IOException, JsonParseException
     {
         Json json = null;
         
@@ -81,9 +81,9 @@ public abstract class Json
      * 将Java Map实例解析为JsonObject实例。
      * @param map 要解析的Java Map实例
      * @return 对应的JsonObject实例
-     * @throws JsonException 如果Map内存在循环引用，或有无法解析的对象，则抛出异常。
+     * @throws JsonParseException 如果Map内存在循环引用，或有无法解析的对象，则抛出异常。
      */
-    public static JsonObject parseJavaMap(Map<?, ?> map) throws JsonException
+    public static JsonObject parseJavaMap(Map<?, ?> map) throws JsonParseException
     {
         IdentityStack parentRef = new IdentityStack();
         return Json.parseJavaMap(map, parentRef);
@@ -94,14 +94,14 @@ public abstract class Json
      * @param map 要解析的Java Map实例
      * @param parentRef 上级对象的堆栈，用于检测循环引用
      * @return 对应的JsonObject实例
-     * @throws JsonException 如果Map元素已被（上级对象）引用，或有无法解析的对象，则抛出异常。
+     * @throws JsonParseException 如果Map元素已被（上级对象）引用，或有无法解析的对象，则抛出异常。
      */
     private static JsonObject parseJavaMap(Map<?, ?> map, IdentityStack parentRef)
-    throws JsonException
+    throws JsonParseException
     {
         if(parentRef.contains(map))
         {
-            throw new JsonException("Circle reference exists in source Java instance.");
+            throw new JsonParseException("Circle reference exists in source Java instance.");
         }
         
         JsonObject json = new JsonObject();
@@ -111,7 +111,7 @@ public abstract class Json
         {
             if(!(key instanceof String || key instanceof Number || key instanceof Boolean))
             {
-                throw new JsonException("Map key cannot cast to string.");
+                throw new JsonParseException("Map key cannot cast to string.");
             }
             
             Object value = map.get(key);
@@ -126,9 +126,9 @@ public abstract class Json
      * 将Java Collection实例解析为JsonArray实例。
      * @param collection 要解析的Java Collection实例
      * @return 对应的JsonArray实例
-     * @throws JsonException 如果Collection内存在循环引用，或有无法解析的对象，则抛出异常。
+     * @throws JsonParseException 如果Collection内存在循环引用，或有无法解析的对象，则抛出异常。
      */
-    public static JsonArray parseJavaCollection(Collection<?> collection) throws JsonException
+    public static JsonArray parseJavaCollection(Collection<?> collection) throws JsonParseException
     {
         IdentityStack parentRef = new IdentityStack();
         return Json.parseJavaCollection(collection, parentRef);
@@ -139,14 +139,14 @@ public abstract class Json
      * @param collection 要解析的Java Collection实例
      * @param parentRef 上级对象的堆栈，用于检测循环引用
      * @return 对应的JsonArray实例
-     * @throws JsonException 如果Collection内存在循环引用，或有无法解析的对象，则抛出异常。
+     * @throws JsonParseException 如果Collection内存在循环引用，或有无法解析的对象，则抛出异常。
      */
     private static JsonArray parseJavaCollection(Collection<?> collection, IdentityStack parentRef)
-    throws JsonException
+    throws JsonParseException
     {
         if(parentRef.contains(collection))
         {
-            throw new JsonException("Circle reference exists in source Java instance.");
+            throw new JsonParseException("Circle reference exists in source Java instance.");
         }
         
         JsonArray json = new JsonArray();
@@ -164,10 +164,9 @@ public abstract class Json
      * 将Java对象转换为Json实例
      * @param value Java对象
      * @return 对应的Json实例
-     * @throws JsonException 如果Java对象已被（上级Json实例）引用，或无法解析，则抛出异常
-     * @throws JsonException 如果存在循环引用，或有无法解析的对象，则抛出异常。
+     * @throws JsonParseException 如果Java对象已被（上级Json实例）引用，或无法解析，则抛出异常
      */
-    private static Json changeToJson(Object value, IdentityStack parentRef) throws JsonException
+    private static Json changeToJson(Object value, IdentityStack parentRef) throws JsonParseException
     {
         Json json = null;
         
@@ -201,7 +200,7 @@ public abstract class Json
         }
         else
         {
-            throw new JsonException("Cannot parse value: " + value + ".");
+            throw new JsonParseException("Cannot parse value: " + value + ".");
         }
         
         return json;
@@ -290,12 +289,6 @@ public abstract class Json
     public abstract JsonType getType();
     
     /**
-     * 返回Json实例对应的字符串。
-     * @return Primitive实例返回不带引号的字符串，其他实例返回标准Json文本
-     */
-    public abstract String getString();
-    
-    /**
      * 转换为标准的Json字符串。
      */
     @Override
@@ -322,26 +315,32 @@ public abstract class Json
         }
         else if(obj instanceof Json)
         {
-            String thisStr = null;
-            String objStr = null;
-            
-            try
-            {
-                thisStr = this.generateJsonText(true);
-                objStr = ((Json) obj).generateJsonText(true);
-            } 
-            catch (JsonException e)
+            Json objJson = (Json)obj;
+            if(this.getType() != objJson.getType())
             {
                 return false;
             }
-            
-            return thisStr.equals(objStr);
+            else if(this.count() != objJson.count())
+            {
+                return false;
+            }
+            else
+            {
+                return this.same(objJson);
+            }
         }
         else
         {
             return false;
         }
     }
+    
+    /**
+     * 判断两个Json实例表示的数据是否一致。
+     * @param obj 被比较的Json实例
+     * @return 一致返回true，不一致返回false
+     */
+    protected abstract boolean same(Json obj);
     
     /**
      * Json实例的hash值
