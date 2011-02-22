@@ -6,22 +6,24 @@ import java.util.Iterator;
 
 /**
  * <p>用来表示Json数组实例。Json数组是一组有序Json实例的集合，数组的每个子元素
- * 都有特定的下标（从0开始），可以根据下标存取特定的子元素。</p>
+ * 都有特定的<strong>下标（从0开始）</strong>，可以根据下标存取特定的子元素。</p>
  * 
  * <p><strong>创建JsonArray实例</strong>，除了可以通过调用Json类的parse开头
- * 的方法创建JsonArray实例外，还可以直接创建空的JsonArray实例，或从Json实例集合创建。</p>
+ * 的方法创建JsonArray实例外，还可以直接创建空的JsonArray实例，或从Json实例集合创建。
+ * </p>
  * 
- * <p>调用方法get可以<strong>获取</strong>指定位置的子元素，方法<strong>getXXX
+ * <p>调用方法<strong>get</strong>可以获取指定位置的子元素，方法<strong>getXXX
  * </strong>返回指定位置子元素的某种原始类型值，方法<strong>canToXXX</strong>
- * 判定指定位置的子元素是否可以转换为这种原始类型，<strong>重设</strong>
- * 指定位置的子元素调用方法set，在数组尾<strong>追加</strong>子元素调用append方法，
- * 在指定位置<strong>插入</strong>子元素调用insert方法，<strong>批量添加</strong>
- * 子元素调用addAll方法，<strong>删除</strong>指定位置的子元素调用方法remove。</p>
+ * 判定指定位置的子元素是否可以转换为这种原始类型，重设指定位置的子元素调用方法
+ * <strong>set</strong>，在数组尾追加子元素调用方法<strong>append</strong>，
+ * 在指定位置插入子元素调用方法<strong>insert</strong>，批量添加子元素调用方法
+ * <strong>addAll</strong>，删除指定位置的子元素调用方法<strong>remove</strong>。
+ * </p>
  * 
- * <p>方法<strong>isEmpty</strong>可以判断JsonArray实例是否包含
- * 子元素，方法<strong>count</strong>返回子元素的的个数，方法
- * <strong>clear</strong>可以清除所有的子元素。方法<strong>getType</strong>
- * 返回JsonArray实例的类型JsonType.ARRAY。</p>
+ * <p>方法<strong>isEmpty</strong>可以判断JsonArray实例是否包含子元素，
+ * 方法<strong>count</strong>返回子元素的的个数，方法<strong>clear</strong>
+ * 可以清除所有的子元素。方法<strong>getType</strong> 返回JsonArray实例的类型JsonType.ARRAY。
+ * </p>
  * 
  * @author bantouyan
  * @version 1.00
@@ -641,9 +643,9 @@ public class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 返回指定下标的元素的JsonType
-     * @param index 元素的下标
-     * @return 元素的Type
+     * 返回特定下标子元素的JsonType
+     * @param index 子元素的下标
+     * @return 子元素的Type
      */
     public JsonType getType(int index)
     {
@@ -651,7 +653,7 @@ public class JsonArray extends Json implements Iterable<Json>
     }
 
     /**
-     * 判断Json实例内是否存在循环引用。
+     * 判断JsonArray实例内是否存在循环引用。
      * @param parentRef 上级Json对象堆栈，用于检测循环引用
      * @return 有循环引用返回true，否则返回false
      */

@@ -7,22 +7,24 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * <p>所有Json实例的超类，用来提供操作Json的通用接口。</p>
+ * <p>所有Json实例的抽象超类，用来提供操作Json的通用接口。</p>
  * 
- * <p><strong>生成Json实例</strong>，把文本转换为Json实例可以调用Json的类方法
- * parseJsonText或parseJsonReader，如果想从Java集合生成Json实例，则可以调用
- * Json的类方法parseJavaMap或parseJavaCollection。</p>
+ * <p><strong>生成Json实例</strong>，把文本转换为Json实例可以调用类方法
+ * <strong>parseJsonText</strong>或<strong>parseJsonReader</strong>，
+ * 如果想从Java集合生成Json实例，则可以调用类方法<strong>parseJavaMap</strong>
+ * 或<strong>parseJavaCollection</strong>。</p>
  * 
- * <p><strong>生成Json文本</strong>，调用generateJsonText可以把Json实例转换
- * 为对应的Json文本。重写方法toString方法返回Json实例对应的文本，等同于调用不
- * 带参数的方法generateJsonText。</p>
+ * <p><strong>生成Json文本</strong>，调用方法<strong>generateJsonText</strong>
+ * 可以把Json实例转换为对应的Json文本。重写的方法<strong>toString</strong>
+ * 返回Json实例对应的文本，等同于调用不带参数的方法<strong>generateJsonText</strong>。
+ * </p>
  * 
  * <p>方法<strong>isEmpty</strong>可以判断Json实例是否包含子元素，方法<strong>
  * count</strong>返回子元素的的个数，方法<strong>clear</strong>可以清除所有的
- * 子元素。getType方法Json实例的类型。</p>
+ * 子元素。方法<strong>getType</strong>返回Json实例的类型。</p>
  * 
- * <p创建、修改Json实例的过程中可能会产生Json实例间的<strong>循环引用</strong>，
- * 可以用方法existsCircle检测。</p>
+ * <p>创建、修改Json实例的过程中可能会产生Json实例间的<strong>循环引用</strong>，
+ * 可以用方法<strong>existsCircle</strong>检测。</p>
  * 
  * @author bantouyan
  * @version 1.00
@@ -45,7 +47,7 @@ public abstract class Json
     
     /**
      * 解析Json字符串为Json实例。
-     * @param jsonText Json文本
+     * @param jsonText Json文本，应该为一个完整的JsonArray或JsonObject的表示。
      * @return 对应的Json实例
      * @throws IOException 发生了IO异常
      * @throws JsonParseException Json文本格式不正确
@@ -62,7 +64,7 @@ public abstract class Json
     
     /**
      * 解析reader包含的Json文本流为Json实例。
-     * @param reader 包含Json文本的Reader实例
+     * @param reader 包含Json文本的Reader实例，整个字符流应该是一个完整的JsonArray或JsonObject的表示
      * @return 对应的Json实例
      * @throws IOException 读写reader发生异常
      * @throws JsonParseException reader所包含的Json文本格式不正确
@@ -174,6 +176,14 @@ public abstract class Json
         {
             json = new JsonPrimitive();
         }
+        else if(value instanceof Json)
+        {
+            json = (Json)value;
+        }
+        else if(value instanceof Jsonable)
+        {
+            json = ((Jsonable)value).generateJson();
+        }
         else if(value instanceof String)
         {
             json = new JsonPrimitive((String)value);
@@ -194,10 +204,6 @@ public abstract class Json
         {
             json = Json.parseJavaCollection((Collection<?>)value, parentRef);
         }
-        else if(value instanceof Jsonable)
-        {
-            json = ((Jsonable)value).generateJson();
-        }
         else
         {
             throw new JsonParseException("Cannot parse value: " + value + ".");
@@ -207,8 +213,9 @@ public abstract class Json
     }
 
     /**
-     * 生成标准的Json文本， 如果解析失败，则返回空字符串。
-     */ 
+     * 生成标准的Json文本， 如果解析失败，则返空指针。
+     * @return 对应的Json文本
+     */
     public final String generateJsonText()
     {
         String str = null;
@@ -218,7 +225,7 @@ public abstract class Json
         } 
         catch (JsonException e)
         {
-            str = "";
+            str = null;
         }
         
         return str;
@@ -226,7 +233,7 @@ public abstract class Json
     
     /**
      * 生成对应的Json文本
-     * @param useQuote true Object的Name部分加引号， false尽量不加引号
+     * @param useQuote 为true时Object的Name部分加引号， false时尽量不加引号
      * @return 对应的Json文本
      * @throws JsonException JsonException 如果Json实例内出现了循环引用，则抛出此异常
      */
@@ -269,7 +276,7 @@ public abstract class Json
     protected abstract boolean existsCircle(IdentityStack parentRef);
     
     /**
-     * 清空Json实例所有的成员或元素，对JsonPrimitive无意义。
+     * 清空Json实例所有的子元素，对JsonPrimitive无意义。
      */
     public abstract void clear();
     
@@ -292,7 +299,8 @@ public abstract class Json
     public abstract JsonType getType();
     
     /**
-     * 转换为标准的Json字符串。
+     * 转换为标准的Json字符串，如果转换失败则返回null。
+     * @return 对应的Json字符串
      */
     @Override
     public final String toString()
@@ -346,7 +354,7 @@ public abstract class Json
     }
     
     /**
-     * 判断两个Json实例表示的数据是否一致。
+     * 判断两个Json实例表示的数据是否一致，即是否表示相同的Json。
      * @param obj 被比较的Json实例
      * @return 一致返回true，不一致返回false
      */
@@ -360,14 +368,14 @@ public abstract class Json
     public abstract int hashCode();
     
     /**
-     * Json实例的类型。
-     * OBJECT表示Json对象；
-     * ARRAY表示Json数组；
-     * STRING表示Json字符串；
-     * INTEGER表示Json整型数值，用Long类型存储；
-     * FLOAT表示Json浮点型数值，用Double类型存储；
-     * BOOLEAN表示Json逻辑型，用Boolean类型存储；
-     * NULL表示Json null类型。
+     * Json实例的类型。</br>
+     * OBJECT表示Json对象，用类型JsonArray存储；</br>
+     * ARRAY表示Json数组，用类型JsonArray存储；</br>
+     * STRING表示Json字符串，用类型String存储；</br>
+     * INTEGER表示Json整型数值，用类型Long存储；</br>
+     * FLOAT表示Json浮点型数值，用类型Double存储；</br>
+     * BOOLEAN表示Json逻辑型，用类型Boolean存储；</br>
+     * NULL表示Json null类型，用类型String存储。
      * 
      * @author bantouyan
      * @version 0.1
@@ -375,17 +383,17 @@ public abstract class Json
     public static enum JsonType
     {
         /**
-         * 表示Json对象类型
+         * 表示Json对象类型（用JsonObject存储）
          */
         OBJECT, 
         
         /**
-         * 表示Json数组类型
+         * 表示Json数组类型（用JsonArray存储）
          */
         ARRAY, 
         
         /**
-         * 表示Json字符串类型
+         * 表示Json字符串类型（用String存储）
          */
         STRING, 
         
@@ -400,12 +408,12 @@ public abstract class Json
         FLOAT, 
         
         /**
-         * 表示Json逻辑型（布尔型）数据
+         * 表示Json逻辑型（布尔型，用Boolean存储）数据
          */
         BOOLEAN, 
         
         /**
-         * 表示Json null类型
+         * 表示Json null类型（用String存储）
          */
         NULL
     };

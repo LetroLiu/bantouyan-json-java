@@ -6,12 +6,15 @@ import com.bantouyan.json.Json;
 import com.bantouyan.json.JsonArray;
 import com.bantouyan.json.JsonObject;
 import com.bantouyan.json.JsonParseException;
+import com.bantouyan.json.JsonPrimitive;
 
 import org.junit.Test;
+import org.junit.Ignore;
 import org.junit.Assert;
 
 public class TestTime
 {
+    @Ignore
     @Test
     public void test() throws IOException, JsonParseException
     {
@@ -102,7 +105,38 @@ public class TestTime
                 Assert.assertFalse(jsona.equals(jsonb));
             }
         }
-
     }
 
+   
+    public static void main(String[] args)
+    {
+        System.out.println(Double.NaN);
+        System.out.println(Double.MAX_EXPONENT);
+        System.out.println(Double.MIN_EXPONENT);
+        System.out.println(Double.MAX_VALUE);
+        System.out.println(Double.MIN_VALUE);
+        System.out.println(Double.MIN_NORMAL);
+        System.out.println(Double.POSITIVE_INFINITY);
+        System.out.println(Double.NEGATIVE_INFINITY);
+        System.out.println(Long.MAX_VALUE);
+        System.out.println(Long.MIN_VALUE);
+        System.out.println(Double.MAX_VALUE < Double.POSITIVE_INFINITY);
+        System.out.println(Double.MIN_VALUE > Double.NEGATIVE_INFINITY);
+        System.out.println(Double.POSITIVE_INFINITY < Double.POSITIVE_INFINITY);
+        System.out.println(Double.NEGATIVE_INFINITY > Double.NEGATIVE_INFINITY);
+        
+
+        System.out.println("++++++++++++++++++++++++++++++++");
+        Number num1 = Float.NaN;
+        Number num2 = Float.POSITIVE_INFINITY;
+        Number num3 = Float.NEGATIVE_INFINITY;
+        
+        Json json = new JsonPrimitive(num1);
+        System.out.println(json.getType() + " " + json);
+        json = new JsonPrimitive(num2);
+        System.out.println(json.getType() + " " + json);
+        json = new JsonPrimitive(num3);
+        System.out.println(json.getType() + " " + json);
+        
+    }
 }

@@ -8,20 +8,22 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * <p>用来表示Json对象实例。Json对象是由Name Value对的无序集合构成（本文档中
- * Name Value对中的Value部分称为子元素），可以通过Name存取对应的Value。</p>
+ * <p>用来表示Json对象实例。Json对象是由子元素（Name Value对）的无序集合构成，
+ * 可以通过Name存取对应子元素的Value。</p>
  * 
  * <p><strong>创建JsonObject实例</strong>，除了可以通过调用Json类的parse开头
- * 的方法创建JsonObject实例外，还可以直接创建空的JsonArray实例，或从Json实例集合创建。</p>
+ * 的方法创建JsonObject实例外，还可以直接创建空的JsonArray实例，或从Json实例集合创建。
+ * </p>
  * 
- * <p>调用方法get可以<strong>获取</strong>指定Name的子元素，方法<strong>getXXX
+ * <p>调用方法<strong>get</strong>可以获取指定Name的子元素，方法<strong>getXXX
  * </strong>返回指定Name子元素的某种原始类型值，方法<strong>canToXXX</strong>
- * 判定指定Name的子元素是否可以转换为这种原始类型，<strong>重设</strong>
- * 指定Name的子元素调用方法set，<strong>批量重设</strong>调用方法setAll，
- * <strong>添加</strong>Name Value（子元素）对调用方法add，<strong>批量添加
- * </strong>调用方法addAll，<strong>删除</strong>指定Name的子元素调用方法remove。
- * （add与set的区别是如果指定Name的子元素存在，或Name为null，则add方法抛出异常，
- * 但set方法不会）</p>
+ * 判定指定Name的子元素是否可以转换为这种原始类型，重设指定Name的子元素调用方法
+ * <strong>set</strong>，批量重设调用方法<strong>setAll</strong>，添加子元素
+ * （Name Value对）调用方法<strong>add</strong>，批量添加调用方法<strong>
+ * addAll</strong>，删除指定Name的子元素调用方法<strong>remove</strong>。
+ * （<strong>add与set的区别</strong>是如果指定Name的子元素存在，方法add抛出异常，
+ * 方法set覆盖子元素原来的Value；如果Name为null，方法add抛出异常，但set忽略这次操作）
+ * </p>
  * 
  * <p>方法<strong>isEmpty</strong>可以判断JsonObject实例是否包含
  * 子元素，方法<strong>count</strong>返回子元素的的个数（即Name Value对的个数），
@@ -278,7 +280,7 @@ public class JsonObject extends Json
     }
     
     /**
-     * 添加一个指定Name的新子元素，如果已经存在同名Name则不做任何操作。
+     * 添加一个指定Name的新子元素。
      * @param name 子元素的Name
      * @param value 子元素的值
      * @throws JsonException 如果name为null，或已存在同名Name，则抛出异常
@@ -298,7 +300,7 @@ public class JsonObject extends Json
     }
 
     /**
-     * 添加一个指定Name的新子元素，如果已经存在同名Name则不做任何操作。
+     * 添加一个指定Name的新子元素。
      * @param name 子元素的Name
      * @param value 子元素的值
      * @throws JsonException 如果name为null，或已存在同名Name，则抛出异常
@@ -310,7 +312,7 @@ public class JsonObject extends Json
     }
 
     /**
-     * 添加一个指定Name的新子元素，如果已经存在同名Name则不做任何操作。
+     * 添加一个指定Name的新子元素。
      * @param name 子元素的Name
      * @param value 子元素的值
      * @throws JsonException 如果name为null，或已存在同名Name，则抛出异常
@@ -322,7 +324,7 @@ public class JsonObject extends Json
     }
 
     /**
-     * 添加一个指定Name的新子元素，如果已经存在同名Name则不做任何操作。
+     * 添加一个指定Name的新子元素。
      * @param name 子元素的Name
      * @param value 子元素的值
      * @throws JsonException 如果name为null，或已存在同名Name，则抛出异常
@@ -333,7 +335,7 @@ public class JsonObject extends Json
     }
 
     /**
-     * 添加一个指定Name的新子元素，如果已经存在同名Name则不做任何操作。
+     * 添加一个指定Name的新子元素。
      * @param name 子元素的Name
      * @param value 子元素的值
      * @throws JsonException 如果name为null，或已存在同名Name，则抛出异常
@@ -344,7 +346,7 @@ public class JsonObject extends Json
     }
 
     /**
-     * 添加一个指定Name的新子元素，如果已经存在同名Name则不做任何操作。
+     * 添加一个指定Name的新子元素。
      * @param name 子元素的Name
      * @param value 子元素的值
      * @throws JsonException 如果name为null，或已存在同名Name，则抛出异常
@@ -355,7 +357,7 @@ public class JsonObject extends Json
     }
 
     /**
-     * 添加一个指定Name的新子元素，子元素是NULL类型实例，如果已经存在同名Name则不做任何操作。
+     * 添加一个指定Name的新子元素，子元素的Value是NULL类型的Json实例。
      * @param name 子元素的Name
      * @throws JsonException 如果name为null，或已存在同名Name，则抛出异常
      */
@@ -365,9 +367,9 @@ public class JsonObject extends Json
     }
     
     /**
-     * 批量添加子元素,但忽略name为null的entry，如果已经存在同名Name则不做任何操作。
+     * 批量添加子元素,但忽略name为null的entry。
      * @param map 要添加的子元素Map，不允许为null，否则抛出空指针异常
-     * @throws JsonException， 如果有同名子元素被加入，则抛出异常
+     * @throws JsonException 如果有试图加入同名子元素，则抛出异常
      */
     public void addAll(Map<String, ? extends Json> map) throws JsonException
     {
@@ -400,7 +402,7 @@ public class JsonObject extends Json
     /**
      * 批量添加子元素,但忽略name为null的entry，如果已经存在同名Name则不做任何操作。
      * @param map 要添加的子元素Map，不允许为null，否则抛出空指针异常
-     * @throws JsonException， 如果有同名子元素被加入，则抛出异常
+     * @throws JsonException 如果有试图加入同名子元素，则抛出异常
      */
     public void addAllJsonable(Map<String, ? extends Jsonable> map) throws JsonException
     {
@@ -411,7 +413,7 @@ public class JsonObject extends Json
     }
     
     /**
-     * 设置指定Name的子元素， 如果存在同名Name则覆盖原来的Value。
+     * 设置指定Name的子元素的Value， 如果存在同名Name则覆盖原来的Value。
      * @param name 如果name为null，则不执行任何操作
      * @param value 子元素的新值
      * @return 如果name不为null，则返回与name对应的先前子元素，否则null
@@ -424,7 +426,7 @@ public class JsonObject extends Json
     }
 
     /**
-     * 设置指定Name的子元素， 如果存在同名Name则覆盖原来的Value。
+     * 设置指定Name的子元素的Value， 如果存在同名Name则覆盖原来的Value。
      * @param name 如果name为null，则不执行任何操作
      * @param value 子元素的新值
      * @return 如果name不为null，则返回与name对应的先前子元素，否则null
@@ -439,7 +441,7 @@ public class JsonObject extends Json
     }
 
     /**
-     * 设置指定Name的子元素， 如果存在同名Name则覆盖原来的Value。
+     * 设置指定Name的子元素的Value， 如果存在同名Name则覆盖原来的Value。
      * @param name 如果name为null，则不执行任何操作
      * @param value 子元素的新值
      * @return 如果name不为null，则返回与name对应的先前子元素，否则null
@@ -452,7 +454,7 @@ public class JsonObject extends Json
     }
 
     /**
-     * 设置指定Name的子元素， 如果存在同名Name则覆盖原来的Value。
+     * 设置指定Name的子元素的Value， 如果存在同名Name则覆盖原来的Value。
      * @param name 如果name为null，则不执行任何操作
      * @param value 子元素的新值
      * @return 如果name不为null，则返回与name对应的先前子元素，否则null
@@ -464,7 +466,7 @@ public class JsonObject extends Json
     }
 
     /**
-     * 设置指定Name的子元素， 如果存在同名Name则覆盖原来的Value。
+     * 设置指定Name的子元素的Value， 如果存在同名Name则覆盖原来的Value。
      * @param name 如果name为null，则不执行任何操作
      * @param value 子元素的新值
      * @return 如果name不为null，则返回与name对应的先前子元素，否则null
@@ -476,7 +478,7 @@ public class JsonObject extends Json
     }
 
     /**
-     * 设置指定Name的子元素， 如果存在同名Name则覆盖原来的Value。
+     * 设置指定Name的子元素的Value， 如果存在同名Name则覆盖原来的Value。
      * @param name 如果name为null，则不执行任何操作
      * @param value 子元素的新值
      * @return 如果name不为null，则返回与name对应的先前子元素，否则null
@@ -488,7 +490,7 @@ public class JsonObject extends Json
     }
 
     /**
-     * 设置指定Name的子元素为NULL类型的实例， 如果存在同名Name则覆盖原来的Value。
+     * 设置指定Name的子元素的Value为NULL类型的Json实例， 如果存在同名Name则覆盖原来的Value。
      * @param name 如果name为null，则不执行任何操作
      * @return 如果name不为null，则返回与name对应的先前子元素，否则null
      */
@@ -550,7 +552,7 @@ public class JsonObject extends Json
     }
     
     /**
-     * 返回JsonObject实例的Name Value对的集合。
+     * 返回JsonObject实例子元素（Name Value）对的集合。
      * @return JsonObject实例的Name Value对的集合
      */
     public Set<Entry<String, Json>> entrySet()
@@ -612,7 +614,7 @@ public class JsonObject extends Json
     }
     
     /**
-     * JsonObject实例的hash值，各Name Value对hashCode的和。
+     * JsonObject实例的hash值，各子元素Name Value对的hashCode的和。
      * @return 根据对应的标准Json文本生成hash值
      */
     @Override
@@ -709,9 +711,9 @@ public class JsonObject extends Json
     }
     
     /**
-     * 返回指定Name所对应元素的Type
+     * 返回指定Name的子元素Value的JsonType
      * @param name 元素的Name
-     * @return 元素的Type
+     * @return 子元素Value的Type
      */
     public JsonType getType(String name)
     {
@@ -722,7 +724,7 @@ public class JsonObject extends Json
     }
     
     /**
-     * 判断Json对象内是否存在循环引用
+     * 判断JsonObject实例内是否存在循环引用
      * @param parentRef 上级Json对象的引用
      * @return 存在循环引用返回true，不存在返回false
      */

@@ -24,7 +24,7 @@ class IdentityStack
     
     /**
      * 创建一个指定容量的IdentityStack对象。
-     * @param capicity
+     * @param capicity Stack的初始容量
      */
     public IdentityStack(int capicity)
     {

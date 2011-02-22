@@ -30,12 +30,20 @@ public class JsonPrimitive extends Json
     
     /**
      * 创建浮点型的Json实例。
-     * @param data 创建Json的浮点型数值
+     * @param data 创建Json的浮点型数值，如果是NaN或Infinity，则转换为字符串
      */
-    protected JsonPrimitive(Double data)
+    public JsonPrimitive(Double data) throws JsonException
     {
-        this.type = JsonType.FLOAT;
-        this.data = data;
+        if(data.isNaN() || data.isInfinite())
+        {
+            this.type = JsonType.STRING;
+            this.data = data.toString();
+        }
+        else
+        {
+            this.type = JsonType.FLOAT;
+            this.data = data;
+        }
     }
 
     /**
@@ -50,16 +58,25 @@ public class JsonPrimitive extends Json
 
     /**
      * 创建数值型（整型或浮点型）Json实例。
-     * @param data 创建Json的数值
+     * @param data 创建Json的数值，如果是NaN或Infinity，则转换为字符串
      */
-    protected JsonPrimitive(Number data)
+    public JsonPrimitive(Number data)
     {
         if((data instanceof BigDecimal) 
             || (data instanceof Float) 
             || (data instanceof Double))
         {
-            this.type = JsonType.FLOAT;
-            this.data = (Double)data.doubleValue();
+            double dv = data.doubleValue();
+            if(Double.isNaN(dv) || Double.isInfinite(dv))
+            {
+                this.type = JsonType.STRING;
+                this.data = data.toString();
+            }
+            else
+            {
+                this.type = JsonType.FLOAT;
+                this.data = (Double)data.doubleValue();
+            }
         }
         else
         {
