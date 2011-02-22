@@ -3,7 +3,10 @@ package com.bantouyan.json.test;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.Assert;
+
 import com.bantouyan.json.*;
 import com.bantouyan.json.Json.JsonType;
 
@@ -20,19 +23,19 @@ public class TestArray
         cnt = ary.count();
 //        for(int i=0; i<cnt; i++) System.out.println(ary.get(i));
     }
-    
+    @Test
     public void instance()
     {
         JsonArray jary = new JsonArray();
         Assert.assertTrue(jary.isEmpty());
-        Assert.assertEquals(0, ary.count());
+        Assert.assertEquals(0, jary.count());
         
         ArrayList<Json> jsonList = new ArrayList<Json>();
         jsonList.add(new JsonObject());
         jsonList.add(new JsonArray());
         jary = new JsonArray(jsonList);
         Assert.assertFalse(jary.isEmpty());
-        Assert.assertEquals(2, ary.count());
+        Assert.assertEquals(2, jary.count());
         
         Assert.assertEquals(JsonType.OBJECT, jary.getType(0));
         Assert.assertEquals(jary.getType(0), jary.get(0).getType());
@@ -41,16 +44,25 @@ public class TestArray
         
         jary.remove(0);
         Assert.assertEquals(JsonType.ARRAY, jary.getType(0));
-        Assert.assertEquals(1, ary.count());
+        Assert.assertEquals(1, jary.count());
         jary.clear();
         
         Assert.assertTrue(jary.isEmpty());
-        Assert.assertEquals(0, ary.count());
+        Assert.assertEquals(0, jary.count());
         
         jsonList = null;
-        jary = new JsonArray(jsonList);
-        Assert.assertTrue(jary.isEmpty());
-        Assert.assertEquals(0, ary.count());
+        boolean error = false;
+        jary = null;
+        try
+        {
+            jary = new JsonArray(jsonList);
+        } 
+        catch (NullPointerException e)
+        {
+            error = true;
+        }
+        Assert.assertTrue(error);
+        Assert.assertTrue(jary == null);
     }
     
     @Test

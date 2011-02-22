@@ -86,22 +86,22 @@ public class JsonPrimitive extends Json
     {
         this.type = JsonType.BOOLEAN;
         this.data = data;
-    } 
+    }
 
     /**
-     * 生成Json文本。
-     * @param useStandard 无意义，此方法内被被忽略
-     * @return 对应的Json文本，字符串型返回带双引号的字符串，其他原始类型返回不带引号的字符串
+     * 生成Json文本，并追加到参数builder的尾部
+     * @param builder 保存Json文本的StringBuilder
+     * @param useQuote 为true时Object的Name部分加引号， false时尽量不加引号，但此类中无意义
      */
     @Override
-    protected String generateJsonTextWithoutCheck(boolean useStandard)
+    protected void generateJsonText(StringBuilder builder, boolean useQuote)
     {
         String str = data.toString();
         if(this.type == JsonType.STRING)
         {
             str = JsonTextParser.toJsonString(str);
         }
-        return str;
+        builder.append(str);
     }
 
     /**
@@ -323,6 +323,16 @@ public class JsonPrimitive extends Json
         {
             return this.data.equals(((JsonPrimitive)obj).data);
         }
+    }
+    
+    /**
+     * JsonPrimitive实例的hash值，即类型的hashCode与数据的hashCode的和。
+     * @return 根据对应的标准Json文本生成hash值
+     */
+    @Override
+    public int hashCode()
+    {
+        return type.hashCode() + data.hashCode();
     }
 
     /**

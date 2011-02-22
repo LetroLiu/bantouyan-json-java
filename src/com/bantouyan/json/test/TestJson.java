@@ -2,7 +2,9 @@ package com.bantouyan.json.test;
 
 import java.io.IOException;
 
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.Assert;
 
 import com.bantouyan.json.Json;
 import com.bantouyan.json.JsonArray;

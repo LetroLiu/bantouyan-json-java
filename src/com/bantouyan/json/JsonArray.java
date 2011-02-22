@@ -390,7 +390,6 @@ public class JsonArray extends Json implements Iterable<Json>
     /**
      * 在指定位置向Json数组添加一个NULL元素，原来的元素依次后移。
      * @param index 新元素插入的位置
-     * @param index 新元素插入的位置
      */
     public void insert(int index)
     {
@@ -566,6 +565,25 @@ public class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
+     * JsonArray实例的hash值，根据子元素的下标及其hashCode计算，
+     * 不同的排列顺序（对应的JsonArray也不等）生成hashCode不同。
+     * @return 根据对应的标准Json文本生成hash值
+     */
+    @Override
+    public int hashCode()
+    {
+        int hashcode = 7;
+        int cnt = count();
+        for(int i=1; i<cnt; i++)
+        {
+            Json json = get(i);
+            hashcode *= 67;
+            hashcode += json.hashCode();
+        }
+        return hashcode;
+    }
+    
+    /**
      * 返回Json数组的子元素个数。
      * @return Json数组内元素的个数
      */
@@ -595,26 +613,22 @@ public class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 生成Json文本，但不检测循环引用。
-     * @param useStandard true生成标准文本，false则尝试在Object的name部分不加引号
-     * @return 对应的Json文本
+     * 生成Json文本，并追加到参数builder的尾部
+     * @param builder 保存Json文本的StringBuilder
+     * @param useQuote 为true时Object的Name部分加引号， false时尽量不加引号
      */
     @Override
-    protected String generateJsonTextWithoutCheck(boolean useStandard)
+    protected void generateJsonText(StringBuilder builder, boolean useQuote)
     {
-        StringBuilder build = new StringBuilder();
-        
-        build.append('[');
+        builder.append('[');
         int cnt = elements.size();
         for(int i=0; i<cnt; i++)
         {
             Json element = elements.get(i);
-            build.append(element.generateJsonTextWithoutCheck(useStandard));
-            if(i < cnt-1) build.append(',');
+            element.generateJsonText(builder, useQuote);
+            if(i < cnt-1) builder.append(',');
         }
-        build.append(']');
-        
-        return build.toString();
+        builder.append(']');
     }
 
     /**

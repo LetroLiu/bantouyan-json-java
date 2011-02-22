@@ -6,7 +6,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.Assert;
 
 import com.bantouyan.json.*;
 import com.bantouyan.json.Json.JsonType;
@@ -50,6 +52,7 @@ public class TestObject
         
         map = null;
         boolean error = false;
+        jobj = null;
         try
         {
             jobj = new JsonObject(map);
@@ -59,6 +62,7 @@ public class TestObject
             error = true;
         }
         Assert.assertTrue(error);
+        Assert.assertTrue(jobj == null);
     }
 
     @Test

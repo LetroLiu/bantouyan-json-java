@@ -483,30 +483,19 @@ class JsonTextParser
         }
         
         //parse integer part
-        while(ch != -1)
-        {
-            if(ch >= '0' && ch <= '9')
-            {
-                build.append((char)ch);
-            }
-            else
-            {
-                break;
-            }
-            
-            next();
-        }
-        
-        //parse fraction
-        if(ch == '.')
+        if(ch == '0') //begin with 0
         {
             build.append((char)ch);
-            isInt = false;            
-            next(); //skip character '.'
+            next();
+        }
+        else if(ch > '0' && ch <= '9') //begin with 1..9
+        {
+            build.append((char)ch);
+            next();
             
             while(ch != -1)
             {
-                if(ch>='0' && ch<='9')
+                if(ch >= '0' && ch <= '9')
                 {
                     build.append((char)ch);
                 }
@@ -516,6 +505,38 @@ class JsonTextParser
                 }
                 
                 next();
+            }
+        }
+        else
+        {
+            throw new JsonParseException("Number format error at position " + pos + ".");
+        }
+        
+        //parse fraction
+        if(ch == '.')
+        {
+            build.append((char)ch);
+            isInt = false;            
+            next(); //skip character '.'
+            if(ch>='0' && ch<='9')
+            {
+                while(ch != -1)
+                {
+                    if(ch>='0' && ch<='9')
+                    {
+                        build.append((char)ch);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                    
+                    next();
+                }
+            }
+            else
+            {
+                throw new JsonParseException("Number format error at position " + pos + ".");
             }
             
         }
@@ -535,18 +556,25 @@ class JsonTextParser
                 next();
             }
             
-            while(ch != -1)
+            if(ch>='0' && ch<='9')
             {
-                if(ch>='0' && ch<='9')
+                while(ch != -1)
                 {
-                    build.append((char)ch);
+                    if(ch>='0' && ch<='9')
+                    {
+                        build.append((char)ch);
+                    }
+                    else
+                    {
+                        break;
+                    }
+    
+                    next();
                 }
-                else
-                {
-                    break;
-                }
-
-                next();
+            }
+            else
+            {
+                throw new JsonParseException("Number format error at position " + pos + ".");
             }
         }
         
