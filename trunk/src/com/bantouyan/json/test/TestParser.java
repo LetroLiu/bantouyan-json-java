@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.Ignore;
 
 import com.bantouyan.json.*;
 
@@ -70,6 +72,13 @@ public class TestParser
         String JsonText = "aa{";
         Json json = Json.parseJsonText(JsonText);
     }
+    
+    @Test(expected = JsonParseException.class)
+    public void invalidEnd() throws IOException, JsonParseException
+    {
+        String JsonText = "[]sss";
+        Json json = Json.parseJsonText(JsonText);
+    }
 
     @Test(expected = JsonParseException.class)
     public void repeatedObjectName() throws IOException, JsonParseException
@@ -100,9 +109,72 @@ public class TestParser
     }
 
     @Test(expected = JsonParseException.class)
+    public void invalidObjectNameA() throws IOException, JsonParseException
+    {
+        String JsonText = "{null:null}";
+        Json json = Json.parseJsonText(JsonText);
+    }
+
+    @Test(expected = JsonParseException.class)
+    public void invalidObjectNameB() throws IOException, JsonParseException
+    {
+        String JsonText = "{nss&ssn:null}";
+        Json json = Json.parseJsonText(JsonText);
+    }
+
+    @Test(expected = JsonParseException.class)
+    public void invalidObjectNameEndA() throws IOException, JsonParseException
+    {
+        String JsonText = "{nss&:null}";
+        Json json = Json.parseJsonText(JsonText);
+    }
+
+    @Test(expected = JsonParseException.class)
+    public void invalidObjectNameEndB() throws IOException, JsonParseException
+    {
+        String JsonText = "{\"nss\"&:null}";
+        Json json = Json.parseJsonText(JsonText);
+    }
+
+    @Test(expected = JsonParseException.class)
     public void noObjectName() throws IOException, JsonParseException
     {
-        String JsonText = "{";
+        String JsonText = "{:null}";
+        Json json = Json.parseJsonText(JsonText);
+    }
+    
+    @Test(expected = JsonParseException.class)
+    public void noObjectValue() throws IOException, JsonParseException
+    {
+        String JsonText = "{name: }";
+        Json json = Json.parseJsonText(JsonText);
+    }
+    
+    @Test(expected = JsonParseException.class)
+    public void invalidObjectValueBegin() throws IOException, JsonParseException
+    {
+        String JsonText = "{name: ss\"ss\"}";
+        Json json = Json.parseJsonText(JsonText);
+    }
+    
+    @Test(expected = JsonParseException.class)
+    public void invalidObjectValueEnd() throws IOException, JsonParseException
+    {
+        String JsonText = "{name: 356+}";
+        Json json = Json.parseJsonText(JsonText);
+    }
+    
+    @Test(expected = JsonParseException.class)
+    public void invalidArrayValueBegin() throws IOException, JsonParseException
+    {
+        String JsonText = "[\"name\", ss\"ss\"]";
+        Json json = Json.parseJsonText(JsonText);
+    }
+    
+    @Test(expected = JsonParseException.class)
+    public void invalidArrayValueEnd() throws IOException, JsonParseException
+    {
+        String JsonText = "[\"name\", trueS]";
         Json json = Json.parseJsonText(JsonText);
     }
 
@@ -182,6 +254,12 @@ public class TestParser
         String JsonText = "[+30]";
         Json json = Json.parseJsonText(JsonText);
     }
+    @Test(expected = JsonParseException.class)
+    public void invalid_longA2() throws IOException, JsonParseException
+    {
+        String JsonText = "[00]";
+        Json json = Json.parseJsonText(JsonText);
+    }
     
     @Test(expected = JsonParseException.class)
     public void invalid_longB() throws IOException, JsonParseException
@@ -190,7 +268,6 @@ public class TestParser
         Json json = Json.parseJsonText(JsonText);
     }
     
-    @Ignore("this format of float number can be accepted")
     @Test(expected = JsonParseException.class)
     public void invalid_doubleA() throws IOException, JsonParseException
     {
@@ -224,13 +301,6 @@ public class TestParser
     public void invalid_doubleE() throws IOException, JsonParseException
     {
         String JsonText = "[-3.3e-4f]";
-        Json json = Json.parseJsonText(JsonText);
-    }
-    
-    @Test(expected = JsonParseException.class)
-    public void invalidEnd() throws IOException, JsonParseException
-    {
-        String JsonText = "[]sss";
         Json json = Json.parseJsonText(JsonText);
     }
 }

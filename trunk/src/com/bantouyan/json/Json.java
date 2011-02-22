@@ -225,26 +225,29 @@ public abstract class Json
     }
     
     /**
-     * 生成Json文本。
-     * @param useStandard true生成标准文本，false则尝试在Object的name部分不加引号
+     * 生成对应的Json文本
+     * @param useQuote true Object的Name部分加引号， false尽量不加引号
      * @return 对应的Json文本
-     * @throws JsonException 如果Json实例内出现了循环引用，则抛出此异常
+     * @throws JsonException JsonException 如果Json实例内出现了循环引用，则抛出此异常
      */
-    public final String generateJsonText(boolean useStandard)throws JsonException
+    public final String generateJsonText(boolean useQuote)throws JsonException
     {
         if(existsCircle())
         {
             throw new JsonException("Circle reference occured in this Json.");
-        }    
-        return generateJsonTextWithoutCheck(useStandard);
+        }
+        
+        StringBuilder builder = new StringBuilder();
+        generateJsonText(builder, useQuote);
+        return builder.toString();
     }
 
     /**
-     * 生成Json文本，但不检测循环引用。
-     * @param useStandard true生成标准文本，false则尝试在Object的name部分不加引号
-     * @return 对应的Json文本
+     * 生成Json文本，并追加到参数builder的尾部
+     * @param builder 保存Json文本的StringBuilder
+     * @param useQuote 为true时Object的Name部分加引号， false时尽量不加引号
      */
-    protected abstract String generateJsonTextWithoutCheck(boolean useStandard);
+    protected abstract void generateJsonText(StringBuilder builder, boolean useQuote);
     
     /**
      * 判断Json对象内是否存在循环引用。
@@ -298,9 +301,11 @@ public abstract class Json
     }
     
     /**
-     * 判断是否相等。
+     * 判断是否相等，如果都是Json实例，类型相同，子元素的个数相同，
+     * 且对应的子元素相等（对JsonArray来讲，下标相同的子元素相等，
+     * 对JsonObject来讲，Name相同的子元素相等），则判断为相等，否则不相等。
      * @param obj 要比较的对象
-     * @return 如果都是Json实例，且对应的标准Json文本相等，则返回true，否则返回false
+     * @return 相等返回true，否则返回false
      */
     @Override
     public final boolean equals(Object obj)
@@ -316,9 +321,14 @@ public abstract class Json
         else if(obj instanceof Json)
         {
             Json objJson = (Json)obj;
-            if(this.getType() != objJson.getType())
+            JsonType jtp = this.getType();
+            if(jtp != objJson.getType())
             {
                 return false;
+            }
+            else if(jtp == JsonType.NULL)
+            {
+                return true;
             }
             else if(this.count() != objJson.count())
             {
@@ -343,21 +353,11 @@ public abstract class Json
     protected abstract boolean same(Json obj);
     
     /**
-     * Json实例的hash值
-     * @return 根据对应的标准Json文本生成hash值
+     * Json实例的hash值，不同的子类型有不同的计算方法
+     * @return hash值
      */
     @Override
-    public final int hashCode()
-    {
-        try
-        {
-            return this.generateJsonText(true).hashCode();
-        } 
-        catch (JsonException e)
-        {
-            return 0;
-        }
-    }
+    public abstract int hashCode();
     
     /**
      * Json实例的类型。

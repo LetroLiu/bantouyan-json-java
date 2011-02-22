@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.bantouyan.json.Json.JsonType;
-
 /**
  * <p>用来表示Json对象实例。Json对象是由Name Value对的无序集合构成（本文档中
  * Name Value对中的Value部分称为子元素），可以通过Name存取对应的Value。</p>
@@ -552,6 +550,26 @@ public class JsonObject extends Json
     }
     
     /**
+     * 返回JsonObject实例的Name Value对的集合。
+     * @return JsonObject实例的Name Value对的集合
+     */
+    public Set<Entry<String, Json>> entrySet()
+    {
+        Set<Entry<String, Json>> set = null;
+        
+        // change null value to JsonType.NULL value
+        Set<String> names = nameSet();
+        for(String name: names)
+        {
+            get(name);
+        }
+        
+        set = elements.entrySet();
+        
+        return set;
+    }
+    
+    /**
      * 判断两个Json实例表示的数据是否一致。
      * @param obj 被比较的Json实例
      * @return 一致返回true，不一致返回false
@@ -594,6 +612,25 @@ public class JsonObject extends Json
     }
     
     /**
+     * JsonObject实例的hash值，各Name Value对hashCode的和。
+     * @return 根据对应的标准Json文本生成hash值
+     */
+    @Override
+    public int hashCode()
+    {
+        int hashcode = 7;
+        Set<String> names = nameSet();
+        for(String name: names)
+        {
+            Json json = get(name);
+            hashcode += name.hashCode();
+            hashcode += json.hashCode() * 67;
+            
+        }
+        return hashcode;
+    }
+    
+    /**
      * 清除所有的子元素及其Name。
      */
     @Override
@@ -621,48 +658,45 @@ public class JsonObject extends Json
     {
         return this.elements.size();
     }
-        
+
     /**
-     * 生成Json文本，但不检测是否存在循环引用。
-     * @param useStandard true生成标准文本，false则尝试在Object的name部分不加引号
-     * @return 对应的Json文本
+     * 生成Json文本，并追加到参数builder的尾部
+     * @param builder 保存Json文本的StringBuilder
+     * @param useQuote 为true时Object的Name部分加引号， false时尽量不加引号
      */
     @Override
-    protected String generateJsonTextWithoutCheck(boolean useStandard)
+    protected void generateJsonText(StringBuilder builder, boolean useQuote)
     {        
-        StringBuilder build = new StringBuilder();
         int cnt = elements.size();
         int cur = 0;
         
-        build.append('{');
+        builder.append('{');
         for(Entry<String, Json> entry: elements.entrySet())
         {
             String name = entry.getKey();
-            if(useStandard)
+            if(useQuote)
             {
-                build.append(JsonTextParser.toJsonString(name));
+                builder.append(JsonTextParser.toJsonString(name));
             }
             else
             {
-                build.append(JsonTextParser.toJsonNoquoteString(name));
+                builder.append(JsonTextParser.toJsonNoquoteString(name));
             }
-            build.append(':');
+            builder.append(':');
             Json value = entry.getValue();
             if(value == null)
             {
-                build.append("null");
+                builder.append("null");
             }
             else
             {
-                build.append(value.generateJsonTextWithoutCheck(useStandard));
+                value.generateJsonText(builder, useQuote);
             }
             
             cur++;
-            if(cur != cnt) build.append(',');
+            if(cur != cnt) builder.append(',');
         }
-        build.append('}');
-        
-        return build.toString();
+        builder.append('}');
     }
 
     /**
