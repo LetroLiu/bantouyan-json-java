@@ -248,12 +248,22 @@ public class TestParser
         Json json = Json.parseJsonText(JsonText);
     }
     
+    @Test
+    public void stringInnerQutoe() throws IOException, JsonParseException
+    {
+        String JsonText = "[\"double\'double\", \'single\"single\']";
+        Json json = Json.parseJsonText(JsonText);
+//        System.out.println(JsonText);
+//        System.out.println(json);
+    }
+    
     @Test(expected = JsonParseException.class)
     public void invalid_longA() throws IOException, JsonParseException
     {
         String JsonText = "[+30]";
         Json json = Json.parseJsonText(JsonText);
     }
+   
     @Test(expected = JsonParseException.class)
     public void invalid_longA2() throws IOException, JsonParseException
     {

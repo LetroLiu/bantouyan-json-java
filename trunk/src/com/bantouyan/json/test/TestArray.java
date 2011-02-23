@@ -23,6 +23,7 @@ public class TestArray
         cnt = ary.count();
 //        for(int i=0; i<cnt; i++) System.out.println(ary.get(i));
     }
+   
     @Test
     public void instance()
     {

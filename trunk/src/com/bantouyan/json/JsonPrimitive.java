@@ -161,7 +161,6 @@ public class JsonPrimitive extends Json
         }
     }
     
-    
     /**
      * 返回逻辑型（布尔型）值，当Json类型不是BOOLEAN也不是字符串true、false时抛出异常。
      * @return 对应的逻辑型（布尔型）值
@@ -217,7 +216,6 @@ public class JsonPrimitive extends Json
         }
     }
     
-    
     /**
      * 返回整型值，当Json类型不是INTEGER也不是可以转换为整型数值的字符串时抛出异常。
      * @return 对应的整型值
@@ -268,7 +266,6 @@ public class JsonPrimitive extends Json
             return false;
         }
     }
-    
     
     /**
      * 返回浮点型值，当Json类型不是FLOAT也不是可以转换为浮点型数值的字符串时抛出异常。
@@ -359,7 +356,6 @@ public class JsonPrimitive extends Json
     public void clear()
     {
     }
-
     
     /**
      * Json实例是否包含子元素，对Primitive类型的Json实例无意义，返回true。
@@ -370,7 +366,6 @@ public class JsonPrimitive extends Json
     {
         return false;
     }
-
     
     /**
      * Json实例子元素的个数，对Primitive类型的Json实例无意义，返回0。
@@ -381,7 +376,6 @@ public class JsonPrimitive extends Json
     {
         return 0;
     }
-
     
     /**
      * 判断Json实例内是否存在循环引用，对Primitive类型的Json实例无意义，返回false
