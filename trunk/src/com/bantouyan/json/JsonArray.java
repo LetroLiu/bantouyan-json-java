@@ -1,5 +1,6 @@
 package com.bantouyan.json;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -28,7 +29,7 @@ import java.util.Iterator;
  * @author bantouyan
  * @version 1.00
  */
-public class JsonArray extends Json implements Iterable<Json>
+public final class JsonArray extends Json implements Iterable<Json>
 {
     //允许包含值为null的元素，但get及转换为Json文本时当NULL类型的Json实例处理
     private ArrayList<Json> elements;
@@ -42,7 +43,7 @@ public class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 根据Json集合创建JsonArray实例
+     * 根据Json集合创建JsonArray实例。
      * @param collection 源Json集合
      */
     public JsonArray(Collection<? extends Json> collection)
@@ -87,7 +88,7 @@ public class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 判断指定位置的子元素是否可以转换为逻辑型（布尔型）值
+     * 判断指定位置的子元素是否可以转换为逻辑型（布尔型）值。
      * @param index 子元素的位置
      * @return 可以返回true，否则返回false
      */
@@ -123,7 +124,7 @@ public class JsonArray extends Json implements Iterable<Json>
     }
 
     /**
-     * 判断指定位置的子元素是否可以转换为整型值
+     * 判断指定位置的子元素是否可以转换为整型值。
      * @param index 子元素的位置
      * @return 可以返回true，否则返回false
      */
@@ -159,7 +160,7 @@ public class JsonArray extends Json implements Iterable<Json>
     }
 
     /**
-     * 判断指定位置的子元素是否可以转换为浮点型值
+     * 判断指定位置的子元素是否可以转换为浮点型值。
      * @param index 子元素的位置
      * @return 可以返回true，否则返回false
      */
@@ -195,7 +196,7 @@ public class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 判断指定位置的子元素是否可以转换为JsonArray值
+     * 判断指定位置的子元素是否可以转换为JsonArray值。
      * @param index 子元素的位置
      * @return 可以返回true，否则返回false
      */
@@ -224,7 +225,7 @@ public class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 判断指定位置的子元素是否可以转换为JsonObject值
+     * 判断指定位置的子元素是否可以转换为JsonObject值。
      * @param index 子元素的位置
      * @return 可以返回true，否则返回false
      */
@@ -263,7 +264,7 @@ public class JsonArray extends Json implements Iterable<Json>
     } 
     
     /**
-     * 向Json数组末尾添加一个新元素
+     * 向Json数组末尾添加一个新元素。
      * @param element 要添加的新元素, 如果是null则抛出空指针异常
      * @return JsonArray实例是否发生改变
      */
@@ -314,7 +315,7 @@ public class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 向Json数组末尾添加一个NULL类型的Json实例
+     * 向Json数组末尾添加一个NULL类型的Json实例。
      * @return JsonArray实例是否发生改变
      */
     public boolean append()
@@ -528,7 +529,6 @@ public class JsonArray extends Json implements Iterable<Json>
         this.elements.remove(index);
     }
 
-
     /**
      * 判断两个Json实例表示的数据是否一致。
      * @param obj 被比较的Json实例
@@ -545,14 +545,17 @@ public class JsonArray extends Json implements Iterable<Json>
         {
             return true;
         }
-        else if(obj.getType() != JsonType.ARRAY)
+        else if(!(obj instanceof JsonArray))
+        {
+            return false;
+        }
+        else if(this.count() != obj.count())
         {
             return false;
         }
         else
         {
             int cnt = this.count();
-            if(cnt != obj.count()) return false;
             
             JsonArray objAry = (JsonArray)obj;
             for(int i=0; i<cnt; i++)
@@ -605,8 +608,8 @@ public class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 判断Json数组是否为空数组。
-     * @return 空数组返回true，否则返回false
+     * 判断Json实例子元素的个数是否为零（即是否为空数组）。
+     * @return 子元素的个数为零（空数组）返回true，否则返回false
      */
     @Override
     public boolean isEmpty()
@@ -615,24 +618,25 @@ public class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 生成Json文本，并追加到参数builder的尾部
-     * @param builder 保存Json文本的StringBuilder
+     * 向可追加对象追加Json文本。
+     * @param dest 接受Json文本的可追加对象
      * @param useQuote 为true时Object的Name部分加引号， false时尽量不加引号
+     * @throws IOException 追加字符流发生IO异常
      */
     @Override
-    protected void generateJsonText(StringBuilder builder, boolean useQuote)
+    protected void appendToAppendable(Appendable dest, boolean useQuote) throws IOException
     {
-        builder.append('[');
-        int cnt = elements.size();
+        dest.append('[');
+        int cnt = count();
         for(int i=0; i<cnt; i++)
         {
-            Json element = elements.get(i);
-            element.generateJsonText(builder, useQuote);
-            if(i < cnt-1) builder.append(',');
+            if(i > 0) dest.append(',');
+            Json element = get(i);
+            element.appendToAppendable(dest, useQuote);
         }
-        builder.append(']');
+        dest.append(']');
     }
-
+    
     /**
      * 返回 Json实例类型 JsonType.ARRAY。
      */
@@ -643,7 +647,7 @@ public class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 返回特定下标子元素的JsonType
+     * 返回特定下标子元素的JsonType。
      * @param index 子元素的下标
      * @return 子元素的Type
      */
@@ -675,7 +679,7 @@ public class JsonArray extends Json implements Iterable<Json>
     }
 
     /**
-     * 返回迭代器，用于for each循环
+     * 返回迭代器，用于for each循环。
      * @return JsonArray的迭代器
      */
     @Override

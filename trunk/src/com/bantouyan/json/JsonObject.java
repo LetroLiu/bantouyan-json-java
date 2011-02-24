@@ -1,5 +1,6 @@
 package com.bantouyan.json;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -33,7 +34,7 @@ import java.util.Set;
  * @author bantouyan
  * @version 1.00
  */
-public class JsonObject extends Json
+public final class JsonObject extends Json
 {  
     //不允许出现key为null的entry，但允许value为null
     //值为null的value，get以及转换为Json文本时当类型为NULL的Json实例处理
@@ -142,7 +143,7 @@ public class JsonObject extends Json
     }
     
     /**
-     * 判断指定Name的子元素是否可以转换为整型值
+     * 判断指定Name的子元素是否可以转换为整型值。
      * @param name 子元素的Name
      * @return 可以返回true，否则返回false
      */
@@ -543,8 +544,8 @@ public class JsonObject extends Json
     }
     
     /**
-     * 返回Json实例所有子元素的Name组成的集合。
-     * @return 所有子元素的Name
+     * 返回JsonObject实例所有子元素的Name组成的集合。
+     * @return 所有子元素的Name组成的集合
      */
     public Set<String> nameSet()
     {
@@ -552,13 +553,12 @@ public class JsonObject extends Json
     }
     
     /**
-     * 返回JsonObject实例子元素（Name Value）对的集合。
-     * @return JsonObject实例的Name Value对的集合
+     * 返回JsonObject实例所有子元素的Value组成的集合。
+     * @return 所有子元素的Value组成的集合
      */
-    public Set<Entry<String, Json>> entrySet()
+    //if modify this method, modify entrySet() together
+    public Collection<Json> values()
     {
-        Set<Entry<String, Json>> set = null;
-        
         // change null value to JsonType.NULL value
         Set<String> names = nameSet();
         for(String name: names)
@@ -566,9 +566,24 @@ public class JsonObject extends Json
             get(name);
         }
         
-        set = elements.entrySet();
+        return this.elements.values();
+    }
+    
+    /**
+     * 返回JsonObject实例子元素（Name Value）对的集合。
+     * @return JsonObject实例的Name Value对的集合
+     */
+    // if modify this method, modify values() together
+    public Set<Entry<String, Json>> entrySet()
+    {
+        // change null value to JsonType.NULL value
+        Set<String> names = nameSet();
+        for(String name: names)
+        {
+            get(name);
+        }
         
-        return set;
+        return elements.entrySet();
     }
     
     /**
@@ -587,14 +602,16 @@ public class JsonObject extends Json
         {
             return true;
         }
-        else if(obj.getType() != JsonType.OBJECT)
+        else if(!(obj instanceof JsonObject))
+        {
+            return false;
+        }
+        else if(this.count() != obj.count())
         {
             return false;
         }
         else
         {
-            if(this.count() != obj.count()) return false;
-            
             JsonObject objObj = (JsonObject)obj;
             Set<String> nameSet = this.nameSet();
             
@@ -633,6 +650,16 @@ public class JsonObject extends Json
     }
     
     /**
+     * 返回所有的子元素的数量（按子元素的Name计算）。
+     * @return 子元素的数量
+     */
+    @Override
+    public int count()
+    {
+        return this.elements.size();
+    }
+    
+    /**
      * 清除所有的子元素及其Name。
      */
     @Override
@@ -642,63 +669,48 @@ public class JsonObject extends Json
     }
     
     /**
-     * 判断Json实例是否不含任何子元素。
-     * @return 不包含任何子元素返回true，否则返回false
+     * 判断Json实例子元素的个数是否为零。
+     * @return 子元素的个数为零返回true，否则返回false
      */
     @Override
     public boolean isEmpty()
     {
         return this.elements.isEmpty();
     }
-    
-    /**
-     * 返回所有的子元素的数量（按子元素的Name计算）。
-     * @return 子元素的数量
-     */
-    @Override
-    public int count()
-    {
-        return this.elements.size();
-    }
 
     /**
-     * 生成Json文本，并追加到参数builder的尾部
-     * @param builder 保存Json文本的StringBuilder
+     * 向可追加对象追加Json文本。
+     * @param dest 接受Json文本的可追加对象
      * @param useQuote 为true时Object的Name部分加引号， false时尽量不加引号
+     * @throws IOException 追加字符流发生IO异常
      */
-    @Override
-    protected void generateJsonText(StringBuilder builder, boolean useQuote)
-    {        
-        int cnt = elements.size();
-        int cur = 0;
+    @Override //if modify this method, modify appendToWriter() together
+    protected void appendToAppendable(Appendable dest, boolean useQuote) throws IOException
+    {
+        int i = 0;
         
-        builder.append('{');
-        for(Entry<String, Json> entry: elements.entrySet())
+        dest.append('{');
+        for(Entry<String, Json> entry: entrySet())
         {
+            if(i > 0) dest.append(',');
+            i++;
+            
             String name = entry.getKey();
             if(useQuote)
             {
-                builder.append(JsonTextParser.toJsonString(name));
+                JsonTextParser.jsonStringToAppendable(name, dest);
             }
             else
             {
-                builder.append(JsonTextParser.toJsonNoquoteString(name));
+                JsonTextParser.jsonStringToAppendableWithoutQutoe(name, dest);
             }
-            builder.append(':');
+                
+            dest.append(':');
             Json value = entry.getValue();
-            if(value == null)
-            {
-                builder.append("null");
-            }
-            else
-            {
-                value.generateJsonText(builder, useQuote);
-            }
-            
-            cur++;
-            if(cur != cnt) builder.append(',');
+            //value is a json instance, not null, because it come from method entrySet()
+            value.appendToAppendable(dest, useQuote);
         }
-        builder.append('}');
+        dest.append('}');
     }
 
     /**
@@ -711,7 +723,7 @@ public class JsonObject extends Json
     }
     
     /**
-     * 返回指定Name的子元素Value的JsonType
+     * 返回指定Name的子元素Value的JsonType。
      * @param name 元素的Name
      * @return 子元素Value的Type
      */
@@ -724,7 +736,7 @@ public class JsonObject extends Json
     }
     
     /**
-     * 判断JsonObject实例内是否存在循环引用
+     * 判断JsonObject实例内是否存在循环引用。
      * @param parentRef 上级Json对象的引用
      * @return 存在循环引用返回true，不存在返回false
      */

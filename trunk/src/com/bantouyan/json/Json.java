@@ -1,7 +1,9 @@
 package com.bantouyan.json;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.Writer;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -31,16 +33,16 @@ import java.util.Set;
  */
 public abstract class Json
 {
-    protected static Json nullJson = new JsonPrimitive();
-    protected static Json trueJson = new JsonPrimitive(true);
-    protected static Json falseJson = new JsonPrimitive(false);
+    protected static JsonPrimitive nullJson = new JsonPrimitive();
+    protected static JsonPrimitive trueJson = new JsonPrimitive(true);
+    protected static JsonPrimitive falseJson = new JsonPrimitive(false);
     
     /**
      * 返回逻辑型的Json实例。
      * @param value 所需要的Json实例对应的逻辑型值
      * @return 对应的Json实例
      */
-    protected static Json getBooleanJson(boolean value)
+    protected static JsonPrimitive getBooleanJson(boolean value)
     {
         return (value == true)? trueJson: falseJson;
     }
@@ -80,19 +82,20 @@ public abstract class Json
     }
     
     /**
-     * 将Java Map实例解析为JsonObject实例。
+     * 将Java Map实例解析为JsonObject实例，但忽略key为null的entry。
      * @param map 要解析的Java Map实例
      * @return 对应的JsonObject实例
      * @throws JsonParseException 如果Map内存在循环引用，或有无法解析的对象，则抛出异常。
      */
     public static JsonObject parseJavaMap(Map<?, ?> map) throws JsonParseException
     {
+        if(map.containsKey(null)) map.remove(null);
         IdentityStack parentRef = new IdentityStack();
         return Json.parseJavaMap(map, parentRef);
     }
     
     /**
-     * 将Java Map实例解析为JsonObject实例。
+     * 将Java Map实例解析为JsonObject实例，但忽略key为null的entry。
      * @param map 要解析的Java Map实例
      * @param parentRef 上级对象的堆栈，用于检测循环引用
      * @return 对应的JsonObject实例
@@ -103,7 +106,7 @@ public abstract class Json
     {
         if(parentRef.contains(map))
         {
-            throw new JsonParseException("Circle reference exists in source Java instance.");
+            throw new JsonParseException("Java map is referenced again.");
         }
         
         JsonObject json = new JsonObject();
@@ -125,7 +128,7 @@ public abstract class Json
     }
     
     /**
-     * 将Java Collection实例解析为JsonArray实例。
+     * 将Java Collection实例解析为JsonArray实例，但忽略子Map内key为null的entry。
      * @param collection 要解析的Java Collection实例
      * @return 对应的JsonArray实例
      * @throws JsonParseException 如果Collection内存在循环引用，或有无法解析的对象，则抛出异常。
@@ -137,7 +140,7 @@ public abstract class Json
     }
     
     /**
-     * 将Java Collection实例解析为JsonArray实例。
+     * 将Java Collection实例解析为JsonArray实例，但忽略子Map内key为null的entry。
      * @param collection 要解析的Java Collection实例
      * @param parentRef 上级对象的堆栈，用于检测循环引用
      * @return 对应的JsonArray实例
@@ -148,7 +151,7 @@ public abstract class Json
     {
         if(parentRef.contains(collection))
         {
-            throw new JsonParseException("Circle reference exists in source Java instance.");
+            throw new JsonParseException("Java colloection is referenced again.");
         }
         
         JsonArray json = new JsonArray();
@@ -163,7 +166,7 @@ public abstract class Json
     }
     
     /**
-     * 将Java对象转换为Json实例
+     * 将Java对象转换为Json实例，但忽略Map内key为null的entry。
      * @param value Java对象
      * @return 对应的Json实例
      * @throws JsonParseException 如果Java对象已被（上级Json实例）引用，或无法解析，则抛出异常
@@ -206,7 +209,7 @@ public abstract class Json
         }
         else
         {
-            throw new JsonParseException("Cannot parse value: " + value + ".");
+            throw new JsonParseException("Cannot parse value: " + value + " to json instance.");
         }
         
         return json;
@@ -232,7 +235,7 @@ public abstract class Json
     }
     
     /**
-     * 生成对应的Json文本
+     * 生成对应的Json文本。
      * @param useQuote 为true时Object的Name部分加引号， false时尽量不加引号
      * @return 对应的Json文本
      * @throws JsonException JsonException 如果Json实例内出现了循环引用，则抛出此异常
@@ -241,20 +244,73 @@ public abstract class Json
     {
         if(existsCircle())
         {
-            throw new JsonException("Circle reference occured in this Json.");
+            throw new JsonException("Circle reference exists in this Json.");
         }
         
         StringBuilder builder = new StringBuilder();
-        generateJsonText(builder, useQuote);
+        try
+        {
+            appendToAppendable(builder, useQuote);
+        }
+        catch (IOException e)
+        {
+            //这里的IOException是由于appendToAppendable中调用jsonStringToAppendable(String, StringBuilder)
+            //和jsonStringToAppendableWithoutQuote(String, StringBuilder)引起的，
+            //这两个方法只会调用StringBuild.append(char)和StringBuilder.append(String)，
+            //所以不会产生异常，故不用处理
+        }
         return builder.toString();
     }
-
+    
     /**
-     * 生成Json文本，并追加到参数builder的尾部
-     * @param builder 保存Json文本的StringBuilder
+     * 将Json对应的文本输出到字符流，不用处理IO异常，适合在Servlet内使用。
+     * @param writer 接受Json文本的字符流
      * @param useQuote 为true时Object的Name部分加引号， false时尽量不加引号
+     * @throws JsonException Json内存在循环引用
      */
-    protected abstract void generateJsonText(StringBuilder builder, boolean useQuote);
+    public final void outputToWriter(PrintWriter writer, boolean useQuote) throws JsonException
+    {
+        if(existsCircle())
+        {
+            throw new JsonException("Circle reference exists in this Json.");
+        }
+        try
+        {
+            appendToAppendable(writer, useQuote);
+        } 
+        catch (IOException e)
+        {
+            //这里的IOException是由于appendToAppendable中调用
+            //jsonStringToAppendable(String, PrintWriter)
+            //引起的，该方法只会调用PrintWriter.append(char)
+            //和PrintWriter.append(String)，不会产生异常，
+            //故不用处理。
+        }
+    }
+    
+    /**
+     * 将Json对应的文本输出到字符流。
+     * @param writer 接受Json文本的字符流
+     * @param useQuote 为true时Object的Name部分加引号， false时尽量不加引号
+     * @throws IOException IO异常
+     * @throws JsonException Json内存在循环引用
+     */
+    public final void outputToWriter(Writer writer, boolean useQuote) throws IOException, JsonException
+    {
+        if(existsCircle())
+        {
+            throw new JsonException("Circle reference exists in this Json.");
+        }
+        appendToAppendable(writer, useQuote);
+    }
+    
+    /**
+     * 向可追加对象追加Json文本。
+     * @param dest 接受Json文本的可追加对象
+     * @param useQuote 为true时Object的Name部分加引号， false时尽量不加引号
+     * @throws IOException 追加字符流发生IO异常
+     */
+    protected abstract void appendToAppendable(Appendable dest, boolean useQuote) throws IOException; 
     
     /**
      * 判断Json对象内是否存在循环引用。
@@ -281,8 +337,8 @@ public abstract class Json
     public abstract void clear();
     
     /**
-     * 判断Json实例是否不含有任何子元素，JsonPrimitive返回false。
-     * @return 不包含任何子元素返回true，否则返回false
+     * 判断Json实例子元素的个数是否为零，JsonPrimitive返回true。
+     * @return 子元素的个数为零返回true，否则返回false
      */
     public abstract boolean isEmpty();
     
@@ -314,9 +370,10 @@ public abstract class Json
      * 对JsonObject来讲，Name相同的子元素相等），则判断为相等，否则不相等。
      * @param obj 要比较的对象
      * @return 相等返回true，否则返回false
+     * @exception JsonException 参与比较的Json实例内存在循环引用
      */
     @Override
-    public final boolean equals(Object obj)
+    public final boolean equals(Object obj) throws JsonException
     {
         if(obj == null)
         {
@@ -344,7 +401,18 @@ public abstract class Json
             }
             else
             {
-                return this.same(objJson);
+                if(this.existsCircle())
+                {
+                    throw new JsonException("The json instance used to compare exists circle.");
+                }
+                else if(objJson.existsCircle())
+                {
+                    throw new JsonException("The json instance used to be compare exists circle.");
+                }
+                else
+                {
+                    return this.same(objJson);
+                }
             }
         }
         else
@@ -361,7 +429,7 @@ public abstract class Json
     protected abstract boolean same(Json obj);
     
     /**
-     * Json实例的hash值，不同的子类型有不同的计算方法
+     * Json实例的hash值，不同的子类型有不同的计算方法。
      * @return hash值
      */
     @Override
@@ -378,7 +446,8 @@ public abstract class Json
      * NULL表示Json null类型，用类型String存储。
      * 
      * @author bantouyan
-     * @version 0.1
+     * @version 1.00
+     * 
      */
     public static enum JsonType
     {
