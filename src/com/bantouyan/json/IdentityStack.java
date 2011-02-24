@@ -61,6 +61,22 @@ class IdentityStack
     }
     
     /**
+     * 获得栈顶元素。
+     * @return 栈顶元素
+     */
+    public Object peek()
+    {
+        if(pos == 0)
+        {
+            return null;
+        }
+        else
+        {
+            return datas[pos - 1];
+        }
+    }
+    
+    /**
      * 判断堆栈是否含有指定的元素。
      * @param e 要检查的元素
      * @return 如果堆栈内包含指定元素，则返回true，否则返回false。
@@ -72,5 +88,14 @@ class IdentityStack
             if(datas[i] == e) return true;
         }
         return false;
+    }
+    
+    /**
+     * 判断栈是否为空。    
+     * @return 空栈返回true，否则返回false
+     */
+    public boolean isEmpty()
+    {
+        return pos == 0;
     }
 }

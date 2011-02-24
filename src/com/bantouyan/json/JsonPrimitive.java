@@ -1,5 +1,6 @@
 package com.bantouyan.json;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 
 /**
@@ -14,7 +15,7 @@ import java.math.BigDecimal;
  * @author bantouyan
  * @version 1.00
  */
-public class JsonPrimitive extends Json
+public final class JsonPrimitive extends Json
 {
     private JsonType type = null;
     private Object data;
@@ -32,7 +33,7 @@ public class JsonPrimitive extends Json
      * 创建浮点型的Json实例。
      * @param data 创建Json的浮点型数值，如果是NaN或Infinity，则转换为字符串
      */
-    public JsonPrimitive(Double data) throws JsonException
+    protected JsonPrimitive(Double data) throws JsonException
     {
         if(data.isNaN() || data.isInfinite())
         {
@@ -60,11 +61,28 @@ public class JsonPrimitive extends Json
      * 创建数值型（整型或浮点型）Json实例。
      * @param data 创建Json的数值，如果是NaN或Infinity，则转换为字符串
      */
-    public JsonPrimitive(Number data)
+    protected JsonPrimitive(Number data)
     {
-        if((data instanceof BigDecimal) 
-            || (data instanceof Float) 
-            || (data instanceof Double))
+        if(data instanceof Long)
+        {
+            this.type = JsonType.INTEGER;
+            this.data = data;
+        }
+        else if(data instanceof Double)
+        {
+            if(((Double)data).isNaN() || ((Double)data).isInfinite())
+            {
+                this.type = JsonType.STRING;
+                this.data = data.toString();
+            }
+            else
+            {
+                this.type = JsonType.FLOAT;
+                this.data = data;
+            }
+            
+        }
+        else if((data instanceof BigDecimal) || (data instanceof Float))
         {
             double dv = data.doubleValue();
             if(Double.isNaN(dv) || Double.isInfinite(dv))
@@ -78,7 +96,7 @@ public class JsonPrimitive extends Json
                 this.data = (Double)data.doubleValue();
             }
         }
-        else
+        else // other integer type
         {
             this.type = JsonType.INTEGER;
             this.data = (Long)data.longValue();
@@ -104,31 +122,6 @@ public class JsonPrimitive extends Json
         this.type = JsonType.BOOLEAN;
         this.data = data;
     }
-
-    /**
-     * 生成Json文本，并追加到参数builder的尾部
-     * @param builder 保存Json文本的StringBuilder
-     * @param useQuote 为true时Object的Name部分加引号， false时尽量不加引号，但此类中无意义
-     */
-    @Override
-    protected void generateJsonText(StringBuilder builder, boolean useQuote)
-    {
-        String str = data.toString();
-        if(this.type == JsonType.STRING)
-        {
-            str = JsonTextParser.toJsonString(str);
-        }
-        builder.append(str);
-    }
-
-    /**
-     * 返回 Json实例类型STRING, INTEGER, FLOAT, BOOLEAN或NULL。
-     */
-    @Override
-    public JsonType getType()
-    {
-        return type;
-    }
     
     /**
      * 返回Json 实例的字符串值。
@@ -140,7 +133,7 @@ public class JsonPrimitive extends Json
     }
     
     /**
-     * 判断是否可以转换为逻辑型（布尔型）值
+     * 判断是否可以转换为逻辑型（布尔型）值。
      * @return 是返回true，否则返回false
      */
     public boolean canToBoolean()
@@ -314,9 +307,17 @@ public class JsonPrimitive extends Json
         {
             return false;
         }
+        else if(this == obj)
+        {
+            return true;
+        }
         else if(this.type != obj.getType())
         {
             return false;
+        }
+        else if(this.type == JsonType.NULL)
+        {
+            return true;
         }
         else if(this.type == JsonType.FLOAT)
         {
@@ -348,24 +349,6 @@ public class JsonPrimitive extends Json
     {
         return type.hashCode() + data.hashCode();
     }
-
-    /**
-     * 清空Json实例的所有子元素，对Primitive类型的Json实例无意义，故不做任何操作。
-     */
-    @Override
-    public void clear()
-    {
-    }
-    
-    /**
-     * Json实例是否包含子元素，对Primitive类型的Json实例无意义，返回true。
-     * @return true
-     */
-    @Override
-    public boolean isEmpty()
-    {
-        return false;
-    }
     
     /**
      * Json实例子元素的个数，对Primitive类型的Json实例无意义，返回0。
@@ -376,9 +359,55 @@ public class JsonPrimitive extends Json
     {
         return 0;
     }
+
+    /**
+     * 清空Json实例的所有子元素，对Primitive类型的Json实例无意义，故不做任何操作。
+     */
+    @Override
+    public void clear()
+    {
+    }
     
     /**
-     * 判断Json实例内是否存在循环引用，对Primitive类型的Json实例无意义，返回false
+     * 判断Json实例子元素的个数是否为零，对Primitive类型的Json实例无意义，返回true。
+     * @return 恒为true
+     */
+    @Override
+    public boolean isEmpty()
+    {
+        return false;
+    }
+
+    /**
+    * 向可追加对象追加Json文本。
+    * @param dest 接受Json文本的可追加对象
+    * @param useQuote 为true时Object的Name部分加引号， false时尽量不加引号
+    * @throws IOException 追加字符流发生IO异常
+    */
+    @Override
+   protected void appendToAppendable(Appendable dest, boolean useQuote) throws IOException
+    {
+        if(this.type == JsonType.STRING)
+        {
+            JsonTextParser.jsonStringToAppendable((String)data, dest);
+        }
+        else
+        {
+            dest.append(data.toString());
+        }
+    }
+
+    /**
+     * 返回 Json实例类型STRING, INTEGER, FLOAT, BOOLEAN或NULL。
+     */
+    @Override
+    public JsonType getType()
+    {
+        return type;
+    }
+    
+    /**
+     * 判断Json实例内是否存在循环引用，对Primitive类型的Json实例无意义，返回false。
      * @param parentRef 上级Json对象的引用
      * @return false
      */
