@@ -4,15 +4,16 @@ import java.io.IOException;
 import java.math.BigDecimal;
 
 /**
- * <p>用来表示String、Number、Boolean与null类型的Json实例，
- * 创建后不可更改，且无需显示创建。</p>
+ * <p>用来表示STRING、NUMBER（LONG与DOUBLE）、BOOLEAN与NULL类型的Json实例，
+ * 创建后不可更改，且无需显式调用构造函数创建。</p>
  * 
- * <p>方法<strong>getXXX</strong>获取Json实例某种原始类型的值，方法
- * <strong>canToXXX</strong>判定Json实例值是否可以转换为这种原始类型。方法
- * <strong>getType</strong>返回Json实例的类型，方法<strong>isEmpty、count、
- * clear</strong>仅仅是从超类Json继承来的占位符，无实际意义。</p>
+ * <p>方法<strong>getXXX</strong>以特定的类型返回Json实例的值，
+ * 方法<strong>canToXXX</strong>判定Json实例值是否可以转换为这种类型。
+ * 方法<strong>getType</strong>返回Json实例的类型，
+ * 方法<strong>isEmpty、count、clear</strong>仅仅是从超类Json继承来的占位符，
+ * 无实际意义。</p>
  * 
- * @author bantouyan
+ * @author 飞翔的河马
  * @version 1.00
  */
 public final class JsonPrimitive extends Json
@@ -21,7 +22,7 @@ public final class JsonPrimitive extends Json
     private Object data;
     
     /**
-     * 创建值为null的Json实例。
+     * 创建类型为NULL的Json实例。（只有一个值null）
      */
     protected JsonPrimitive()
     {
@@ -31,7 +32,7 @@ public final class JsonPrimitive extends Json
     
     /**
      * 创建浮点型的Json实例。（因调用限制在此包内，所以不处理参数为null的情况）
-     * @param data 创建Json的浮点型数值，如果是NaN或Infinity，则转换为字符串
+     * @param data 创建Json的浮点型数值，如果是NaN或Infinity，则转换为字符串型
      */
     protected JsonPrimitive(Double data) throws JsonException
     {
@@ -59,7 +60,7 @@ public final class JsonPrimitive extends Json
 
     /**
      * 创建数值型（整型或浮点型）Json实例。（因调用限制在此包内，所以不处理参数为null的情况）
-     * @param data 创建Json的数值，如果是NaN或Infinity，则转换为字符串
+     * @param data 创建Json的数值，如果是NaN或Infinity，则转换为字符串型
      */
     protected JsonPrimitive(Number data)
     {
@@ -133,7 +134,7 @@ public final class JsonPrimitive extends Json
     
     /**
      * 返回Json 实例的字符串值。
-     * @return 返回对应的字符串，不带引号
+     * @return 返回对应的字符串，不带引号与转义符
      */
     public String getString()
     {
@@ -141,7 +142,8 @@ public final class JsonPrimitive extends Json
     }
     
     /**
-     * 判断是否可以转换为逻辑型（布尔型）值。
+     * 判断Json实例是否可以转换为逻辑型（布尔型）值，如果类型是BOOLEAN，
+     * 或是类型是STRING且值为true或false（不区分大小写）， 则认为可以转换。
      * @return 是返回true，否则返回false
      */
     public boolean canToBoolean()
@@ -163,7 +165,7 @@ public final class JsonPrimitive extends Json
     }
     
     /**
-     * 返回逻辑型（布尔型）值，当Json类型不是BOOLEAN也不是字符串true、false时抛出异常。
+     * 返回Json实例的逻辑型（布尔型）值。
      * @return 对应的逻辑型（布尔型）值
      * @throws JsonException 无法转换为逻辑型值
      */
@@ -197,7 +199,8 @@ public final class JsonPrimitive extends Json
     }
     
     /**
-     * 判断是否可以转换为整型值。
+     * 判断Json实例是否可以转换为整型值，如果类型是INTEGER，
+     * 或类型是STRING且其值表示一个整数，则认为可以转换。
      * @return 是返回true，否则返回false
      */
     public boolean canToLong()
@@ -218,7 +221,7 @@ public final class JsonPrimitive extends Json
     }
     
     /**
-     * 返回整型值，当Json类型不是INTEGER也不是可以转换为整型数值的字符串时抛出异常。
+     * 返回Json实例的整型值。
      * @return 对应的整型值
      * @throws JsonException 无法转换为整型值
      */
@@ -248,7 +251,8 @@ public final class JsonPrimitive extends Json
     }
     
     /**
-     * 判断是否可以转换为浮点型值。
+     * 判断Json实例是否可以转换为浮点型值，如果类型是INTEGER或FLOAT，
+     * 或者是STRING且其值表示一个数值，则认为可以转换。
      * @return 是返回true，否则返回false
      */
     public boolean canToDouble()
@@ -269,7 +273,7 @@ public final class JsonPrimitive extends Json
     }
     
     /**
-     * 返回浮点型值，当Json类型不是FLOAT也不是可以转换为浮点型数值的字符串时抛出异常。
+     * 返回Json实例的浮点型值。
      * @return 对应的浮点型值
      * @throws JsonException 无法转换为浮点型值
      */

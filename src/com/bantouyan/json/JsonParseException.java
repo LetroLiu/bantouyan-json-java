@@ -3,7 +3,7 @@ package com.bantouyan.json;
 /**
  * 解析Json字符串、Reader或者Java对象时如果源数据格式错误，则抛出该异常。
  * 
- * @author bantouyan
+ * @author 飞翔的河马
  * @version 1.00
  */
 public class JsonParseException extends Exception

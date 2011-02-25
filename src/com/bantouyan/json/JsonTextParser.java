@@ -6,7 +6,8 @@ import java.io.StringReader;
 
 /**
  * 内部类，用来将Reader或String解析成Json类实例，仅供此Json库内部使用。
- * @author bantouyan
+ * 
+ * @author 飞翔的河马
  * @version 1.00
  */
 class JsonTextParser
@@ -58,7 +59,7 @@ class JsonTextParser
     
     /**
      * 根据reader内容解析成JsonObject或JsonArray。
-     * @return 解析后的JsonObject或JsonArray
+     * @return 解析后的JsonObject或JsonArray实例
      * @throws IOException 读取reader有误
      * @throws JsonParseException Json格式错误（不是JsonObject或JsonArray）
      */

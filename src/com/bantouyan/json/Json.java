@@ -22,14 +22,15 @@ import java.util.Set;
  * 如果想把Json文本输出到字符流，请调用方法<strong>outputToWriter</strong>。
  * </p>
  * 
- * <p>方法<strong>isEmpty</strong>可以判断Json实例是否包含子元素，方法<strong>
- * count</strong>返回子元素的的个数，方法<strong>clear</strong>可以清除所有的
- * 子元素。方法<strong>getType</strong>返回Json实例的类型。</p>
+ * <p>方法<strong>isEmpty</strong>可以判断Json实例子元素的个数是否为零，
+ * 方法<strong>count</strong>返回子元素的的个数，
+ * 方法<strong>clear</strong>可以清除所有的子元素。
+ * 方法<strong>getType</strong>返回Json实例的类型。</p>
  * 
  * <p>创建、修改Json实例的过程中可能会产生Json实例间的<strong>循环引用</strong>，
  * 可以用方法<strong>existsCircle</strong>检测。</p>
  * 
- * @author bantouyan
+ * @author 飞翔的河马
  * @version 1.00
  */
 public abstract class Json
@@ -37,24 +38,24 @@ public abstract class Json
     /**
      * 类型为NULL的Json实例。
      */
-    public final static JsonPrimitive nullJson = new JsonPrimitive();
+    protected final static JsonPrimitive nullJson = new JsonPrimitive();
     
     /**
      * 类型为BOOLEAN值为true的Json实例。
      */
-    public final static JsonPrimitive trueJson = new JsonPrimitive(true);
+    protected final static JsonPrimitive trueJson = new JsonPrimitive(true);
     
     /**
      * 类型为BOOLEAN值为false的Json实例。
      */
-    public final static JsonPrimitive falseJson = new JsonPrimitive(false);
+    protected final static JsonPrimitive falseJson = new JsonPrimitive(false);
     
     /**
      * 返回值为true或false的逻辑型的Json实例。
      * @param value true或false
      * @return 对应的Json实例
      */
-    public static JsonPrimitive getBooleanJson(boolean value)
+    protected static JsonPrimitive getBooleanJson(boolean value)
     {
         return (value == true)? trueJson: falseJson;
     }
@@ -101,7 +102,7 @@ public abstract class Json
      */
     public static JsonObject parseJavaMap(Map<?, ?> map) throws JsonParseException
     {
-        if(map.containsKey(null)) map.remove(null);
+        map.remove(null);
         IdentityStack parentRef = new IdentityStack();
         return Json.parseJavaMap(map, parentRef);
     }
@@ -457,44 +458,44 @@ public abstract class Json
      * <strong>BOOLEAN</strong>表示Json逻辑型，用类型Boolean存储；</br>
      * <strong>NULL</strong>表示Json null类型，用类型String存储。
      * 
-     * @author bantouyan
+     * @author 飞翔的河马
      * @version 1.00
      * 
      */
     public static enum JsonType
     {
         /**
-         * 表示Json对象类型（用JsonObject存储）
+         * 表示Json对象类型（用JsonObject存储）。
          */
         OBJECT, 
         
         /**
-         * 表示Json数组类型（用JsonArray存储）
+         * 表示Json数组类型（用JsonArray存储）。
          */
         ARRAY, 
         
         /**
-         * 表示Json字符串类型（用String存储）
+         * 表示Json字符串类型（用String存储）。
          */
         STRING, 
         
         /**
-         * 表示Json数值（整型，用Long存储）类型
+         * 表示Json数值（整型，用Long存储）类型。
          */
         INTEGER, 
         
         /**
-         * 表示Json数值（浮点型，用Double存储）类型
+         * 表示Json数值（浮点型，用Double存储）类型。
          */
         FLOAT, 
         
         /**
-         * 表示Json逻辑型（布尔型，用Boolean存储）数据
+         * 表示Json逻辑型（布尔型，用Boolean存储）数据，只有两个值，true和false。
          */
         BOOLEAN, 
         
         /**
-         * 表示Json null类型（用String存储）
+         * 表示Json null类型（用String存储），只有一个值null。
          */
         NULL
     };
