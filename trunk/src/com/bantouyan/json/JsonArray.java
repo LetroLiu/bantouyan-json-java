@@ -6,31 +6,34 @@ import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * <p>用来表示Json数组实例。Json数组是一组有序Json实例的集合，数组的每个子元素
- * 都有特定的<strong>下标（从0开始）</strong>，可以根据下标存取特定的子元素。</p>
+ * <p>用来表示Json数组实例。Json数组是一组有序Json实例的集合，
+ * 数组的每个子元素都有特定的<strong>下标（从0开始）</strong>，
+ * 可以根据下标存取特定的子元素。</p>
  * 
- * <p><strong>创建JsonArray实例</strong>，除了可以通过调用Json类的parse开头
- * 的方法创建JsonArray实例外，还可以直接创建空的JsonArray实例，或从Json实例集合创建。
+ * <p><strong>创建JsonArray实例</strong>，
+ * 除了可以通过调用Json类的parse开头的方法创建JsonArray实例外，
+ * 还可以直接创建空的JsonArray实例，或从Json实例集合创建包含子元素的JsonO实例。
  * </p>
  * 
- * <p>调用方法<strong>get</strong>可以获取指定位置的子元素，方法<strong>getXXX
- * </strong>返回指定位置子元素的某种原始类型值，方法<strong>canToXXX</strong>
- * 判定指定位置的子元素是否可以转换为这种原始类型，重设指定位置的子元素调用方法
+ * <p>调用方法<strong>get</strong>可以获取指定下标的子元素，方法<strong>getXXX
+ * </strong>以特定的类型返回指定下标子元素的值，方法<strong>canToXXX</strong>
+ * 判定指定下标的子元素是否可以转换为这种类型，重设指定下标的子元素调用方法
  * <strong>set</strong>，在数组尾追加子元素调用方法<strong>append</strong>，
- * 在指定位置插入子元素调用方法<strong>insert</strong>，批量添加子元素调用方法
- * <strong>addAll</strong>，删除指定位置的子元素调用方法<strong>remove</strong>。
+ * 在指定下标插入子元素调用方法<strong>insert</strong>，批量添加子元素调用方法
+ * <strong>addAll</strong>，删除指定下标的子元素调用方法<strong>remove</strong>。
  * </p>
  * 
  * <p>JsonArray实现了接口<strong>Iterable</strong>，可以用<strong>for each</strong>
  * 循环遍历所有的子元素，也可以用方法<strong>iterator</strong>获取JsonArray的迭代器。
  * </p>
  * 
- * <p>方法<strong>isEmpty</strong>可以判断JsonArray实例是否包含子元素，
- * 方法<strong>count</strong>返回子元素的的个数，方法<strong>clear</strong>
- * 可以清除所有的子元素。方法<strong>getType</strong> 返回JsonArray实例的类型JsonType.ARRAY。
+ * <p>方法<strong>isEmpty</strong>可以判断JsonArray实例子元素的个数是否为零，
+ * 方法<strong>count</strong>返回子元素的的个数，
+ * 方法<strong>clear</strong>可以清除所有的子元素。
+ * 方法<strong>getType</strong> 返回JsonArray实例的类型<strong>JsonType.ARRAY</strong>。
  * </p>
  * 
- * @author bantouyan
+ * @author 飞翔的河马
  * @version 1.00
  */
 public final class JsonArray extends Json implements Iterable<Json>
@@ -47,7 +50,7 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 根据Json集合创建JsonArray实例。
+     * 根据Json集合创建包含子元素的JsonArray实例。
      * @param collection 源Json集合
      */
     public JsonArray(Collection<? extends Json> collection)
@@ -57,9 +60,9 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
         
     /**
-     * 获取指定位置的子元素。
-     * @param index 子元素的位置
-     * @return 对应子元素的值， 如果是null则返回 type是NULL类型的实例
+     * 获取指定下标的子元素。
+     * @param index 子元素的下标
+     * @return 对应子元素的值
      */
     public Json get(int index)
     {
@@ -74,9 +77,9 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 获取指定位置子元素的字符串值。
-     * @param index 子元素的位置
-     * @return 子元素对应的字符串值，如果子元素是JsonPrimitive类型则无双引号，否则是对应的标准Json文本
+     * 获取指定下标子元素的字符串值。
+     * @param index 子元素的下标
+     * @return 子元素对应的字符串值
      */
     public String getString(int index)
     {
@@ -92,8 +95,8 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 判断指定位置的子元素是否可以转换为逻辑型（布尔型）值。
-     * @param index 子元素的位置
+     * 判断指定下标的子元素是否可以转换为逻辑型（布尔型）值。
+     * @param index 子元素的下标
      * @return 可以返回true，否则返回false
      */
     public boolean canToBoolean(int index)
@@ -110,8 +113,8 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 返回指定位置子元素的逻辑型（布尔型）值。
-     * @param index 子元素的位置
+     * 返回指定下标子元素的逻辑型（布尔型）值。
+     * @param index 子元素的下标
      * @return 子元素对应的逻辑型（布尔型）值
      * @throws JsonException 如果子元素无法转换为逻辑型（布尔型）值则抛出异常
      */
@@ -128,8 +131,8 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
 
     /**
-     * 判断指定位置的子元素是否可以转换为整型值。
-     * @param index 子元素的位置
+     * 判断指定下标的子元素是否可以转换为整型值。
+     * @param index 子元素的下标
      * @return 可以返回true，否则返回false
      */
     public boolean canToLong(int index)
@@ -146,8 +149,8 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 返回指定位置子元素的整型值。
-     * @param index 子元素的位置
+     * 返回指定下标子元素的整型值。
+     * @param index 子元素的下标
      * @return 子元素对应的整型值
      * @throws JsonException 如果子元素无法转换为整型值，则抛出异常
      */
@@ -164,8 +167,8 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
 
     /**
-     * 判断指定位置的子元素是否可以转换为浮点型值。
-     * @param index 子元素的位置
+     * 判断指定下标的子元素是否可以转换为浮点型值。
+     * @param index 子元素的下标
      * @return 可以返回true，否则返回false
      */
     public boolean canToDouble(int index)
@@ -182,8 +185,8 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 返回指定位置子元素的浮点型值。
-     * @param index 子元素的位置
+     * 返回指定下标子元素的浮点型值。
+     * @param index 子元素的下标
      * @return 子元素对应的浮点型值
      * @throws JsonException 如果子元素无法转换为浮点型值，则抛出异常
      */
@@ -200,8 +203,8 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 判断指定位置的子元素是否可以转换为JsonArray值。
-     * @param index 子元素的位置
+     * 判断指定下标的子元素是否可以转换为JsonArray值。
+     * @param index 子元素的下标
      * @return 可以返回true，否则返回false
      */
     public boolean canToJsonArray(int index)
@@ -211,9 +214,9 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 返回指定位置子元素的JsonArray值。
-     * @param index 子元素的位置
-     * @return 子元素对应的浮点型值
+     * 返回指定下标子元素的JsonArray值。
+     * @param index 子元素的下标
+     * @return 子元素对应的JsonArray实例
      * @throws JsonException 如果子元素无法转换为浮点型值，则抛出异常
      */
     public JsonArray getJsonArray(int index) throws JsonException
@@ -229,8 +232,8 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 判断指定位置的子元素是否可以转换为JsonObject值。
-     * @param index 子元素的位置
+     * 判断指定下标的子元素是否可以转换为JsonObject值。
+     * @param index 子元素的下标
      * @return 可以返回true，否则返回false
      */
     public boolean canToJsonObject(int index)
@@ -240,9 +243,9 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 返回指定位置子元素的JsonObject值。
-     * @param index 子元素的位置
-     * @return 子元素对应的浮点型值
+     * 返回指定下标子元素的JsonObject值。
+     * @param index 子元素的下标
+     * @return 子元素对应的JsonObject实例
      * @throws JsonException 如果子元素无法转换为浮点型值，则抛出异常
      */
     public JsonObject getJsonObject(int index) throws JsonException
@@ -258,8 +261,8 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 向Json数组末尾添加一个新元素。
-     * @param element 要添加的新元素, null被作为NULL类型的Json实例处理
+     * 向Json数组末尾添加一个新子元素。
+     * @param element 要添加的新子元素, null被作为类型为NULL的Json实例处理
      * @return JsonArray实例是否发生改变
      */
     public boolean append(Json element)
@@ -269,8 +272,8 @@ public final class JsonArray extends Json implements Iterable<Json>
     } 
     
     /**
-     * 向Json数组末尾添加一个新元素，相当于append(element.generateJson())。
-     * @param element 要添加的新元素, null被作为NULL类型的Json实例处理
+     * 向Json数组末尾添加一个新子元素，相当于append(element.generateJson())。
+     * @param element 要添加的新子元素, null被作为类型为NULL的Json实例处理
      * @return JsonArray实例是否发生改变
      */
     public boolean append(Jsonable element)
@@ -281,8 +284,8 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
 
     /**
-     * 向Json数组末尾添加一个新元素。
-     * @param element 要添加的新元素, null被作为NULL类型的Json实例处理
+     * 向Json数组末尾添加一个新子元素。
+     * @param element 要添加的新子元素, null被作为类型为NULL的Json实例处理
      * @return JsonArray实例是否发生改变
      */
     public boolean append(String element)
@@ -292,8 +295,8 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 向Json数组末尾添加一个新元素。
-     * @param element 要添加的新元素
+     * 向Json数组末尾添加一个新子元素。
+     * @param element 要添加的新子元素
      * @return JsonArray实例是否发生改变
      */
     public boolean append(long element)
@@ -302,8 +305,8 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 向Json数组末尾添加一个新元素。
-     * @param element 要添加的新元素
+     * 向Json数组末尾添加一个新子元素。
+     * @param element 要添加的新子元素
      * @return JsonArray实例是否发生改变
      */
     public boolean append(double element)
@@ -312,8 +315,8 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 向Json数组末尾添加一个新元素。
-     * @param element 要添加的新元素
+     * 向Json数组末尾添加一个新子元素。
+     * @param element 要添加的新子元素
      * @return JsonArray实例是否发生改变
      */
     public boolean append(boolean element)
@@ -322,7 +325,7 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 向Json数组末尾添加一个NULL类型的Json实例。
+     * 向Json数组末尾添加一个类型为NULL的Json实例。
      * @return JsonArray实例是否发生改变
      */
     public boolean append()
@@ -331,9 +334,9 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 在指定位置向Json数组添加一个新元素，原来的元素依次后移。
-     * @param index 新元素的插入位置
-     * @param element 要添加的新元素, null被作为NULL类型的Json实例处理
+     * 在指定下标向Json数组添加一个新子元素，原来的子元素依次后移。
+     * @param index 新元素的插入下标
+     * @param element 要添加的新子元素, null被作为类型为NULL的Json实例处理
      */
     public void insert(int index, Json element)
     {
@@ -345,9 +348,10 @@ public final class JsonArray extends Json implements Iterable<Json>
     
     /**
      * 
-     * 在指定位置向Json数组添加一个新元素，原来的元素依次后移，相当于insert(index, element.generateJson())。
-     * @param index 新元素的插入位置
-     * @param element 要添加的新元素, null被作为NULL类型的Json实例处理
+     * 在指定下标向Json数组添加一个新子元素，原来的子元素依次后移，
+     * 相当于insert(index, element.generateJson())。
+     * @param index 新子元素的插入下标
+     * @param element 要添加的新子元素, null被作为类型为NULL的Json实例处理
      */
     public void insert(int index, Jsonable element)
     {
@@ -359,9 +363,9 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
 
     /**
-     * 在指定位置向Json数组添加一个新元素，原来的元素依次后移。
-     * @param index 新元素的插入位置
-     * @param element 要添加的新元素, null被作为NULL类型的Json实例处理
+     * 在指定下标向Json数组添加一个新子元素，原来的子元素依次后移。
+     * @param index 新子元素的插入下标
+     * @param element 要添加的新子元素, null被作为类型为NULL的Json实例处理
      */
     public void insert(int index, String element)
     {
@@ -372,9 +376,9 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
 
     /**
-     * 在指定位置向Json数组添加一个新元素，原来的元素依次后移。
-     * @param index 新元素的插入位置
-     * @param element 要添加的新元素
+     * 在指定下标向Json数组添加一个新子元素，原来的子元素依次后移。
+     * @param index 新子元素的插入下标
+     * @param element 要添加的新子元素
      */
     public void insert(int index, long element)
     {
@@ -382,9 +386,9 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
 
     /**
-     * 在指定位置向Json数组添加一个新元素，原来的元素依次后移。
-     * @param index 新元素的插入位置
-     * @param element 要添加的新元素
+     * 在指定下标向Json数组添加一个新子元素，原来的子元素依次后移。
+     * @param index 新子元素的插入下标
+     * @param element 要添加的子元素
      */
     public void insert(int index, double element)
     {
@@ -392,9 +396,9 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
 
     /**
-     * 在指定位置向Json数组添加一个新元素，原来的元素依次后移。
-     * @param index 新元素的插入位置
-     * @param element 要添加的新元素
+     * 在指定下标向Json数组添加一个新子元素，原来的子元素依次后移。
+     * @param index 新子元素的插入下标
+     * @param element 要添加的新子子元素
      */
     public void insert(int index, boolean element)
     {
@@ -402,8 +406,8 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 在指定位置向Json数组添加一个NULL元素，原来的元素依次后移。
-     * @param index 新元素的插入位置
+     * 在指定下标向Json数组添加一个类型为NULL的Json实例，原来的子元素依次后移。
+     * @param index 新子元素的插入下标
      */
     public void insert(int index)
     {
@@ -411,8 +415,8 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 向Json数组末尾批量添加元素。
-     * @param list 要添加的元素，值为null的子元素被作为NULL类型的Json实例处理
+     * 向Json数组末尾批量添加子元素。
+     * @param list 要添加的子元素，值为null的子元素被作为类型为NULL的Json实例处理
      */
     public void addAll(Collection<? extends Json> list)
     {
@@ -428,9 +432,9 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 在指定位置向Json数组批量添加元素，原来的元素依次后移。
-     * @param index 指定的位置
-     * @param list 要添加的元素，值为null的子元素被作为NULL类型的Json实例处理
+     * 在指定下标向Json数组批量添加子元素，原来的子元素依次后移。
+     * @param index 指定的下标
+     * @param list 要添加的子元素集合，值为null的子元素被作为类型为NULL的Json实例处理
      */
     public void addAll(int index, Collection<? extends Json> list)
     {
@@ -446,8 +450,8 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 向Json数组末尾批量添加元素。
-     * @param list 要添加的元素，值为null的子元素被作为NULL类型的Json实例处理
+     * 向Json数组末尾批量添加子元素。
+     * @param list 要添加的子元素集合，值为null的子元素被作为类型为NULL的Json实例处理
      */
     public void addAllJsonable(Collection<? extends Jsonable> list)
     {
@@ -464,9 +468,9 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 在指定位置向Json数组批量添加元素，原来的元素依次后移。
-     * @param index 指定的位置
-     * @param list 要添加的元素，值为null的子元素被作为NULL类型的Json实例处理
+     * 在指定下标向Json数组批量添加子元素，原来的子元素依次后移。
+     * @param index 指定的下标
+     * @param list 要添加的子元素集合，值为null的子元素被作为类型为NULL的Json实例处理
      */
     public void addAllJsonable(int index, Collection<? extends Jsonable> list)
     {
@@ -483,9 +487,9 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 设置Json数组指定位置的元素。
-     * @param index 指定的位置
-     * @param element 子元素的新值
+     * 设置Json数组指定下标的子元素。
+     * @param index 指定的下标
+     * @param element 子元素的新值, null被作为类型为NULL的Json实例处理
      */
     public void set(int index, Json element)
     {
@@ -496,9 +500,9 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 设置Json数组指定位置的元素。
-     * @param index 指定的位置
-     * @param element 子元素的新值
+     * 设置Json数组指定下标的子元素。
+     * @param index 指定的下标
+     * @param element 子元素的新值, null被作为类型为NULL的Json实例处理
      */
     public void set(int index, Jsonable element)
     {
@@ -510,9 +514,9 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
 
     /**
-     * 设置Json数组指定位置的元素。
-     * @param index 指定的位置
-     * @param element 子元素的新值
+     * 设置Json数组指定下标的子元素。
+     * @param index 指定的下标
+     * @param element 子元素的新值, null被作为类型为NULL的Json实例处理
      */
     public void set(int index, String element)
     {
@@ -523,8 +527,8 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
 
     /**
-     * 设置Json数组指定位置的元素。
-     * @param index 指定的位置
+     * 设置Json数组指定下标的子元素。
+     * @param index 指定的下标
      * @param element 子元素的新值
      */
     public void set(int index, long element)
@@ -533,8 +537,8 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
 
     /**
-     * 设置Json数组指定位置的元素。
-     * @param index 指定的位置
+     * 设置Json数组指定下标的子元素。
+     * @param index 指定的下标
      * @param element 子元素的新值
      */
     public void set(int index, double element)
@@ -543,8 +547,8 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
 
     /**
-     * 设置Json数组指定位置的元素。
-     * @param index 指定的位置
+     * 设置Json数组指定下标的子元素。
+     * @param index 指定的下标
      * @param element 子元素的新值
      */
     public void set(int index, boolean element)
@@ -553,8 +557,8 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
 
     /**
-     * 设置Json数组指定位置的元素为NULL类型的Json实例。
-     * @param index 指定的位置
+     * 设置Json数组指定下标的子元素为类型是NULL的Json实例。
+     * @param index 指定的下标
      */
     public void set(int index)
     {
@@ -562,8 +566,8 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 删除Json数组指定位置的元素，后续的元素依次前移。
-     * @param index 指定的位置
+     * 删除Json数组指定下标的子元素，后续的子元素依次前移。
+     * @param index 指定的下标
      */
     public void remove(int index)
     {
@@ -611,9 +615,9 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * JsonArray实例的hash值，根据子元素的下标及其hashCode计算，
+     * JsonArray实例的hash值，根据子元素及其下标计算hashCode，
      * 不同的排列顺序（对应的JsonArray也不等）生成hashCode不同。
-     * @return 根据对应的标准Json文本生成hash值
+     * @return 对应的hashCode值
      */
     @Override
     public int hashCode()
@@ -631,7 +635,7 @@ public final class JsonArray extends Json implements Iterable<Json>
     
     /**
      * 返回Json数组的子元素个数。
-     * @return Json数组内元素的个数
+     * @return Json数组内子元素的个数
      */
     @Override
     public int count()
@@ -640,7 +644,7 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 清除Json数组中的所有元素。
+     * 清除Json数组中所有的子元素。
      */
     @Override
     public void clear()

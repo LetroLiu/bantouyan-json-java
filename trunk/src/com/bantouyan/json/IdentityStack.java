@@ -5,7 +5,7 @@ package com.bantouyan.json;
  * 因为Java集合对象使用hashcode来进行比较，
  * 当Java集合内出现循环引用时hashcode方法会抛出StackOverflowError错误，
  * 所以开发了此类，仅供此Json库内部使用。
- * @author bantouyan
+ * @author 飞翔的河马
  * @version 1.00
  *
  */

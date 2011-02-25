@@ -5,7 +5,7 @@ package com.bantouyan.json;
  * Name 对应的Value时重设已有的Name对应的Value，或者构造的Json
  * 实例含有循环引用导致无法转换为Json文本，就应该抛出此异常。
  * 
- * @author bantouyan
+ * @author 飞翔的河马
  * @version 1.00
  */
 public class JsonException extends RuntimeException
