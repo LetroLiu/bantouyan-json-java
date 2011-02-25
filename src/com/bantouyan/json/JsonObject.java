@@ -1,7 +1,6 @@
 package com.bantouyan.json;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +23,11 @@ import java.util.Set;
  * addAll</strong>，删除指定Name的子元素调用方法<strong>remove</strong>。
  * （<strong>add与set的区别</strong>是如果指定Name的子元素存在，方法add抛出异常，
  * 方法set覆盖子元素原来的Value；如果Name为null，方法add抛出异常，但set忽略这次操作）
+ * </p>
+ * 
+ * <p>获取所有子元素的Name组成的集合调用方法<strong>nameSet</strong>，
+ * 获取所有子元素的Value组成的集合调用方法<strong>values</strong>，
+ * 获取所有子元素调用方法<strong>entrySet</strong>。
  * </p>
  * 
  * <p>方法<strong>isEmpty</strong>可以判断JsonObject实例是否包含
@@ -61,80 +65,55 @@ public final class JsonObject extends Json
     }
     
     /**
-     * 返回指定Name的子元素，如果子元素是null，则返回type是NULL类型的Json实例。
+     * 返回指定Name的子元素。
      * @param name 子元素的Name
      * @return 如果name为null，或不包含此name，则返回null，否则返回对应的子元素
      */
     public Json get(String name)
     {
-        if(name == null || (! this.elements.containsKey(name))) return null;
-        
-        Json json = this.elements.get(name);
-        if(json == null)
-        {
-            json = Json.nullJson;
-            this.elements.put(name, json);
-        }
-        
-        return json;
+        return ( (name == null) || (!this.elements.containsKey(name)))? null:
+                    this.elements.get(name);
     }
     
     /**
-     * 返回指定Name的子元素字符串值，如果获取的子元素是null，则按NULL类型返回。
+     * 返回指定Name的子元素字符串值。
      * @param name 子元素的Name
      * @return 如果name为null，或不包含此name，则返回null
      */
     public String getString(String name)
     {
-        Json json = this.get(name);
+        if((name == null) || (!this.elements.containsKey(name))) return null;
         
-        if(json == null)
-        {
-            return null;
-        }
-        else if(json instanceof JsonPrimitive)
-        {
-            return ((JsonPrimitive) json).getString();
-        }
-        else
-        {
-            return json.toString();
-        }
+        Json json = this.elements.get(name);
+        return (json instanceof JsonPrimitive)? ((JsonPrimitive)json).getString():
+                                                json.toString();
     }
     
     /**
      * 判断指定Name的子元素是否可以转换为逻辑型（布尔型）值。
-     * @param name 子元素的Name
+     * @param name 子元素的Name，如果name为null，或不包含此name，则返回false
      * @return 可以返回true，否则返回false
      */
     public boolean canToBoolean(String name)
     {
-        Json json = get(name);
-        if(json == null)
-        {
-            return false;
-        }
-        else if(json instanceof JsonPrimitive)
-        {
-            return ((JsonPrimitive)json).canToBoolean();
-        }
-        else
-        {
-            return false;
-        }
+        if((name == null) || (!this.elements.containsKey(name))) return false;
+        Json json = this.elements.get(name);
+        
+        return (json instanceof JsonPrimitive)? ((JsonPrimitive)json).canToBoolean():
+                                               false;
     }
     
     /**
      * 返回指定Name的子元素的逻辑型（布尔型）值。
      * @param name 子元素的Name
-     * @return 如果name为null，或不包含此name，则返回null
+     * @return 对应的逻辑型值
      * @throws JsonException 如果name为null，或不存在此name，或类型不匹配，则抛出异常
      */
     public boolean getBoolean(String name) throws JsonException
     {
         if(canToBoolean(name))
         {
-            return ((JsonPrimitive)get(name)).getBoolean();
+            return ((JsonPrimitive)this.elements.get(name)).getBoolean();
         }
         else
         {
@@ -144,37 +123,29 @@ public final class JsonObject extends Json
     
     /**
      * 判断指定Name的子元素是否可以转换为整型值。
-     * @param name 子元素的Name
+     * @param name 子元素的Name，如果name为null，或不包含此name，则返回false
      * @return 可以返回true，否则返回false
      */
     public boolean canToLong(String name)
     {
-        Json json = get(name);
-        if(json == null)
-        {
-            return false;
-        }
-        else if(json instanceof JsonPrimitive)
-        {
-            return ((JsonPrimitive)json).canToLong();
-        }
-        else
-        {
-            return false;
-        }
+        if((name == null) || (!this.elements.containsKey(name))) return false;
+        Json json = this.elements.get(name);
+        
+        return (json instanceof JsonPrimitive)? ((JsonPrimitive)json).canToLong():
+                                               false;
     }
     
     /**
      * 返回指定Name的子元素的整型值。
      * @param name 子元素的Name
-     * @return 如果name为null，或不包含此name，则返回null
+     * @return 对应的整型值
      * @throws JsonException 如果name为null，或不存在此name，或类型不匹配，则抛出异常
      */
     public long getLong(String name) throws JsonException
     {
         if(canToLong(name))
         {
-            return ((JsonPrimitive)get(name)).getLong();
+            return ((JsonPrimitive)this.elements.get(name)).getLong();
         }
         else
         {
@@ -184,37 +155,29 @@ public final class JsonObject extends Json
     
     /**
      * 判断指定Name的子元素是否可以转换为浮点型值。
-     * @param name 子元素的Name
+     * @param name 子元素的Name，如果name为null，或不包含此name，则返回false
      * @return 可以返回true，否则返回false
      */
     public boolean canToDouble(String name)
     {
-        Json json = get(name);
-        if(json == null)
-        {
-            return false;
-        }
-        else if(json instanceof JsonPrimitive)
-        {
-            return ((JsonPrimitive)json).canToDouble();
-        }
-        else
-        {
-            return false;
-        }
+        if((name == null) || (!this.elements.containsKey(name))) return false;
+        Json json = this.elements.get(name);
+        
+        return (json instanceof JsonPrimitive)? ((JsonPrimitive)json).canToDouble():
+                                               false;
     }
     
     /**
      * 返回指定Name的子元素的浮点型值。
      * @param name 子元素的Name
-     * @return 如果name为null，或不包含此name，则返回null
+     * @return 对应的浮点型值
      * @throws JsonException 如果name为null，或不存在此name，或类型不匹配，则抛出异常
      */
     public double getDouble(String name) throws JsonException
     {
         if(canToDouble(name))
         {
-            return ((JsonPrimitive)get(name)).getDouble();
+            return ((JsonPrimitive)this.elements.get(name)).getDouble();
         }
         else
         {
@@ -224,26 +187,26 @@ public final class JsonObject extends Json
     
     /**
      * 判断指定Name的子元素是否可以转换为JsonArray。
-     * @param name 子元素的Name
+     * @param name 子元素的Name，如果name为null，或不包含此name，则返回false
      * @return 可以返回true，否则返回false
      */
     public boolean canToJsonArray(String name)
     {
-        Json json = get(name);
-        return (json == null)? false: (json instanceof JsonArray)? true: false;
+        return ((name == null) || (!this.elements.containsKey(name)))? false:
+            this.elements.get(name) instanceof JsonArray;
     }
     
     /**
      * 返回指定Name的子元素的JsonArray值。
      * @param name 子元素的Name
-     * @return 如果name为null，或不包含此name，则返回null
+     * @return 对应的JsonArray实例
      * @throws JsonException 如果name为null，或不存在此name，或类型不匹配，则抛出异常
      */
     public JsonArray getJsonArray(String name) throws JsonException
     {
         if(canToJsonArray(name))
         {
-            return (JsonArray)get(name);
+            return (JsonArray)this.elements.get(name);
         }
         else
         {
@@ -253,26 +216,26 @@ public final class JsonObject extends Json
     
     /**
      * 判断指定Name的子元素是否可以转换为JsonObject。
-     * @param name 子元素的Name
+     * @param name 子元素的Name，如果name为null，或不包含此name，则返回false
      * @return 可以返回true，否则返回false
      */
     public boolean canToJsonObject(String name)
     {
-        Json json = get(name);
-        return (json == null)? false: (json instanceof JsonObject)? true: false;
+        return ((name == null) || (!this.elements.containsKey(name)))? false:
+            this.elements.get(name) instanceof JsonObject;
     }
     
     /**
      * 返回指定Name的子元素的JsonObject值。
      * @param name 子元素的Name
-     * @return 如果name为null，或不包含此name，则返回null
+     * @return 对应的JsonObject实例
      * @throws JsonException 如果name为null，或不存在此name，或类型不匹配，则抛出异常
      */
     public JsonObject getJsonObject(String name) throws JsonException
     {
         if(canToJsonObject(name))
         {
-            return (JsonObject)get(name);
+            return (JsonObject)this.elements.get(name);
         }
         else
         {
@@ -283,7 +246,7 @@ public final class JsonObject extends Json
     /**
      * 添加一个指定Name的新子元素。
      * @param name 子元素的Name
-     * @param value 子元素的值
+     * @param value 子元素的值，null被作为NULL类型的Json实例处理
      * @throws JsonException 如果name为null，或已存在同名Name，则抛出异常
      */
     public void add(String name, Json value) throws JsonException
@@ -297,31 +260,38 @@ public final class JsonObject extends Json
             String msg = "Name \"" + name + "\" already exist in this JsonObject.";
             throw new JsonException(msg);
         }
-        this.elements.put(name, value);
+        if(value == null)
+            this.elements.put(name, Json.nullJson);
+        else
+            this.elements.put(name, value);
     }
 
     /**
      * 添加一个指定Name的新子元素。
      * @param name 子元素的Name
-     * @param value 子元素的值
+     * @param value 子元素的值，null被作为NULL类型的Json实例处理
      * @throws JsonException 如果name为null，或已存在同名Name，则抛出异常
      */
     public void add(String name, Jsonable value) throws JsonException
     {
-        Json json = (value == null)? Json.nullJson: value.generateJson();
-        add(name, json);
+        if(value == null)
+            this.add(name);
+        else
+            this.add(name, value.generateJson());
     }
 
     /**
      * 添加一个指定Name的新子元素。
      * @param name 子元素的Name
-     * @param value 子元素的值
+     * @param value 子元素的值，null被作为NULL类型的Json实例处理
      * @throws JsonException 如果name为null，或已存在同名Name，则抛出异常
      */
     public void add(String name, String value) throws JsonException
     {
-        Json json = (value == null)? Json.nullJson: new JsonPrimitive(value);
-        add(name, json);
+        if(value == null)
+            this.add(name);
+        else
+            this.add(name, new JsonPrimitive(value));
     }
 
     /**
@@ -332,7 +302,7 @@ public final class JsonObject extends Json
      */
     public void add(String name, long value) throws JsonException
     {
-        add(name, new JsonPrimitive(value));
+        this.add(name, new JsonPrimitive(value));
     }
 
     /**
@@ -343,7 +313,7 @@ public final class JsonObject extends Json
      */
     public void add(String name, double value) throws JsonException
     {
-        add(name, new JsonPrimitive(value));
+        this.add(name, new JsonPrimitive(value));
     }
 
     /**
@@ -354,7 +324,7 @@ public final class JsonObject extends Json
      */
     public void add(String name, boolean value) throws JsonException
     {
-        add(name, Json.getBooleanJson(value));
+        this.add(name, Json.getBooleanJson(value));
     }
 
     /**
@@ -364,141 +334,192 @@ public final class JsonObject extends Json
      */
     public void add(String name) throws JsonException
     {
-        add(name, Json.nullJson);
+        this.add(name, Json.nullJson);
     }
     
     /**
-     * 批量添加子元素,但忽略name为null的entry。
-     * @param map 要添加的子元素Map，不允许为null，否则抛出空指针异常
-     * @throws JsonException 如果有试图加入同名子元素，则抛出异常
+     * 批量添加子元素，值为null的value当做NULL类型的Json实例处理。
+     * @param map 批量元素
+     * @throws JsonException 如果有试图加入同名子元素，或加入Name为null的子元素，则抛出异常
      */
     public void addAll(Map<String, ? extends Json> map) throws JsonException
     {
-        Set<String> keys = map.keySet();
-        ArrayList<String> conflictNames = new ArrayList<String>();
-        for(String name: keys)
+        String conflictNames = "";
+        Set<String> names = map.keySet();
+        
+        for(String name: names)
         {
             if(this.elements.containsKey(name))
-            {
-                conflictNames.add(name);
-            }
+                conflictNames += ", " + name;
         }
-        if(conflictNames.isEmpty())
+        
+        if(conflictNames.equals("") && (! map.containsKey(null)))
         {
-            if(map.containsKey(null)) map.remove(null);
             this.elements.putAll(map);
+            //change null to Json.nullJson
+            for(String name: names)
+            {
+                if(this.elements.get(name) == null)
+                    this.elements.put(name, Json.nullJson);
+            }
         }
         else
         {
-            String msg = "Names \"" + conflictNames.get(0);
-            for(int i=1; i<conflictNames.size(); i++)
+            String msg = "";
+            if(map.containsKey(null))
+                msg = "Try to add element with name is null to JsonObject";
+            if(! conflictNames.equals(""))
             {
-                msg += "\", \"" + conflictNames.get(i);
+                if(msg.endsWith("")) 
+                    msg = "Names \"";
+                else
+                    msg += ", names \"";
+                msg += conflictNames.substring(2) + "\" already exist in this JsonObject";
             }
-            msg += "\" already exist in this JsonObject";
+            msg = ".";
             throw new JsonException(msg);
         }
     }
 
     /**
-     * 批量添加子元素,但忽略name为null的entry，如果已经存在同名Name则不做任何操作。
-     * @param map 要添加的子元素Map，不允许为null，否则抛出空指针异常
-     * @throws JsonException 如果有试图加入同名子元素，则抛出异常
+     * 批量添加子元素，值为null的value当做NULL类型的Json实例处理。
+     * @param map 批量元素
+     * @throws JsonException 如果有试图加入同名子元素，或加入Name为null的子元素，则抛出异常
      */
     public void addAllJsonable(Map<String, ? extends Jsonable> map) throws JsonException
     {
-        for(Map.Entry<String, ? extends Jsonable> entry: map.entrySet())
+        HashMap<String, Json> jsonMap = new HashMap<String, Json>(map.size());
+        String conflictNames = "";
+        Set<String> names = map.keySet();
+        
+        for(String name: names)
         {
-            add(entry.getKey(), entry.getValue().generateJson());
+            if(this.elements.containsKey(name))
+                conflictNames += ", " + name;
+            Jsonable jsonable = map.get(name);
+            //change null to Json.nullJson
+            if(jsonable == null)
+            {
+                jsonMap.put(name, Json.nullJson);
+            }
+            else
+            {
+                Json json = jsonable.generateJson();
+                if(json == null)
+                    jsonMap.put(name, Json.nullJson);
+                else
+                    jsonMap.put(name, json);
+            }
+        }
+        
+        if(conflictNames.equals("") && (! map.containsKey(null)))
+        {
+            this.elements.putAll(jsonMap);
+        }
+        else
+        {
+            String msg = "";
+            if(map.containsKey(null))
+                msg = "Try to add element with name is null to JsonObject";
+            if(! conflictNames.equals(""))
+            {
+                if(msg.endsWith("")) 
+                    msg = "Names \"";
+                else
+                    msg += ", names \"";
+                msg += conflictNames.substring(2) + "\" already exist in this JsonObject";
+            }
+            msg = ".";
+            throw new JsonException(msg);
         }
     }
     
     /**
      * 设置指定Name的子元素的Value， 如果存在同名Name则覆盖原来的Value。
      * @param name 如果name为null，则不执行任何操作
-     * @param value 子元素的新值
-     * @return 如果name不为null，则返回与name对应的先前子元素，否则null
+     * @param value 子元素的新值，null被作为NULL类型的Json实例处理
+     * @return 如果name为null，则返回null，否则返回先前与name对应子元素的Value
      */
     public Json set(String name, Json value)
     {
         if(name == null) return null;
-        if(value == null) value = Json.nullJson;
-        return this.elements.put(name, value);
+        return (value == null)? this.elements.put(name, Json.nullJson):
+                                this.elements.put(name, value);
     }
 
     /**
      * 设置指定Name的子元素的Value， 如果存在同名Name则覆盖原来的Value。
      * @param name 如果name为null，则不执行任何操作
-     * @param value 子元素的新值
-     * @return 如果name不为null，则返回与name对应的先前子元素，否则null
+     * @param value 子元素的新值，null被作为NULL类型的Json实例处理
+     * @return 如果name为null，则返回null，否则返回先前与name对应子元素的Value
      */
     public Json set(String name, Jsonable value)
     {
         if(name == null) return null;
-        if(value == null)
-            return this.elements.put(name, Json.nullJson);
-        else
-            return this.elements.put(name, value.generateJson());
+        Json json = null;
+        if(value != null) json = value.generateJson();
+        return (value == null)? this.elements.put(name, Json.nullJson):
+                                this.elements.put(name, json);
     }
 
     /**
      * 设置指定Name的子元素的Value， 如果存在同名Name则覆盖原来的Value。
      * @param name 如果name为null，则不执行任何操作
-     * @param value 子元素的新值
-     * @return 如果name不为null，则返回与name对应的先前子元素，否则null
+     * @param value 子元素的新值，null被作为NULL类型的Json实例处理
+     * @return 如果name为null，则返回null，否则返回先前与name对应子元素的Value
      */
     public Json set(String name, String value)
     {
         if(name == null) return null;
-        Json json = (value == null)? Json.nullJson: new JsonPrimitive(value);
-        return this.elements.put(name, json);
+        return (value == null)? this.elements.put(name, Json.nullJson):
+                                this.elements.put(name, new JsonPrimitive(value));
     }
 
     /**
      * 设置指定Name的子元素的Value， 如果存在同名Name则覆盖原来的Value。
      * @param name 如果name为null，则不执行任何操作
      * @param value 子元素的新值
-     * @return 如果name不为null，则返回与name对应的先前子元素，否则null
+     * @return 如果name为null，则返回null，否则返回先前与name对应子元素的Value
      */
     public Json set(String name, long value)
     {
-        if(name == null) return null;
-        return this.elements.put(name, new JsonPrimitive(value));
+        return (name == null)? null:
+                               this.elements.put(name, new JsonPrimitive(value));
     }
 
     /**
      * 设置指定Name的子元素的Value， 如果存在同名Name则覆盖原来的Value。
      * @param name 如果name为null，则不执行任何操作
      * @param value 子元素的新值
-     * @return 如果name不为null，则返回与name对应的先前子元素，否则null
+     * @return 如果name为null，则返回null，否则返回先前与name对应子元素的Value
      */
     public Json set(String name, double value)
     {
-        if(name == null) return null;
-        return this.elements.put(name, new JsonPrimitive(value));
+        return (name == null)? null:
+                               this.elements.put(name, new JsonPrimitive(value));
     }
 
     /**
      * 设置指定Name的子元素的Value， 如果存在同名Name则覆盖原来的Value。
      * @param name 如果name为null，则不执行任何操作
      * @param value 子元素的新值
-     * @return 如果name不为null，则返回与name对应的先前子元素，否则null
+     * @return 如果name为null，则返回null，否则返回先前与name对应子元素的Value
      */
     public Json set(String name, boolean value)
     {
-        if(name == null) return null;
-        return this.elements.put(name, Json.getBooleanJson(value));
+        return (name == null)? null:
+                               this.elements.put(name, Json.getBooleanJson(value));
     }
 
     /**
      * 设置指定Name的子元素的Value为NULL类型的Json实例， 如果存在同名Name则覆盖原来的Value。
      * @param name 如果name为null，则不执行任何操作
-     * @return 如果name不为null，则返回与name对应的先前子元素，否则null
+     * @return 如果name为null，则返回null，否则返回先前与name对应子元素的Value
      */
     public Json set(String name)
     {
-        if(name == null) return null;
-        return this.elements.put(name, Json.nullJson);
+        return (name == null)? null:
+            this.elements.put(name, Json.nullJson);
     }
 
     /**
@@ -507,8 +528,16 @@ public final class JsonObject extends Json
      */
     public void setAll(Map<String, ? extends Json> map)
     {
-        if(map.containsKey(null)) map.remove(null);
+        map.remove(null);
+        Set<String> names = map.keySet();
+        
         this.elements.putAll(map);
+        //change null to Json.nullJson
+        for(String name: names)
+        {
+            if(this.elements.get(name) == null)
+                this.elements.put(name, Json.nullJson);
+        }
     }
 
     /**
@@ -517,11 +546,27 @@ public final class JsonObject extends Json
      */
     public void setAllJsonable(Map<String, ? extends Jsonable> map)
     { 
-        if(map.containsKey(null)) map.remove(null);
-        for(Map.Entry<String, ? extends Jsonable> entry: map.entrySet())
+        map.remove(null);
+        HashMap<String, Json> jsonMap = new HashMap<String, Json>(map.size());
+        Set<String> names = map.keySet();
+        for(String name: names)
         {
-            this.elements.put(entry.getKey(), entry.getValue().generateJson());
+            Jsonable jsonable = map.get(name);
+            //change null to Json.nullJson
+            if(jsonable == null)
+            {
+                jsonMap.put(name, Json.nullJson);
+            }
+            else
+            {
+                Json json= jsonable.generateJson();
+                if(json == null)
+                    jsonMap.put(name, Json.nullJson);
+                else
+                    jsonMap.put(name, json);
+            }
         }
+        this.elements.putAll(jsonMap);
     }
     
     /**

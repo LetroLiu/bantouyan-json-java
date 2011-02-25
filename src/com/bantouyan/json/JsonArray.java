@@ -21,6 +21,10 @@ import java.util.Iterator;
  * <strong>addAll</strong>，删除指定位置的子元素调用方法<strong>remove</strong>。
  * </p>
  * 
+ * <p>JsonArray实现了接口<strong>Iterable</strong>，可以用<strong>for each</strong>
+ * 循环遍历所有的子元素，也可以用方法<strong>iterator</strong>获取JsonArray的迭代器。
+ * </p>
+ * 
  * <p>方法<strong>isEmpty</strong>可以判断JsonArray实例是否包含子元素，
  * 方法<strong>count</strong>返回子元素的的个数，方法<strong>clear</strong>
  * 可以清除所有的子元素。方法<strong>getType</strong> 返回JsonArray实例的类型JsonType.ARRAY。
@@ -76,7 +80,7 @@ public final class JsonArray extends Json implements Iterable<Json>
      */
     public String getString(int index)
     {
-        Json json = get(index);
+        Json json = this.elements.get(index);
         if(json instanceof JsonPrimitive)
         {
             return ((JsonPrimitive)json).getString();
@@ -94,7 +98,7 @@ public final class JsonArray extends Json implements Iterable<Json>
      */
     public boolean canToBoolean(int index)
     {
-        Json json = get(index);
+        Json json = this.elements.get(index);
         if(json instanceof JsonPrimitive)
         {
             return ((JsonPrimitive)json).canToBoolean();
@@ -115,7 +119,7 @@ public final class JsonArray extends Json implements Iterable<Json>
     {
         if(canToBoolean(index))
         {
-            return ((JsonPrimitive)get(index)).getBoolean();
+            return ((JsonPrimitive)this.elements.get(index)).getBoolean();
         }
         else
         {
@@ -130,7 +134,7 @@ public final class JsonArray extends Json implements Iterable<Json>
      */
     public boolean canToLong(int index)
     {
-        Json json = get(index);
+        Json json = this.elements.get(index);
         if(json instanceof JsonPrimitive)
         {
             return ((JsonPrimitive)json).canToLong();
@@ -151,7 +155,7 @@ public final class JsonArray extends Json implements Iterable<Json>
     {
         if(canToLong(index))
         {
-            return ((JsonPrimitive)get(index)).getLong();
+            return ((JsonPrimitive)this.elements.get(index)).getLong();
         }
         else
         {
@@ -166,7 +170,7 @@ public final class JsonArray extends Json implements Iterable<Json>
      */
     public boolean canToDouble(int index)
     {
-        Json json = get(index);
+        Json json = this.elements.get(index);
         if(json instanceof JsonPrimitive)
         {
             return ((JsonPrimitive)json).canToDouble();
@@ -187,7 +191,7 @@ public final class JsonArray extends Json implements Iterable<Json>
     {
         if(canToDouble(index))
         {
-            return ((JsonPrimitive)get(index)).getDouble();
+            return ((JsonPrimitive)this.elements.get(index)).getDouble();
         }
         else
         {
@@ -202,7 +206,7 @@ public final class JsonArray extends Json implements Iterable<Json>
      */
     public boolean canToJsonArray(int index)
     {
-        Json json = get(index);
+        Json json = this.elements.get(index);
         return (json instanceof JsonArray)? true: false;
     }
     
@@ -216,7 +220,7 @@ public final class JsonArray extends Json implements Iterable<Json>
     {
         if(canToJsonArray(index))
         {
-            return (JsonArray)get(index);
+            return (JsonArray)this.elements.get(index);
         }
         else
         {
@@ -231,7 +235,7 @@ public final class JsonArray extends Json implements Iterable<Json>
      */
     public boolean canToJsonObject(int index)
     {
-        Json json = get(index);
+        Json json = this.elements.get(index);
         return (json instanceof JsonObject)? true: false;
     }
     
@@ -245,7 +249,7 @@ public final class JsonArray extends Json implements Iterable<Json>
     {
         if(canToJsonObject(index))
         {
-            return (JsonObject)get(index);
+            return (JsonObject)this.elements.get(index);
         }
         else
         {
@@ -255,33 +259,36 @@ public final class JsonArray extends Json implements Iterable<Json>
     
     /**
      * 向Json数组末尾添加一个新元素。
-     * @param element 要添加的新元素
+     * @param element 要添加的新元素, null被作为NULL类型的Json实例处理
      * @return JsonArray实例是否发生改变
      */
     public boolean append(Json element)
     {
-        return this.elements.add(element);
+        return (element == null)? this.elements.add(Json.nullJson):
+                                  this. elements.add(element);
     } 
     
     /**
-     * 向Json数组末尾添加一个新元素。
-     * @param element 要添加的新元素, 如果是null则抛出空指针异常
+     * 向Json数组末尾添加一个新元素，相当于append(element.generateJson())。
+     * @param element 要添加的新元素, null被作为NULL类型的Json实例处理
      * @return JsonArray实例是否发生改变
      */
     public boolean append(Jsonable element)
     {
-        return this.elements.add(element.generateJson());
+        Json json = (element == null)? Json.nullJson: element.generateJson();
+        return (json == null)? this.elements.add(Json.nullJson):
+                               this.elements.add(json);
     }
 
     /**
      * 向Json数组末尾添加一个新元素。
-     * @param element 要添加的新元素
+     * @param element 要添加的新元素, null被作为NULL类型的Json实例处理
      * @return JsonArray实例是否发生改变
      */
     public boolean append(String element)
     {
-        Json json = (element == null)? Json.nullJson: new JsonPrimitive(element);
-        return this.elements.add(json);
+        return (element == null)? this.elements.add(Json.nullJson):
+                                  this.elements.add(new JsonPrimitive(element));
     }
     
     /**
@@ -325,8 +332,8 @@ public final class JsonArray extends Json implements Iterable<Json>
     
     /**
      * 在指定位置向Json数组添加一个新元素，原来的元素依次后移。
-     * @param index 新元素插入的位置
-     * @param element 要添加的新元素
+     * @param index 新元素的插入位置
+     * @param element 要添加的新元素, null被作为NULL类型的Json实例处理
      */
     public void insert(int index, Json element)
     {
@@ -338,19 +345,23 @@ public final class JsonArray extends Json implements Iterable<Json>
     
     /**
      * 
-     * 在指定位置向Json数组添加一个新元素，原来的元素依次后移。
-     * @param index 新元素插入的位置
-     * @param element 要添加的新元素, 如果是null则抛出空指针异常
+     * 在指定位置向Json数组添加一个新元素，原来的元素依次后移，相当于insert(index, element.generateJson())。
+     * @param index 新元素的插入位置
+     * @param element 要添加的新元素, null被作为NULL类型的Json实例处理
      */
     public void insert(int index, Jsonable element)
     {
-        this.elements.add(index, element.generateJson());
+        Json json = (element == null)? Json.nullJson: element.generateJson();
+        if(json == null)
+            this.elements.add(index, Json.nullJson);
+        else
+            this.elements.add(index, json);
     }
 
     /**
      * 在指定位置向Json数组添加一个新元素，原来的元素依次后移。
-     * @param index 新元素插入的位置
-     * @param element 要添加的新元素
+     * @param index 新元素的插入位置
+     * @param element 要添加的新元素, null被作为NULL类型的Json实例处理
      */
     public void insert(int index, String element)
     {
@@ -362,7 +373,7 @@ public final class JsonArray extends Json implements Iterable<Json>
 
     /**
      * 在指定位置向Json数组添加一个新元素，原来的元素依次后移。
-     * @param index 新元素插入的位置
+     * @param index 新元素的插入位置
      * @param element 要添加的新元素
      */
     public void insert(int index, long element)
@@ -372,7 +383,7 @@ public final class JsonArray extends Json implements Iterable<Json>
 
     /**
      * 在指定位置向Json数组添加一个新元素，原来的元素依次后移。
-     * @param index 新元素插入的位置
+     * @param index 新元素的插入位置
      * @param element 要添加的新元素
      */
     public void insert(int index, double element)
@@ -382,7 +393,7 @@ public final class JsonArray extends Json implements Iterable<Json>
 
     /**
      * 在指定位置向Json数组添加一个新元素，原来的元素依次后移。
-     * @param index 新元素插入的位置
+     * @param index 新元素的插入位置
      * @param element 要添加的新元素
      */
     public void insert(int index, boolean element)
@@ -392,7 +403,7 @@ public final class JsonArray extends Json implements Iterable<Json>
     
     /**
      * 在指定位置向Json数组添加一个NULL元素，原来的元素依次后移。
-     * @param index 新元素插入的位置
+     * @param index 新元素的插入位置
      */
     public void insert(int index)
     {
@@ -401,46 +412,72 @@ public final class JsonArray extends Json implements Iterable<Json>
     
     /**
      * 向Json数组末尾批量添加元素。
-     * @param list 要添加的元素
+     * @param list 要添加的元素，值为null的子元素被作为NULL类型的Json实例处理
      */
     public void addAll(Collection<? extends Json> list)
     {
-        this.elements.addAll(list);
+        ArrayList<Json> jsonList = new ArrayList<Json>(list.size());
+        for(Json json: list)
+        {
+            if(json == null)
+                jsonList.add(Json.nullJson);
+            else
+                jsonList.add(json);
+        }
+        this.elements.addAll(jsonList);
     }
     
     /**
      * 在指定位置向Json数组批量添加元素，原来的元素依次后移。
      * @param index 指定的位置
-     * @param list 要添加的元素
+     * @param list 要添加的元素，值为null的子元素被作为NULL类型的Json实例处理
      */
     public void addAll(int index, Collection<? extends Json> list)
     {
-        this.elements.addAll(index, list);
+        ArrayList<Json> jsonList = new ArrayList<Json>(list.size());
+        for(Json json: list)
+        {
+            if(json == null)
+                jsonList.add(Json.nullJson);
+            else
+                jsonList.add(json);
+        }
+        this.elements.addAll(index, jsonList);
     }
     
     /**
      * 向Json数组末尾批量添加元素。
-     * @param list 要添加的元素
+     * @param list 要添加的元素，值为null的子元素被作为NULL类型的Json实例处理
      */
     public void addAllJsonable(Collection<? extends Jsonable> list)
     {
+        ArrayList<Json> jsonList = new ArrayList<Json>(list.size());
         for(Jsonable jsonable: list)
         {
-            this.elements.add(jsonable.generateJson());
+            Json json = (jsonable == null)? Json.nullJson: jsonable.generateJson();
+            if(json == null)
+                jsonList.add(Json.nullJson);
+            else
+                jsonList.add(json);
         }
+        this.elements.addAll(jsonList);
     }
     
     /**
      * 在指定位置向Json数组批量添加元素，原来的元素依次后移。
      * @param index 指定的位置
-     * @param list 要添加的元素
+     * @param list 要添加的元素，值为null的子元素被作为NULL类型的Json实例处理
      */
     public void addAllJsonable(int index, Collection<? extends Jsonable> list)
     {
-        Collection<Json> jsonList = new ArrayList<Json>(list.size());
+        ArrayList<Json> jsonList = new ArrayList<Json>(list.size());
         for(Jsonable jsonable: list)
         {
-            jsonList.add(jsonable.generateJson());
+            Json json = (jsonable == null)? Json.nullJson: jsonable.generateJson();
+            if(json == null)
+                jsonList.add(Json.nullJson);
+            else
+                jsonList.add(json);
         }
         this.elements.addAll(index, jsonList);
     }
@@ -461,11 +498,15 @@ public final class JsonArray extends Json implements Iterable<Json>
     /**
      * 设置Json数组指定位置的元素。
      * @param index 指定的位置
-     * @param element 子元素的新值, 如果是null则抛出空指针异常
+     * @param element 子元素的新值
      */
     public void set(int index, Jsonable element)
     {
-        this.elements.set(index, element.generateJson());
+        Json json = (element == null)? Json.nullJson: element.generateJson();
+        if(json == null)
+            this.elements.set(index, Json.nullJson);
+        else
+            this.elements.set(index, json);
     }
 
     /**

@@ -19,6 +19,7 @@ import java.util.Set;
  * <p><strong>生成Json文本</strong>，调用方法<strong>generateJsonText</strong>
  * 可以把Json实例转换为对应的Json文本。重写的方法<strong>toString</strong>
  * 返回Json实例对应的文本，等同于调用不带参数的方法<strong>generateJsonText</strong>。
+ * 如果想把Json文本输出到字符流，请调用方法<strong>outputToWriter</strong>。
  * </p>
  * 
  * <p>方法<strong>isEmpty</strong>可以判断Json实例是否包含子元素，方法<strong>
@@ -33,16 +34,27 @@ import java.util.Set;
  */
 public abstract class Json
 {
-    protected static JsonPrimitive nullJson = new JsonPrimitive();
-    protected static JsonPrimitive trueJson = new JsonPrimitive(true);
-    protected static JsonPrimitive falseJson = new JsonPrimitive(false);
+    /**
+     * 类型为NULL的Json实例。
+     */
+    public final static JsonPrimitive nullJson = new JsonPrimitive();
     
     /**
-     * 返回逻辑型的Json实例。
-     * @param value 所需要的Json实例对应的逻辑型值
+     * 类型为BOOLEAN值为true的Json实例。
+     */
+    public final static JsonPrimitive trueJson = new JsonPrimitive(true);
+    
+    /**
+     * 类型为BOOLEAN值为false的Json实例。
+     */
+    public final static JsonPrimitive falseJson = new JsonPrimitive(false);
+    
+    /**
+     * 返回值为true或false的逻辑型的Json实例。
+     * @param value true或false
      * @return 对应的Json实例
      */
-    protected static JsonPrimitive getBooleanJson(boolean value)
+    public static JsonPrimitive getBooleanJson(boolean value)
     {
         return (value == true)? trueJson: falseJson;
     }
@@ -437,13 +449,13 @@ public abstract class Json
     
     /**
      * Json实例的类型。</br>
-     * OBJECT表示Json对象，用类型JsonArray存储；</br>
-     * ARRAY表示Json数组，用类型JsonArray存储；</br>
-     * STRING表示Json字符串，用类型String存储；</br>
-     * INTEGER表示Json整型数值，用类型Long存储；</br>
-     * FLOAT表示Json浮点型数值，用类型Double存储；</br>
-     * BOOLEAN表示Json逻辑型，用类型Boolean存储；</br>
-     * NULL表示Json null类型，用类型String存储。
+     * <strong>OBJECT</strong>表示Json对象，用类型JsonArray存储；</br>
+     * <strong>ARRAY</strong>表示Json数组，用类型JsonArray存储；</br>
+     * <strong>STRING</strong>表示Json字符串，用类型String存储；</br>
+     * <strong>INTEGER</strong>表示Json整型数值，用类型Long存储；</br>
+     * <strong>FLOAT</strong>表示Json浮点型数值，用类型Double存储；</br>
+     * <strong>BOOLEAN</strong>表示Json逻辑型，用类型Boolean存储；</br>
+     * <strong>NULL</strong>表示Json null类型，用类型String存储。
      * 
      * @author bantouyan
      * @version 1.00

@@ -30,7 +30,7 @@ public final class JsonPrimitive extends Json
     }
     
     /**
-     * 创建浮点型的Json实例。
+     * 创建浮点型的Json实例。（因调用限制在此包内，所以不处理参数为null的情况）
      * @param data 创建Json的浮点型数值，如果是NaN或Infinity，则转换为字符串
      */
     protected JsonPrimitive(Double data) throws JsonException
@@ -48,7 +48,7 @@ public final class JsonPrimitive extends Json
     }
 
     /**
-     * 创建整型的Json实例。
+     * 创建整型的Json实例。（因调用限制在此包内，所以不处理参数为null的情况）
      * @param data 创建Json的整型数值
      */
     protected JsonPrimitive(Long data)
@@ -58,7 +58,7 @@ public final class JsonPrimitive extends Json
     }
 
     /**
-     * 创建数值型（整型或浮点型）Json实例。
+     * 创建数值型（整型或浮点型）Json实例。（因调用限制在此包内，所以不处理参数为null的情况）
      * @param data 创建Json的数值，如果是NaN或Infinity，则转换为字符串
      */
     protected JsonPrimitive(Number data)
@@ -104,17 +104,25 @@ public final class JsonPrimitive extends Json
     }
     
     /**
-     * 创建字符串型Json实例。
+     * 创建字符串型Json实例。（因会被嵌套调用到参数为null的情况，所以必须处理）
      * @param data 创建Json的字符串
      */
     protected JsonPrimitive(String data)
     {
-        this.type = JsonType.STRING;
-        this.data = data;
+        if(data == null)
+        {
+            this.type = JsonType.NULL;
+            this.data = "null";
+        }
+        else
+        {
+            this.type = JsonType.STRING;
+            this.data = data;
+        }
     }
     
     /**
-     * 创建逻辑型（布尔型）Json实例。
+     * 创建逻辑型（布尔型）Json实例。(因调用限制在此包内，所以不处理参数为null的情况)
      * @param data 创建Json的逻辑型（布尔型）值
      */
     protected JsonPrimitive(Boolean data)
