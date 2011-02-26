@@ -10,6 +10,9 @@ import org.junit.Assert;
 import com.bantouyan.json.*;
 import com.bantouyan.json.Json.JsonType;
 
+/**
+ * 旧的TestCase
+ */
 public class TestArray
 {
     public static int cnt;
@@ -321,18 +324,6 @@ public class TestArray
         rst = ary.append(jn);
         Assert.assertTrue(rst);
         Assert.assertEquals(JsonType.OBJECT, ary.getType(0));
-        
-        jn=null;
-        boolean error = false;
-        try
-        {
-            ary.append(jn);
-        } 
-        catch (NullPointerException e)
-        {
-            error = true;
-        }
-        Assert.assertTrue(error);
     }
 
     @Test
@@ -417,18 +408,6 @@ public class TestArray
         Jsonable jn = new Jsonable(){public Json generateJson(){return new JsonObject();}};
         ary.insert(0, jn);
         Assert.assertEquals(JsonType.OBJECT, ary.getType(0));
-        
-        jn=null;
-        boolean error = false;
-        try
-        {
-            ary.insert(0, jn);
-        } 
-        catch (NullPointerException e)
-        {
-            error = true;
-        }
-        Assert.assertTrue(error);
     }
     
     @Test
@@ -474,18 +453,6 @@ public class TestArray
         Jsonable jn = new Jsonable(){public Json generateJson(){return new JsonObject();}};
         ary.set(0, jn);
         Assert.assertEquals(JsonType.OBJECT, ary.getType(0));
-        
-        jn=null;
-        boolean error = false;
-        try
-        {
-            ary.insert(0, jn);
-        } 
-        catch (NullPointerException e)
-        {
-            error = true;
-        }
-        Assert.assertTrue(error);
     }
     
     

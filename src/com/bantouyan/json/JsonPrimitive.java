@@ -212,7 +212,7 @@ public final class JsonPrimitive extends Json
         else if(this.type == JsonType.STRING)
         {
             String str = this.data.toString();
-            return (str.matches("\\s*-?\\d+\\s*"))? true: false;
+            return (str.matches("\\s*[+-]?\\d+\\s*"))? true: false;
         }
         else
         {
@@ -236,7 +236,10 @@ public final class JsonPrimitive extends Json
             Long value = null;
             try
             {
-                value = Long.parseLong(this.data.toString().trim());
+                String str = this.data.toString().trim();
+                if(str.charAt(0) == '+')
+                    str = str.substring(1);
+                value = Long.parseLong(str);
             } 
             catch (NumberFormatException e)
             {
@@ -360,6 +363,20 @@ public final class JsonPrimitive extends Json
     public int hashCode()
     {
         return type.hashCode() + data.hashCode();
+    }
+    
+    /**
+     * Clone一个JsonPrimitive实例。
+     * @return Clone出来的JsonPrimitive实例
+     */
+    @Override
+    public JsonPrimitive clone()
+    {
+        //返回JsonPrimitive实例本身，
+        //之所以这样设计是因为JsonPrimitive是不变对象，没有必要clone。
+        //但是其超类Json实现了clone方法，为了避免不必要的clone操作,
+        //所以重写了这个方法。
+        return this;
     }
     
     /**
