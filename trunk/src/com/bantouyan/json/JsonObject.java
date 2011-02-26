@@ -55,15 +55,29 @@ public final class JsonObject extends Json
     }
     
     /**
+     * 创建具有初始容量（可容纳的子元素个数， 会自动变化）空的JsonObject实例。
+     * @param initialCapicity 初始容量
+     */
+    public JsonObject(int initialCapicity)
+    {
+        this.elements = new HashMap<String, Json>(initialCapicity);
+    }
+    
+    /**
      * 根据已有的Map创建包含子元素的JsonObject实例。
      * @param map 创建JsonObject的源数据，但忽略掉map中key为null的key vlaue对
      */
     public JsonObject(Map<String, ? extends Json> map)
     {
-        this.elements = new HashMap<String, Json>();
+        map.remove(null);
+        this.elements = new HashMap<String, Json>(map);
         
-        if(map != null && map.containsKey(null)) map.remove(null);
-        this.elements.putAll(map);
+        //Change null to Json.nullJson
+        for(String name: this.elements.keySet())
+        {
+            if(this.elements.get(name) == null)
+                this.elements.put(name, Json.nullJson);
+        }
     }
     
     /**
@@ -438,16 +452,16 @@ public final class JsonObject extends Json
         {
             String msg = "";
             if(map.containsKey(null))
-                msg = "Try to add element with name is null to JsonObject";
+                msg = "Try to add element with name is null";
             if(! conflictNames.equals(""))
             {
-                if(msg.endsWith("")) 
-                    msg = "Names \"";
+                if(msg.equals("")) 
+                    msg = "Try to add exists names \"";
                 else
-                    msg += ", names \"";
-                msg += conflictNames.substring(2) + "\" already exist in this JsonObject";
+                    msg += " and exists names \"";
+                msg += conflictNames.substring(2) + "\"";
             }
-            msg = ".";
+            msg += " to this JsonObject.";
             throw new JsonException(msg);
         }
     }
@@ -491,16 +505,16 @@ public final class JsonObject extends Json
         {
             String msg = "";
             if(map.containsKey(null))
-                msg = "Try to add element with name is null to JsonObject";
+                msg = "Try to add element with name is null";
             if(! conflictNames.equals(""))
             {
-                if(msg.endsWith("")) 
-                    msg = "Names \"";
+                if(msg.equals("")) 
+                    msg = "Try to add exists names \"";
                 else
-                    msg += ", names \"";
-                msg += conflictNames.substring(2) + "\" already exist in this JsonObject";
+                    msg += " and exists names \"";
+                msg += conflictNames.substring(2) + "\"";
             }
-            msg = ".";
+            msg += " to this JsonObject.";
             throw new JsonException(msg);
         }
     }
@@ -529,7 +543,7 @@ public final class JsonObject extends Json
         if(name == null) return null;
         Json json = null;
         if(value != null) json = value.generateJson();
-        return (value == null)? this.elements.put(name, Json.nullJson):
+        return (json == null)? this.elements.put(name, Json.nullJson):
                                 this.elements.put(name, json);
     }
 
@@ -675,13 +689,6 @@ public final class JsonObject extends Json
     //if modify this method, modify entrySet() together
     public Collection<Json> values()
     {
-        // change null value to JsonType.NULL value
-        Set<String> names = nameSet();
-        for(String name: names)
-        {
-            get(name);
-        }
-        
         return this.elements.values();
     }
     
@@ -692,13 +699,6 @@ public final class JsonObject extends Json
     // if modify this method, modify values() together
     public Set<Entry<String, Json>> entrySet()
     {
-        // change null value to JsonType.NULL value
-        Set<String> names = nameSet();
-        for(String name: names)
-        {
-            get(name);
-        }
-        
         return elements.entrySet();
     }
     
@@ -763,6 +763,32 @@ public final class JsonObject extends Json
             
         }
         return hashcode;
+    }
+    
+    /**
+     * 深层Clone一个JsonObject实例，Clone出来的新实例与原实例相等（euqals()返回true），
+     * 但修改任何一个实例都不会影响另一个实例的值。
+     * @return Clone出来的JsonObject实例
+     */
+    @Override
+    public JsonObject clone()
+    {
+        JsonObject nval = (JsonObject)super.clone();
+        
+        @SuppressWarnings("unchecked")
+        HashMap<String, Json> clone = (HashMap<String, Json>)this.elements.clone();
+        nval.elements = clone;
+        Set<String> names = this.elements.keySet();
+        for(String name: names)
+        {
+            Json json = this.elements.get(name);
+            if(! (json instanceof JsonPrimitive))
+            {
+                nval.elements.put(name, json.clone());
+            }
+        }
+        
+        return nval;
     }
     
     /**
@@ -845,10 +871,10 @@ public final class JsonObject extends Json
      */
     public JsonType getType(String name)
     {
-        if(name == null)
+        if(name == null || (! this.elements.containsKey(name)))
             return null;
         else
-            return get(name).getType();
+            return this.elements.get(name).getType();
     }
     
     /**

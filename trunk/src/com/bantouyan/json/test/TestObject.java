@@ -13,6 +13,9 @@ import org.junit.Assert;
 import com.bantouyan.json.*;
 import com.bantouyan.json.Json.JsonType;
 
+/**
+ * 旧的TestCase
+ */
 public class TestObject
 {
     @Test

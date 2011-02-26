@@ -33,7 +33,7 @@ import java.util.Set;
  * @author 飞翔的河马
  * @version 1.00
  */
-public abstract class Json
+public abstract class Json implements Cloneable
 {
     /**
      * 类型为NULL的Json实例。
@@ -122,7 +122,7 @@ public abstract class Json
             throw new JsonParseException("Java map is referenced again.");
         }
         
-        JsonObject json = new JsonObject();
+        JsonObject json = new JsonObject(map.size());
         parentRef.push(map);
         Set<?> keys = map.keySet();
         for(Object key: keys)
@@ -167,7 +167,7 @@ public abstract class Json
             throw new JsonParseException("Java colloection is referenced again.");
         }
         
-        JsonArray json = new JsonArray();
+        JsonArray json = new JsonArray(collection.size());
         parentRef.push(collection);
         for(Object value: collection)
         {
@@ -270,7 +270,8 @@ public abstract class Json
             //这里的IOException是由于appendToAppendable中调用jsonStringToAppendable(String, StringBuilder)
             //和jsonStringToAppendableWithoutQuote(String, StringBuilder)引起的，
             //这两个方法只会调用StringBuild.append(char)和StringBuilder.append(String)，
-            //所以不会产生异常，故不用处理
+            //所以不会产生异常，故不作处理，用InternalError作为占位符。
+            throw new InternalError();
         }
         return builder.toString();
     }
@@ -297,7 +298,8 @@ public abstract class Json
             //jsonStringToAppendable(String, PrintWriter)
             //引起的，该方法只会调用PrintWriter.append(char)
             //和PrintWriter.append(String)，不会产生异常，
-            //故不用处理。
+            //故不作处理，用InternalError作为占位符。
+            throw new InternalError();
         }
     }
     
@@ -447,6 +449,26 @@ public abstract class Json
      */
     @Override
     public abstract int hashCode();
+    
+    /**
+     * 深层Clone一个Json实例，Clone出来的新实例与原实例相等（euqals()返回true），
+     * 但修改任何一个实例都不会影响另一个实例的值。
+     * @return Clone出来的Json实例
+     */
+    public Json clone()
+    {
+        Json nval = null;
+        try
+        {
+            nval =(Json)super.clone();
+        } 
+        catch (CloneNotSupportedException e)
+        {
+            throw new InternalError();
+        }
+        
+        return nval;
+    }
     
     /**
      * Json实例的类型。</br>

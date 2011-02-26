@@ -50,13 +50,28 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
+     * 创建具有初始容量（可容纳的子元素个数， 会自动变化）空的JsonArray实例。
+     * @param initialCapicity 初始容量
+     */
+    public JsonArray(int initialCapicity)
+    {
+        this.elements = new ArrayList<Json>(initialCapicity);
+    }
+    
+    /**
      * 根据Json集合创建包含子元素的JsonArray实例。
      * @param collection 源Json集合
      */
     public JsonArray(Collection<? extends Json> collection)
     {
-        this.elements = new ArrayList<Json>();
-        this.elements.addAll(collection);
+        this.elements = new ArrayList<Json>(collection);
+        
+        //Change null to Json.nullJson
+        for(int i=0; i<this.elements.size(); i++)
+        {
+            if(this.elements.get(i) == null)
+                this.elements.set(i, Json.nullJson);
+        }
     }
         
     /**
@@ -634,6 +649,31 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
+     * 深层Clone一个JsonArray实例，Clone出来的新实例与原实例相等（euqals()返回true），
+     * 但修改任何一个实例都不会影响另一个实例的值。
+     * @return Clone出来的JsonArray实例
+     */
+    @Override
+    public JsonArray clone()
+    {
+        JsonArray nval = (JsonArray)super.clone();
+        
+        @SuppressWarnings("unchecked")
+        ArrayList<Json> clone = (ArrayList<Json>)this.elements.clone();
+        nval.elements = clone;
+        for(int i=0; i<this.elements.size(); i++)
+        {
+            Json json= this.elements.get(i);
+            if(! (json instanceof JsonPrimitive))
+            {
+                nval.elements.set(i, json.clone());
+            }
+        }
+        
+        return nval;
+    }
+    
+    /**
      * 返回Json数组的子元素个数。
      * @return Json数组内子元素的个数
      */
@@ -698,7 +738,7 @@ public final class JsonArray extends Json implements Iterable<Json>
      */
     public JsonType getType(int index)
     {
-        return get(index).getType();
+        return this.elements.get(index).getType();
     }
 
     /**
