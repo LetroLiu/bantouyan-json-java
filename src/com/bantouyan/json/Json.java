@@ -64,15 +64,24 @@ public abstract class Json implements Cloneable
      * 解析Json字符串为Json实例。
      * @param jsonText Json文本，应该为一个完整的JsonArray或JsonObject的表示。
      * @return 对应的Json实例
-     * @throws IOException 发生了IO异常
      * @throws JsonParseException Json文本格式不正确
      */
-    public static Json parseJsonText(String jsonText) throws IOException, JsonParseException
+    public static Json parseJsonText(String jsonText) throws JsonParseException
     {
         Json json = null;
         
-        JsonTextParser jsonParser = new JsonTextParser(jsonText);
-        json = jsonParser.parse();
+        try
+        {
+            JsonTextParser jsonParser = new JsonTextParser(jsonText);
+            json = jsonParser.parse();
+        } 
+        catch (IOException e)
+        {
+            //构造函数JsonTextParser（String）使用StringReader作为内部Reader的
+            //实现，而操作StringReader过程中一般不产生IO异常，所以这里作为内部
+            //错误处理。
+            throw new InternalError(e.getMessage());
+        }
         
         return json;
     }
@@ -267,11 +276,13 @@ public abstract class Json implements Cloneable
         }
         catch (IOException e)
         {
-            //这里的IOException是由于appendToAppendable中调用jsonStringToAppendable(String, StringBuilder)
-            //和jsonStringToAppendableWithoutQuote(String, StringBuilder)引起的，
-            //这两个方法只会调用StringBuild.append(char)和StringBuilder.append(String)，
-            //所以不会产生异常，故不作处理，用InternalError作为占位符。
-            throw new InternalError();
+            //这里的IOException是由于appendToAppendable中调用
+            //jsonStringToAppendable(String, StringBuilder)
+            //和jsonStringToAppendableWithoutQuote(String, StringBuilder)
+            //引起的，这两个方法只会调用StringBuild.append(char)
+            //和StringBuilder.append(String)，一般不会引起异常，
+            //所以作为InternalError处理。
+            throw new InternalError(e.getMessage());
         }
         return builder.toString();
     }
@@ -298,8 +309,8 @@ public abstract class Json implements Cloneable
             //jsonStringToAppendable(String, PrintWriter)
             //引起的，该方法只会调用PrintWriter.append(char)
             //和PrintWriter.append(String)，不会产生异常，
-            //故不作处理，用InternalError作为占位符。
-            throw new InternalError();
+            //所以作为InternalError处理。
+            throw new InternalError(e.getMessage());
         }
     }
     
