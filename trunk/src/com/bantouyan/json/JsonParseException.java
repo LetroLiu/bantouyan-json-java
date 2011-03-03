@@ -6,7 +6,7 @@ package com.bantouyan.json;
  * @author 飞翔的河马
  * @version 1.00
  */
-public class JsonParseException extends Exception
+public class JsonParseException extends RuntimeException
 {
     private static final long serialVersionUID = 1L;
 
