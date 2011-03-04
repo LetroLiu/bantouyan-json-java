@@ -12,7 +12,7 @@ import com.bantouyan.json.Json;
 import com.bantouyan.json.JsonArray;
 import com.bantouyan.json.JsonException;
 import com.bantouyan.json.JsonObject;
-import com.bantouyan.json.JsonParseException;
+import com.bantouyan.json.JsonException;
 
 public class TestJson
 {
@@ -46,7 +46,7 @@ public class TestJson
     }
     
     @Test
-    public void jsonEqualsA() throws IOException, JsonParseException
+    public void jsonEqualsA() throws IOException, JsonException
     {
         String str = "[-1, 10.3, 33e4, true, false, null,"
                 + "{INT: -1, FLOAT: 22.4, BOOL: true, \"NULL\": null,"

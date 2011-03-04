@@ -14,8 +14,8 @@ import com.bantouyan.json.*;
  */
 public class TestParseJava
 {
-    @Test(expected = JsonParseException.class)
-    public void mapInvalidName() throws JsonParseException
+    @Test(expected = JsonException.class)
+    public void mapInvalidName() throws JsonException
     {
         HashMap<Object, Object> map = new HashMap<Object, Object>();
         map.put(new Date(), "Date");
@@ -23,7 +23,7 @@ public class TestParseJava
         {
             Json json = Json.parseJavaMap(map);
         }
-        catch(JsonParseException e)
+        catch(JsonException e)
         {
             String msg = e.getMessage();
             System.out.println(msg + "\n-----------------------------------");
@@ -32,8 +32,8 @@ public class TestParseJava
         }
     }
 
-    @Test(expected = JsonParseException.class)
-    public void mapInvalidValue() throws JsonParseException
+    @Test(expected = JsonException.class)
+    public void mapInvalidValue() throws JsonException
     {
         HashMap<Object, Object> map = new HashMap<Object, Object>();
         map.put("Date", new Date());
@@ -41,7 +41,7 @@ public class TestParseJava
         {
             Json json = Json.parseJavaMap(map);
         }
-        catch(JsonParseException e)
+        catch(JsonException e)
         {
             String msg = e.getMessage();
             System.out.println(msg + "\n-----------------------------------");
@@ -50,8 +50,8 @@ public class TestParseJava
         }
     }
 
-    @Test(expected = JsonParseException.class)
-    public void collectionInvalidValue() throws JsonParseException
+    @Test(expected = JsonException.class)
+    public void collectionInvalidValue() throws JsonException
     {
         ArrayList<Object> list = new ArrayList<Object>();
         list.add(new Date());
@@ -59,7 +59,7 @@ public class TestParseJava
         {
             Json json = Json.parseJavaCollection(list);
         }
-        catch(JsonParseException e)
+        catch(JsonException e)
         {
             String msg = e.getMessage();
             System.out.println(msg + "\n-----------------------------------");
@@ -68,8 +68,8 @@ public class TestParseJava
         }
     }
 
-    @Test(expected = JsonParseException.class)
-    public void mapCircleA() throws JsonParseException
+    @Test(expected = JsonException.class)
+    public void mapCircleA() throws JsonException
     {
         HashMap<Object, Object> map = new HashMap<Object, Object>();
         map.put("self", map);
@@ -77,7 +77,7 @@ public class TestParseJava
         {
             Json json = Json.parseJavaMap(map);
         }
-        catch(JsonParseException e)
+        catch(JsonException e)
         {
             String msg = e.getMessage();
             System.out.println(msg + "\n-----------------------------------");
@@ -86,8 +86,8 @@ public class TestParseJava
         }
     }
 
-    @Test(expected = JsonParseException.class)
-    public void mapCircleB() throws JsonParseException
+    @Test(expected = JsonException.class)
+    public void mapCircleB() throws JsonException
     {
         ArrayList<Object> list = new ArrayList<Object>();
         HashMap<String, Object> map = new HashMap<String, Object>();
@@ -99,7 +99,7 @@ public class TestParseJava
         {
             Json json = Json.parseJavaCollection(list);
         }
-        catch(JsonParseException e)
+        catch(JsonException e)
         {
             String msg = e.getMessage();
             System.out.println(msg + "\n-----------------------------------");
@@ -108,8 +108,8 @@ public class TestParseJava
         }
     }
 
-    @Test(expected = JsonParseException.class)
-    public void mapCircleC() throws JsonParseException
+    @Test(expected = JsonException.class)
+    public void mapCircleC() throws JsonException
     {
         HashMap<Object, Object> map = new HashMap<Object, Object>();
         ArrayList<Object> list = new ArrayList<Object>();
@@ -121,7 +121,7 @@ public class TestParseJava
         {
             Json json = Json.parseJavaMap(map);
         }
-        catch(JsonParseException e)
+        catch(JsonException e)
         {
             String msg = e.getMessage();
             System.out.println(msg + "\n-----------------------------------");
@@ -130,8 +130,8 @@ public class TestParseJava
         }
     }
 
-    @Test(expected = JsonParseException.class)
-    public void collectionCircleA() throws JsonParseException
+    @Test(expected = JsonException.class)
+    public void collectionCircleA() throws JsonException
     {
         ArrayList<Object> list = new ArrayList<Object>();
         list.add(list);
@@ -139,7 +139,7 @@ public class TestParseJava
         {
             Json json = Json.parseJavaCollection(list);
         }
-        catch(JsonParseException e)
+        catch(JsonException e)
         {
             String msg = e.getMessage();
             System.out.println(msg + "\n-----------------------------------");
@@ -148,8 +148,8 @@ public class TestParseJava
         }
     }
 
-    @Test(expected = JsonParseException.class)
-    public void collectionCircleB() throws JsonParseException
+    @Test(expected = JsonException.class)
+    public void collectionCircleB() throws JsonException
     {
         HashMap<Object, Object> map = new HashMap<Object, Object>();
         ArrayList<Object> list = new ArrayList<Object>();
@@ -161,7 +161,7 @@ public class TestParseJava
         {
             Json json = Json.parseJavaMap(map);
         }
-        catch(JsonParseException e)
+        catch(JsonException e)
         {
             String msg = e.getMessage();
             System.out.println(msg + "\n-----------------------------------");
@@ -170,8 +170,8 @@ public class TestParseJava
         }
     }
 
-    @Test(expected = JsonParseException.class)
-    public void collectionCircleC() throws JsonParseException
+    @Test(expected = JsonException.class)
+    public void collectionCircleC() throws JsonException
     {
         ArrayList<Object> list = new ArrayList<Object>();
         HashMap<String, Object> map = new HashMap<String, Object>();
@@ -183,7 +183,7 @@ public class TestParseJava
         {
             Json json = Json.parseJavaCollection(list);
         }
-        catch(JsonParseException e)
+        catch(JsonException e)
         {
             String msg = e.getMessage();
             System.out.println(msg + "\n-----------------------------------");
@@ -193,7 +193,7 @@ public class TestParseJava
     }
 
     @Test
-    public void mapNormalA() throws JsonParseException
+    public void mapNormalA() throws JsonException
     {
         HashMap<Object, Object> map = new HashMap<Object, Object>();
         map.put("NULL", null);
@@ -210,7 +210,7 @@ public class TestParseJava
     }
 
     @Test
-    public void mapNormalB() throws JsonParseException
+    public void mapNormalB() throws JsonException
     {
         HashMap<Object, Object> map = new HashMap<Object, Object>();
         ArrayList<Object> list = new ArrayList<Object>();
@@ -230,7 +230,7 @@ public class TestParseJava
     }
 
     @Test
-    public void collectionNormalA() throws JsonParseException
+    public void collectionNormalA() throws JsonException
     {
         ArrayList<Object> list = new ArrayList<Object>();
         list.add(null);
@@ -247,7 +247,7 @@ public class TestParseJava
     }
 
     @Test
-    public void collectionNormalB() throws JsonParseException
+    public void collectionNormalB() throws JsonException
     {
         HashMap<Object, Object> map = new HashMap<Object, Object>();
         ArrayList<Object> list = new ArrayList<Object>();

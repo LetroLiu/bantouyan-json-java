@@ -19,7 +19,7 @@ public class TestArray
     public static JsonArray ary;
     
     @Before
-    public void init() throws IOException, JsonParseException
+    public void init() throws IOException, JsonException
     {
         String jsonText = "[1, \"10\", 1.1, 1.1E1, \"2.2\", \"2.2E2\", true, \"TRUE\", null, [], {}]";
         ary = (JsonArray)Json.parseJsonText(jsonText);
