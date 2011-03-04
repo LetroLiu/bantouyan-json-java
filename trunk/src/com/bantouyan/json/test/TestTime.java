@@ -7,7 +7,7 @@ import com.bantouyan.json.Json;
 import com.bantouyan.json.JsonArray;
 import com.bantouyan.json.JsonException;
 import com.bantouyan.json.JsonObject;
-import com.bantouyan.json.JsonParseException;
+import com.bantouyan.json.JsonException;
 import com.bantouyan.json.JsonPrimitive;
 import com.bantouyan.json.Jsonable;
 import com.bantouyan.json.Json.JsonType;
@@ -74,7 +74,7 @@ public class TestTime
 
     @Ignore
     @Test
-    public void parseTextTime() throws IOException, JsonParseException
+    public void parseTextTime() throws IOException, JsonException
     {
         for(int i=0; i< cnt; i++)
         {

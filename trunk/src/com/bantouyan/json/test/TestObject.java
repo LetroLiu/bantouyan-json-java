@@ -350,7 +350,7 @@ public class TestObject
     }
     
     @Test
-    public void canToXXX() throws IOException, JsonParseException
+    public void canToXXX() throws IOException, JsonException
     {
         String str = "{\"boolean\": true, \"integer\": 30, \"float\": 22.22,"
             + "\"null\": null, \"array\": [], \"object\":{}}";
@@ -403,7 +403,7 @@ public class TestObject
     }
     
     @Test
-    public void getXXX() throws IOException, JsonParseException
+    public void getXXX() throws IOException, JsonException
     {
         String str = "{\"boolean\": true, \"integer\": 30, \"float\": 22.22,"
                   + "\"null\": null, \"array\": [], \"object\":{}}";

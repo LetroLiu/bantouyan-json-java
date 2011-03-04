@@ -61,9 +61,9 @@ class JsonTextParser
      * 根据reader内容解析成JsonObject或JsonArray。
      * @return 解析后的JsonObject或JsonArray实例
      * @throws IOException 读取reader有误
-     * @throws JsonParseException Json格式错误（不是JsonObject或JsonArray）
+     * @throws JsonException Json格式错误（不是JsonObject或JsonArray）
      */
-    public Json parse() throws IOException, JsonParseException
+    public Json parse() throws IOException, JsonException
     {
         Json json = null;
         
@@ -83,7 +83,7 @@ class JsonTextParser
             {
                 String msg = "Cannot found json object begin sign '{'" +
                 		" or json array begin sign ']' at position " + pos + ".";
-                throw new JsonParseException(msg);
+                throw new JsonException(msg);
             }
             
             next();
@@ -91,7 +91,7 @@ class JsonTextParser
         if(json == null)
         {
             String msg = "Cannot parse blank character sequence to json.";
-            throw new JsonParseException(msg);
+            throw new JsonException(msg);
         }
         
         return json;
@@ -102,9 +102,9 @@ class JsonTextParser
      * 进入时pos指向字符'{'，退出时指向对应的'}'之后的第一个字符。
      * @return 对应的JsonObject实例
      * @throws IOException 读取Reader发生异常
-     * @throws JsonParseException Json格式不正确（无法解析成JsonObject，或Name出现重复）
+     * @throws JsonException Json格式不正确（无法解析成JsonObject，或Name出现重复）
      */
-    private JsonObject parseObject() throws IOException, JsonParseException
+    private JsonObject parseObject() throws IOException, JsonException
     {
         JsonObject json = new JsonObject();
         boolean needNextElement = false;
@@ -126,7 +126,7 @@ class JsonTextParser
                 {
                     String msg = "Object element name \"" + name
                             + "\" at position " + pos + " is repeated.";
-                    throw new JsonParseException(msg);
+                    throw new JsonException(msg);
                 } 
                 else
                 {
@@ -154,7 +154,7 @@ class JsonTextParser
         else
         {
             String msg = "Cannot found object end sign \'}\' at position " + pos + ".";
-            throw new JsonParseException(msg);
+            throw new JsonException(msg);
         }
         
         return json;
@@ -165,9 +165,9 @@ class JsonTextParser
      * 进入时pos指向字符'['，退出时指向对应的']'之后的第一个字符。
      * @return 对应的JsonArray实例
      * @throws IOException 读取Reader发生异常
-     * @throws JsonParseException Json格式不正确（无法解析成JsonArray）
+     * @throws JsonException Json格式不正确（无法解析成JsonArray）
      */
-    private JsonArray parseArray() throws IOException, JsonParseException
+    private JsonArray parseArray() throws IOException, JsonException
     {
         JsonArray json = new JsonArray();  
         boolean needNextElement = false;  
@@ -206,7 +206,7 @@ class JsonTextParser
         else
         {
             String msg = "Cannot found array end sign \']\' at position " + pos + ".";
-            throw new JsonParseException(msg);
+            throw new JsonException(msg);
         }
         
         return json;
@@ -217,9 +217,9 @@ class JsonTextParser
      * 退出时指向字符':'后的第一个字符。
      * @return 表示name的String
      * @throws IOException 读取Reader发生异常
-     * @throws JsonParseException Json格式不正确（无法解析出一个表示Name的字符串或无法找到结束字符“:”）
+     * @throws JsonException Json格式不正确（无法解析出一个表示Name的字符串或无法找到结束字符“:”）
      */
-    private String parseName() throws IOException, JsonParseException
+    private String parseName() throws IOException, JsonException
     {
         String str = null;
         
@@ -244,7 +244,7 @@ class JsonTextParser
                 else
                 {
                     String msg = "Cannot found object element name at position " + pos + ".";
-                    throw new JsonParseException(msg);
+                    throw new JsonException(msg);
                 }
             }
             
@@ -258,7 +258,7 @@ class JsonTextParser
         else
         {
             String msg = "Cannot found object element name at position " + pos + ".";
-            throw new JsonParseException(msg);
+            throw new JsonException(msg);
         }
         
         return str;
@@ -271,9 +271,9 @@ class JsonTextParser
      * @param endChar 子元素除逗号外的结束符，只允许是]或}
      * @return Json子元素的实例
      * @throws IOException 读取Reader发生异常
-     * @throws JsonParseException Json格式不正确（无法解析成Json子元素）
+     * @throws JsonException Json格式不正确（无法解析成Json子元素）
      */
-    private Json parseValue(int endChar) throws IOException, JsonParseException
+    private Json parseValue(int endChar) throws IOException, JsonException
     {
         Json json = null;
         
@@ -338,7 +338,7 @@ class JsonTextParser
                                             "Cannot found object element value at position ";
                     msg += pos + ".";
                 }
-                throw new JsonParseException(msg);
+                throw new JsonException(msg);
             }
             
         }
@@ -351,9 +351,9 @@ class JsonTextParser
      * 进入时pos指向字符串的开头，退出时指向字符串的下一个字符。
      * @return 所解析的字符串
      * @throws IOException 读取Reader发生异常
-     * @throws JsonParseException Json格式不正确（无法解析出一个不带引号的String）
+     * @throws JsonException Json格式不正确（无法解析出一个不带引号的String）
      */
-    private String parseString() throws IOException, JsonParseException
+    private String parseString() throws IOException, JsonException
     {
         StringBuilder build = new StringBuilder();
         
@@ -370,7 +370,7 @@ class JsonTextParser
             {
                 String msg = "Illegal character found in non-quotation mark string at position " + pos
                            + ", so cannot as object element name.";
-                throw new JsonParseException(msg);
+                throw new JsonException(msg);
             }
             
             next();
@@ -381,7 +381,7 @@ class JsonTextParser
         {
             String msg = "Non-quotation mark string \"" + str + "\" found at position " + pos 
                        + " is javascript keywords, so cannot as object element name..";
-            throw new JsonParseException(msg);
+            throw new JsonException(msg);
         }
         return str;
     }
@@ -391,9 +391,9 @@ class JsonTextParser
      * @param quoteChar 字符串所使用的引号，' or "
      * @return 所解析的字符串
      * @throws IOException 读取Reader发生异常
-     * @throws JsonParseException Json格式不正确（无法解析出一个带引号的字符串）
+     * @throws JsonException Json格式不正确（无法解析出一个带引号的字符串）
      */
-    private String parseString(int quoteChar) throws IOException, JsonParseException
+    private String parseString(int quoteChar) throws IOException, JsonException
     {
         StringBuilder build = new StringBuilder();
         next(); // skip quatorChar
@@ -405,7 +405,7 @@ class JsonTextParser
             if(ch < 0x0020)
             {
                 String msg = "Character less then \\u0020 found at position " + pos + ".";
-                throw new JsonParseException(msg);
+                throw new JsonException(msg);
             }
             if(ch == '\\')
             {
@@ -451,7 +451,7 @@ class JsonTextParser
                             else
                             {
                                 String msg = "Un expected character found in unicode character sequence at positon " + pos + ".";
-                                throw new JsonParseException(msg);
+                                throw new JsonException(msg);
                             }
                             
                         }
@@ -459,7 +459,7 @@ class JsonTextParser
                         break;
                     default:
                         String msg = "Unexpected escape sign \'\\" + (char)ch + "\' found at position " + pos + ".";
-                        throw new JsonParseException(msg);
+                        throw new JsonException(msg);
                 }
             }
             build.append((char)ch);
@@ -477,7 +477,7 @@ class JsonTextParser
             msg += (quoteChar == '"')? "\'" + (char)quoteChar + "\'": 
                                        "\"" + (char)quoteChar + "\"";
             msg += " at position " + pos + ".";
-            throw new JsonParseException(msg);
+            throw new JsonException(msg);
         }
         
         return build.toString();
@@ -488,9 +488,9 @@ class JsonTextParser
      * @param endChar Number后除空白、逗号外可接受的终止符，只允许是']' 或 '}'
      * @return Number对象（Long或Double类型）
      * @throws IOException 读取Reader发生异常
-     * @throws JsonParseException Json格式不正确（无法解析成一个Json Number）
+     * @throws JsonException Json格式不正确（无法解析成一个Json Number）
      */
-    private Number parseNumber(int endChar) throws IOException, JsonParseException
+    private Number parseNumber(int endChar) throws IOException, JsonException
     {
         StringBuilder build = new StringBuilder();
         boolean isInt = true;
@@ -509,7 +509,7 @@ class JsonTextParser
             next();
             if(ch >= '0' && ch <= '9')
             {
-                throw new JsonParseException("Number not allow leading zero at position " + pos + ".");
+                throw new JsonException("Number not allow leading zero at position " + pos + ".");
             }
         }
         else if(ch > '0' && ch <= '9') //begin with 1..9
@@ -533,7 +533,7 @@ class JsonTextParser
         }
         else
         {
-            throw new JsonParseException("In number charcter after '-' is not 0..9 at position " + pos + ".");
+            throw new JsonException("In number charcter after '-' is not 0..9 at position " + pos + ".");
         }
         
         //parse fraction
@@ -560,7 +560,7 @@ class JsonTextParser
             }
             else
             {
-                throw new JsonParseException("In number character after '.' is not 0..9 at position " + pos + ".");
+                throw new JsonException("In number character after '.' is not 0..9 at position " + pos + ".");
             }
             
         }
@@ -598,13 +598,13 @@ class JsonTextParser
             }
             else
             {
-                throw new JsonParseException("In number character after 'e' or 'E' is not 0..9 at position " + pos + ".");
+                throw new JsonException("In number character after 'e' or 'E' is not 0..9 at position " + pos + ".");
             }
         }
         if(ch != ',' && ch != endChar && !isBlankCharacter(ch))
         {
             String msg = "Number invalid sufix at position " + pos + ".";
-            throw new JsonParseException(msg);
+            throw new JsonException(msg);
         }
         
         String numStr = build.toString();
@@ -623,7 +623,7 @@ class JsonTextParser
         {
             String msg = (isInt)? "Integer ": "Float ";
             msg += "string \"" + numStr + "\" format error at position " + pos + ".";
-            throw new JsonParseException(msg, e);
+            throw new JsonException(msg, e);
         }
     }
     
@@ -634,10 +634,10 @@ class JsonTextParser
      * @param endChar Json常量后后除空白、逗号外可接受的终止符，只允许是']' 或 '}'
      * @return 对应的Json常量
      * @throws IOException 读取Reader发生异常
-     * @throws JsonParseException Json格式不正确（非Json常量字符串，或常量字符串后紧跟着非法字符）
+     * @throws JsonException Json格式不正确（非Json常量字符串，或常量字符串后紧跟着非法字符）
      */
     private JsonPrimitive parseJsonConstant(String constName, int[] constAry, int endChar)
-    throws IOException, JsonParseException
+    throws IOException, JsonException
     {
         JsonPrimitive json = null;
         
@@ -646,7 +646,7 @@ class JsonTextParser
             if(ch != constAry[i])
             {
                 String msg = "Cannot foun constant \"" + constName + "\" at position " + pos + ".";
-                throw new JsonParseException(msg);
+                throw new JsonException(msg);
             }
             
             next();
@@ -654,7 +654,7 @@ class JsonTextParser
         if(ch != ',' && ch != endChar && !isBlankCharacter(ch))
         {
             String msg = "Invalid sufix of constant \"" + constName + "\" at position " + pos + ".";
-            throw new JsonParseException(msg);
+            throw new JsonException(msg);
         }
         
         json = (constAry == trueAry)? Json.trueJson: 
@@ -670,9 +670,9 @@ class JsonTextParser
      * @param endChar1 终止字符，不能是-1（-1表示Reader已到达尾部，即EOF）
      * @param endChar2 终止字符，不能是-1（-1表示Reader已到达尾部，即EOF）
      * @throws IOException 读取Reader发生异常
-     * @throws JsonParseException Json格式不正确（遇到终止字符前读到非空白字符或已到达Reader尾部）
+     * @throws JsonException Json格式不正确（遇到终止字符前读到非空白字符或已到达Reader尾部）
      */
-    private void parseTailBlank(int endChar1, int endChar2) throws IOException, JsonParseException
+    private void parseTailBlank(int endChar1, int endChar2) throws IOException, JsonException
     {
         boolean found = false;
         
@@ -687,7 +687,7 @@ class JsonTextParser
             {
                 String msg = "Non-blank  character found at position " + pos 
                         + " before '" + (char)endChar1 + "' and '" + (char)endChar2 + "'.";
-                throw new JsonParseException(msg);
+                throw new JsonException(msg);
             }
             
             next();
@@ -696,7 +696,7 @@ class JsonTextParser
         if(! found)
         {
             String msg = "Cannot found end character \'" + (char)endChar1 + "\' and \'" + (char)endChar2 + "\' at position " + pos + ".";
-            throw new JsonParseException(msg);
+            throw new JsonException(msg);
         }        
     }
     
@@ -706,9 +706,9 @@ class JsonTextParser
      * 退出时指向遇到的第一个endsChar字符。
      * @param endChar 可以用-1表示期望到达Reader尾部，即EOF
      * @throws IOException 读取Reader发生异常
-     * @throws JsonParseException Json格式不正确（遇到终止字符前读到非空白字符，或当终止字符不是-1时已到达Reader尾部）
+     * @throws JsonException Json格式不正确（遇到终止字符前读到非空白字符，或当终止字符不是-1时已到达Reader尾部）
      */
-    private void parseTailBlank(int endChar) throws IOException, JsonParseException
+    private void parseTailBlank(int endChar) throws IOException, JsonException
     {
         boolean found = false;
         
@@ -723,7 +723,7 @@ class JsonTextParser
             {
                 String msg = "Non-blank character found at position " + pos + " before ";
                 msg += (endChar == -1)? "EOF.": "'" + (char)endChar + "'.";
-                throw new JsonParseException(msg);
+                throw new JsonException(msg);
             }
             
             next();
@@ -732,7 +732,7 @@ class JsonTextParser
         if(! found && endChar != -1)
         {
             String msg = "Cannot found character \'" + (char)endChar + "\'(end char) at position " + pos + ".";
-            throw new JsonParseException(msg);
+            throw new JsonException(msg);
         }
     }
     

@@ -64,9 +64,9 @@ public abstract class Json implements Cloneable
      * 解析Json字符串为Json实例。
      * @param jsonText Json文本，应该为一个完整的JsonArray或JsonObject的表示。
      * @return 对应的Json实例
-     * @throws JsonParseException Json文本格式不正确
+     * @throws JsonException Json文本格式不正确
      */
-    public static Json parseJsonText(String jsonText) throws JsonParseException
+    public static Json parseJsonText(String jsonText) throws JsonException
     {
         Json json = null;
         
@@ -91,9 +91,9 @@ public abstract class Json implements Cloneable
      * @param reader 包含Json文本的Reader实例，整个字符流应该是一个完整的JsonArray或JsonObject的表示
      * @return 对应的Json实例
      * @throws IOException 读写reader发生异常
-     * @throws JsonParseException reader所包含的Json文本格式不正确
+     * @throws JsonException reader所包含的Json文本格式不正确
      */
-    public static Json parseJsonReader(Reader reader) throws IOException, JsonParseException
+    public static Json parseJsonReader(Reader reader) throws IOException, JsonException
     {
         Json json = null;
         
@@ -107,9 +107,9 @@ public abstract class Json implements Cloneable
      * 将Java Map实例解析为JsonObject实例，但忽略key为null的entry。
      * @param map 要解析的Java Map实例
      * @return 对应的JsonObject实例
-     * @throws JsonParseException 如果Map内存在循环引用，或有无法解析的对象，则抛出异常。
+     * @throws JsonException 如果Map内存在循环引用，或有无法解析的对象，则抛出异常。
      */
-    public static JsonObject parseJavaMap(Map<?, ?> map) throws JsonParseException
+    public static JsonObject parseJavaMap(Map<?, ?> map) throws JsonException
     {
         map.remove(null);
         IdentityStack parentRef = new IdentityStack();
@@ -121,14 +121,14 @@ public abstract class Json implements Cloneable
      * @param map 要解析的Java Map实例
      * @param parentRef 上级对象的堆栈，用于检测循环引用
      * @return 对应的JsonObject实例
-     * @throws JsonParseException 如果Map元素已被（上级对象）引用，或有无法解析的对象，则抛出异常。
+     * @throws JsonException 如果Map元素已被（上级对象）引用，或有无法解析的对象，则抛出异常。
      */
     private static JsonObject parseJavaMap(Map<?, ?> map, IdentityStack parentRef)
-    throws JsonParseException
+    throws JsonException
     {
         if(parentRef.contains(map))
         {
-            throw new JsonParseException("Java map is referenced again.");
+            throw new JsonException("Java map is referenced again.");
         }
         
         JsonObject json = new JsonObject(map.size());
@@ -138,7 +138,7 @@ public abstract class Json implements Cloneable
         {
             if(!(key instanceof String || key instanceof Number || key instanceof Boolean))
             {
-                throw new JsonParseException("Map key cannot cast to string.");
+                throw new JsonException("Map key cannot cast to string.");
             }
             
             Object value = map.get(key);
@@ -153,9 +153,9 @@ public abstract class Json implements Cloneable
      * 将Java Collection实例解析为JsonArray实例，但忽略子Map内key为null的entry。
      * @param collection 要解析的Java Collection实例
      * @return 对应的JsonArray实例
-     * @throws JsonParseException 如果Collection内存在循环引用，或有无法解析的对象，则抛出异常。
+     * @throws JsonException 如果Collection内存在循环引用，或有无法解析的对象，则抛出异常。
      */
-    public static JsonArray parseJavaCollection(Collection<?> collection) throws JsonParseException
+    public static JsonArray parseJavaCollection(Collection<?> collection) throws JsonException
     {
         IdentityStack parentRef = new IdentityStack();
         return Json.parseJavaCollection(collection, parentRef);
@@ -166,14 +166,14 @@ public abstract class Json implements Cloneable
      * @param collection 要解析的Java Collection实例
      * @param parentRef 上级对象的堆栈，用于检测循环引用
      * @return 对应的JsonArray实例
-     * @throws JsonParseException 如果Collection内存在循环引用，或有无法解析的对象，则抛出异常。
+     * @throws JsonException 如果Collection内存在循环引用，或有无法解析的对象，则抛出异常。
      */
     private static JsonArray parseJavaCollection(Collection<?> collection, IdentityStack parentRef)
-    throws JsonParseException
+    throws JsonException
     {
         if(parentRef.contains(collection))
         {
-            throw new JsonParseException("Java colloection is referenced again.");
+            throw new JsonException("Java colloection is referenced again.");
         }
         
         JsonArray json = new JsonArray(collection.size());
@@ -191,9 +191,9 @@ public abstract class Json implements Cloneable
      * 将Java对象转换为Json实例，但忽略Map内key为null的entry。
      * @param value Java对象
      * @return 对应的Json实例
-     * @throws JsonParseException 如果Java对象已被（上级Json实例）引用，或无法解析，则抛出异常
+     * @throws JsonException 如果Java对象已被（上级Json实例）引用，或无法解析，则抛出异常
      */
-    private static Json changeToJson(Object value, IdentityStack parentRef) throws JsonParseException
+    private static Json changeToJson(Object value, IdentityStack parentRef) throws JsonException
     {
         Json json = null;
         
@@ -231,7 +231,7 @@ public abstract class Json implements Cloneable
         }
         else
         {
-            throw new JsonParseException("Cannot parse value: " + value + " to json instance.");
+            throw new JsonException("Cannot parse value: " + value + " to json instance.");
         }
         
         return json;
