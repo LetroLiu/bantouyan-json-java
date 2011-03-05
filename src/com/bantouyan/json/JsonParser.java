@@ -12,6 +12,11 @@ package com.bantouyan.json;
  * JsonException异常而不是仅仅返回空指针null。
  * </p>
  * 
+ * <p>在执行parseJavaMap(map, parser)与parserJavaCollection(collection, parser)
+ * 时，如果被解析的子元素是Jsonable实例，同时parser（JsonParser实例）
+ * 也可以解析这个子元素，那么使用Jsonable的方法generateJson。
+ * </P>
+ * 
  * @author 飞翔的河马
  * @version 1.00
  */

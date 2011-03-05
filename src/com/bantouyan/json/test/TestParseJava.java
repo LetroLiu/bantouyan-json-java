@@ -1,5 +1,6 @@
 package com.bantouyan.json.test;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -264,5 +265,37 @@ public class TestParseJava
         String jsonStr = json.generateJsonText();
         System.out.println(jsonStr);
         Assert.assertEquals("[null,false,\"\\\"String\\\"\",356,0.42,{\"NULL\":null}]", jsonStr);
+    }
+    
+    @Test
+    public void testJsonParser()
+    {
+        JsonParser parser = new JsonParser(){
+            public Json parseObjectToJson(Object obj) throws JsonException
+            {
+                if(obj instanceof Date)
+                {
+                    Date d = (Date)obj;
+                    DateFormat df = DateFormat.getDateInstance();
+                    String str = df.format(d);
+                    return new JsonPrimitive(str);
+                }
+                else
+                {
+                    throw new JsonException();
+                }
+            }
+        };
+        ArrayList<Object> list = new ArrayList<Object>();
+        list.add(new Date());
+        HashMap<Object, Object> map = new HashMap<Object, Object>();
+        map.put("date", new Date());
+        
+        JsonArray jary = Json.parseJavaCollection(list, parser);
+        System.out.println(jary);
+        Assert.assertEquals("[\"2011-3-5\"]", jary.generateJsonText());
+        JsonObject jobj = Json.parseJavaMap(map, parser);
+        System.out.println(jobj);
+        Assert.assertEquals("{\"date\":\"2011-3-5\"}", jobj.generateJsonText());
     }
 }

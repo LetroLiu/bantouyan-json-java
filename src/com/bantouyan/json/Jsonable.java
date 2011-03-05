@@ -9,6 +9,11 @@ package com.bantouyan.json;
  * 而不负责其他类型的Java对象，一般情况下用返回null表示解析失败。
  * </p>
  * 
+ * <p>在执行parseJavaMap(map, parser)与parserJavaCollection(collection, parser)
+ * 时，如果被解析的子元素是Jsonable实例，同时parser（JsonParser实例）
+ * 也可以解析这个子元素，那么使用Jsonable的方法generateJson。
+ * </P>
+ * 
  * @author 飞翔的河马
  * @version 1.00
  */
