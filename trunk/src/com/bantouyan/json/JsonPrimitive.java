@@ -24,7 +24,7 @@ public final class JsonPrimitive extends Json
     /**
      * 创建类型为NULL的Json实例。（只有一个值null）
      */
-    protected JsonPrimitive()
+    public JsonPrimitive()
     {
         this.type = JsonType.NULL;
         this.data = "null";
@@ -34,7 +34,7 @@ public final class JsonPrimitive extends Json
      * 创建浮点型的Json实例。（因调用限制在此包内，所以不处理参数为null的情况）
      * @param data 创建Json的浮点型数值，如果是NaN或Infinity，则转换为字符串型
      */
-    protected JsonPrimitive(Double data) throws JsonException
+    public JsonPrimitive(Double data) throws JsonException
     {
         if(data.isNaN() || data.isInfinite())
         {
@@ -52,7 +52,7 @@ public final class JsonPrimitive extends Json
      * 创建整型的Json实例。（因调用限制在此包内，所以不处理参数为null的情况）
      * @param data 创建Json的整型数值
      */
-    protected JsonPrimitive(Long data)
+    public JsonPrimitive(Long data)
     {
         this.type = JsonType.INTEGER;
         this.data = data;
@@ -62,7 +62,7 @@ public final class JsonPrimitive extends Json
      * 创建数值型（整型或浮点型）Json实例。（因调用限制在此包内，所以不处理参数为null的情况）
      * @param data 创建Json的数值，如果是NaN或Infinity，则转换为字符串型
      */
-    protected JsonPrimitive(Number data)
+    public JsonPrimitive(Number data)
     {
         if(data instanceof Long)
         {
@@ -108,7 +108,7 @@ public final class JsonPrimitive extends Json
      * 创建字符串型Json实例。（因会被嵌套调用到参数为null的情况，所以必须处理）
      * @param data 创建Json的字符串
      */
-    protected JsonPrimitive(String data)
+    public JsonPrimitive(String data)
     {
         if(data == null)
         {
@@ -126,7 +126,7 @@ public final class JsonPrimitive extends Json
      * 创建逻辑型（布尔型）Json实例。(因调用限制在此包内，所以不处理参数为null的情况)
      * @param data 创建Json的逻辑型（布尔型）值
      */
-    protected JsonPrimitive(Boolean data)
+    public JsonPrimitive(Boolean data)
     {
         this.type = JsonType.BOOLEAN;
         this.data = data;

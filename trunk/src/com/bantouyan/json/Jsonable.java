@@ -1,8 +1,13 @@
 package com.bantouyan.json;
 
 /**
- * 用来生成Json实例（JsonObject或JsonArray）的接口，
+ * <p>用来生成Json实例（JsonObject或JsonArray）的接口，
  * 所有实现了该接口的对象都可以调用generateJson()方法获得对应的Json实例。
+ * </p>
+ * 
+ * <p>与接口JsonParser不一样，Jsonable实例仅仅用generateJson方法把自身转换为Json实例，
+ * 而不负责其他类型的Java对象，一般情况下用返回null表示解析失败。
+ * </p>
  * 
  * @author 飞翔的河马
  * @version 1.00
