@@ -16,7 +16,7 @@ public class JsonException extends RuntimeException
     /**
      * 创建JsonException。
      */
-    protected JsonException()
+    public JsonException()
     {
         super();
     }
@@ -25,7 +25,7 @@ public class JsonException extends RuntimeException
      * 创建JsonException。
      * @param msg 对异常的描述
      */
-    protected JsonException(String msg)
+    public JsonException(String msg)
     {
         super(msg);
     }
@@ -34,7 +34,7 @@ public class JsonException extends RuntimeException
      * 创建JsonException。
      * @param e 源异常
      */
-    protected JsonException(Exception e)
+    public JsonException(Exception e)
     {
         super(e);
     }
@@ -44,7 +44,7 @@ public class JsonException extends RuntimeException
      * @param msg 对异常的描述
      * @param e 源异常
      */
-    protected JsonException(String msg, Exception e)
+    public JsonException(String msg, Exception e)
     {
         super(msg, e);
     }
