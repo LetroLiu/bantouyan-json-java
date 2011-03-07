@@ -5,13 +5,12 @@ package com.bantouyan.json;
  * 所有实现了该接口的对象都可以调用generateJson()方法获得对应的Json实例。
  * </p>
  * 
- * <p>与接口JsonParser不一样，Jsonable实例仅仅用generateJson方法把自身转换为Json实例，
- * 而不负责其他类型的Java对象，一般情况下用返回null表示解析失败。
+ * <p>与接口JsonParser不一样，Jsonable实例仅仅把自身转换为Json实例，
+ * 而不负责其他的Java对象，一般情况下用返回null表示解析失败。
  * </p>
  * 
- * <p>在执行parseJavaMap(map, parser)与parserJavaCollection(collection, parser)
- * 时，如果被解析的子元素是Jsonable实例，同时parser（JsonParser实例）
- * 也可以解析这个子元素，那么优先使用JsonParser解析。
+ * <p>在执行parseJavaMap(map, parser)与parserJavaCollection(collection, parser)时，
+ * 优先使用parser（JsonParser）解析。
  * </P>
  * 
  * @author 飞翔的河马

@@ -11,9 +11,8 @@ package com.bantouyan.json;
  * JsonException异常而不是仅仅返回空指针null。
  * </p>
  * 
- * <p>在执行parseJavaMap(map, parser)与parserJavaCollection(collection, parser)
- * 时，如果被解析的子元素是Jsonable实例，同时parser（JsonParser实例）
- * 也可以解析这个子元素，那么优先使用JsonParser解析。
+ * <p>在执行parseJavaMap(map, parser)与parserJavaCollection(collection, parser)时，
+ * 优先使用parser（JsonParser）解析。
  * </P>
  * 
  * @author 飞翔的河马
