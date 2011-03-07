@@ -267,18 +267,57 @@ public class TestParseJava
         Assert.assertEquals("[null,false,\"\\\"String\\\"\",356,0.42,{\"NULL\":null}]", jsonStr);
     }
     
+    @SuppressWarnings("deprecation")
     @Test
     public void testJsonParser()
     {
         JsonParser parser = new JsonParser(){
-            public Json parseObjectToJson(Object obj) throws JsonException
+            
+            @Override
+            public boolean canToJson(Object obj)
             {
-                if(obj instanceof Date)
+                if(obj instanceof String && ((String)obj).startsWith("&&"))
                 {
-                    Date d = (Date)obj;
-                    DateFormat df = DateFormat.getDateInstance();
-                    String str = df.format(d);
-                    return new JsonPrimitive(str);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            
+            @Override
+            public Json changeToJson(Object obj) throws JsonException
+            {
+                if(obj instanceof String && ((String)obj).startsWith("&&"))
+                {
+                    return new JsonPrimitive(((String)obj).substring(2));
+                }
+                else
+                {
+                    throw new JsonException();
+                }
+            }
+            
+            @Override
+            public boolean canToName(Object obj)
+            {
+                if(obj instanceof String && ((String)obj).startsWith("**"))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            
+            @Override
+            public String changeToName(Object obj) throws JsonException
+            {
+                if(obj instanceof String && ((String)obj).startsWith("**"))
+                {
+                    return ((String)obj).substring(2);
                 }
                 else
                 {
@@ -287,15 +326,17 @@ public class TestParseJava
             }
         };
         ArrayList<Object> list = new ArrayList<Object>();
-        list.add(new Date());
+        list.add("v1");
+        list.add("&&v2");
         HashMap<Object, Object> map = new HashMap<Object, Object>();
-        map.put("date", new Date());
+        map.put("**name", "v1");
+        map.put("num", "&&30");
         
         JsonArray jary = Json.parseJavaCollection(list, parser);
         System.out.println(jary);
-        Assert.assertEquals("[\"2011-3-5\"]", jary.generateJsonText());
+        Assert.assertEquals("[\"v1\",\"v2\"]", jary.generateJsonText());
         JsonObject jobj = Json.parseJavaMap(map, parser);
         System.out.println(jobj);
-        Assert.assertEquals("{\"date\":\"2011-3-5\"}", jobj.generateJsonText());
+        Assert.assertEquals("{\"num\":\"30\",\"name\":\"v1\"}", jobj.generateJsonText());
     }
 }

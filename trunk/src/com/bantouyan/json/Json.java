@@ -31,7 +31,7 @@ import java.util.Set;
  * 可以用方法<strong>existsCircle</strong>检测。</p>
  * 
  * @author 飞翔的河马
- * @version 1.00
+ * @version 1.01
  */
 public abstract class Json implements Cloneable
 {
@@ -119,10 +119,10 @@ public abstract class Json implements Cloneable
     /**
      * 将Java Map实例解析为JsonObject实例，但忽略key为null的entry。
      * @param map 要解析的Java Map实例
-     * @param parser Json解析器，用于解析普通Java对象
-     * （不包括String、Number、Boolean、Collection与Map）
+     * @param parser Json解析器，用于解析普通Java对象, 对于非空value优先使用
      * @return 对应的JsonObject实例
      * @throws JsonException 如果Map内存在循环引用，或有无法解析的对象，则抛出异常。
+     * @since 1.01
      */
     public static JsonObject parseJavaMap(Map<?, ?> map, JsonParser parser) 
     throws JsonException
@@ -135,8 +135,7 @@ public abstract class Json implements Cloneable
     /**
      * 将Java Map实例解析为JsonObject实例，但忽略key为null的entry。
      * @param map 要解析的Java Map实例
-     * @param parser Json解析器，用于解析普通Java对象
-     * （不包括String、Number、Boolean、Collection与Map）
+     * @param parser Json解析器，用于解析普通Java对象, 对于非空value优先使用
      * @param parentRef 上级对象的堆栈，用于检测循环引用
      * @return 对应的JsonObject实例
      * @throws JsonException 如果Map元素已被（上级对象）引用，或有无法解析的对象，则抛出异常。
@@ -154,14 +153,23 @@ public abstract class Json implements Cloneable
         Set<?> keys = map.keySet();
         for(Object key: keys)
         {
-            if(!(key instanceof String || key instanceof Number || key instanceof Boolean))
+            String nameStr = null;
+            if(parser != null && parser.canToName(key))
+            {
+                nameStr = parser.changeToName(key);
+            }
+            else if(key instanceof String || key instanceof Number || key instanceof Boolean)
+            {
+                nameStr = key.toString();
+            }
+            else
             {
                 throw new JsonException("Map key cannot cast to string.");
             }
             
             Object value = map.get(key);
-            Json element = Json.changeToJson(value, parser, parentRef);
-            json.add(key.toString(), element);
+            Json jsonValue = Json.changeToJson(value, parser, parentRef);
+            json.add(nameStr, jsonValue);
         }
         parentRef.pop();
         return json;
@@ -170,8 +178,6 @@ public abstract class Json implements Cloneable
     /**
      * 将Java Collection实例解析为JsonArray实例，但忽略子Map内key为null的entry。
      * @param collection 要解析的Java Collection实例
-     * @param parser Json解析器，用于解析普通Java对象
-     * （不包括String、Number、Boolean、Collection与Map）
      * @return 对应的JsonArray实例
      * @throws JsonException 如果Collection内存在循环引用，或有无法解析的对象，则抛出异常。
      */
@@ -184,8 +190,10 @@ public abstract class Json implements Cloneable
     /**
      * 将Java Collection实例解析为JsonArray实例，但忽略子Map内key为null的entry。
      * @param collection 要解析的Java Collection实例
+     * @param parser Json解析器，用于解析普通Java对象, 对于非空value优先使用
      * @return 对应的JsonArray实例
      * @throws JsonException 如果Collection内存在循环引用，或有无法解析的对象，则抛出异常。
+     * @since 1.01
      */
     public static JsonArray parseJavaCollection(Collection<?> collection, JsonParser parser)
     throws JsonException
@@ -197,8 +205,7 @@ public abstract class Json implements Cloneable
     /**
      * 将Java Collection实例解析为JsonArray实例，但忽略子Map内key为null的entry。
      * @param collection 要解析的Java Collection实例
-     * @param parser Json解析器，用于解析普通Java对象
-     * （不包括String、Number、Boolean、Collection与Map）
+     * @param parser Json解析器，用于解析普通Java对象, 对于非空value优先使用
      * @param parentRef 上级对象的堆栈，用于检测循环引用
      * @return 对应的JsonArray实例
      * @throws JsonException 如果Collection内存在循环引用，或有无法解析的对象，则抛出异常。
@@ -225,8 +232,7 @@ public abstract class Json implements Cloneable
     /**
      * 将Java对象转换为Json实例，但忽略Map内key为null的entry。
      * @param value Java对象
-     * @param parser Json解析器，用于解析普通Java对象
-     * （不包括String、Number、Boolean、Collection与Map）
+     * @param parser Json解析器，用于解析普通Java对象, 对于非空value优先使用
      * @param parentRef 上级对象的堆栈，用于检测循环引用
      * @return 对应的Json实例
      * @throws JsonException 如果Java对象已被（上级Json实例）引用，或无法解析，则抛出异常
@@ -239,6 +245,10 @@ public abstract class Json implements Cloneable
         if(value == null)
         {
             json = new JsonPrimitive();
+        }
+        else if(parser != null && parser.canToJson(value))
+        {
+            json = parser.changeToJson(value);
         }
         else if(value instanceof Json)
         {
@@ -267,10 +277,6 @@ public abstract class Json implements Cloneable
         else if(value instanceof Collection<?>)
         {
             json = Json.parseJavaCollection((Collection<?>)value, parser, parentRef);
-        }
-        else if(parser != null)
-        {
-            json = parser.parseObjectToJson(value);
         }
         else
         {
