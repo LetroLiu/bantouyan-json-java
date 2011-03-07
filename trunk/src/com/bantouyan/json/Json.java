@@ -119,7 +119,7 @@ public abstract class Json implements Cloneable
     /**
      * 将Java Map实例解析为JsonObject实例，但忽略key为null的entry。
      * @param map 要解析的Java Map实例
-     * @param parser Json解析器，用于解析普通Java对象, 对于非空value优先使用
+     * @param parser Json解析器，用于解析普通Java对象, 对于非空的key与value优先使用
      * @return 对应的JsonObject实例
      * @throws JsonException 如果Map内存在循环引用，或有无法解析的对象，则抛出异常。
      * @since 1.01
@@ -135,7 +135,7 @@ public abstract class Json implements Cloneable
     /**
      * 将Java Map实例解析为JsonObject实例，但忽略key为null的entry。
      * @param map 要解析的Java Map实例
-     * @param parser Json解析器，用于解析普通Java对象, 对于非空value优先使用
+     * @param parser Json解析器，用于解析普通Java对象, 对于非空的key与value优先使用
      * @param parentRef 上级对象的堆栈，用于检测循环引用
      * @return 对应的JsonObject实例
      * @throws JsonException 如果Map元素已被（上级对象）引用，或有无法解析的对象，则抛出异常。
