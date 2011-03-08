@@ -104,7 +104,18 @@ public abstract class Json implements Cloneable
     }
     
     /**
-     * 将Java Map实例解析为JsonObject实例，但忽略key为null的entry。
+     * <p>将Java Map实例解析为JsonObject实例，但忽略key为null的entry。</p>
+     *
+     *<p>Map的Key只允许是String、Number与Boolean，其他类型的Key会导致异常。
+     *如果Map的Value是String、Number或者Boolean，则转换为相应的JsonPrimitive实例；
+     *如果是Jsonable实例，将调用方法generateJson转换；如果是Collection对象，
+     *则调用parseJavaCollection(Collection)转换；如果是Map对象，
+     *则递用parseJavaMap(Map)转换；如果Value是除String、Number、Boolean、Jsonable、
+     *Json、Collection与Map之外的类型，则会导致异常。</p>
+     *
+     *<p>Value部分的空指针会转换为NULL类型的Json实例，Jsonable实例的generateJson
+     *方法若返回空指针，也会转换为NULL类型的Json实例。</p>
+     *
      * @param map 要解析的Java Map实例
      * @return 对应的JsonObject实例
      * @throws JsonException 如果Map内存在循环引用，或有无法解析的对象，则抛出异常。
@@ -117,7 +128,21 @@ public abstract class Json implements Cloneable
     }
     
     /**
-     * 将Java Map实例解析为JsonObject实例，但忽略key为null的entry。
+     *<p> 将Java Map实例解析为JsonObject实例，但忽略key为null的entry。</p>
+     *
+     *<p>如果Map的Key能通过JsonParser的方法canToName，则调用JsonParser的方法
+     *changeToName转换为JsonObject子元素的Name，否则只允许是String、Number
+     *与Boolean。如果Map的Value能通过JsonParser的方法canToJson，则调用JsonParser
+     *的方法changeToJson转换为Json实例。对于JsonParser的方法canToJson不接受的Value，
+     *如果是String、Number或者Boolean，则转换为相应的JsonPrimitive实例；
+     *如果是Jsonable实例，将调用方法generateJson转换；如果是Collection对象，
+     *则调用parseJavaCollection(Collection, JsonParser)转换；如果是Map对象，
+     *则递用parseJavaMap(Map, JsonParser)转换；如果Value是除String、Number、
+     *Boolean、Jsonable、Json、Collection与Map之外的类型，则会导致异常。</p>
+     *
+     *<p>Value部分的空指针会转换为NULL类型的Json实例，Jsonable实例的generateJson
+     *方法若返回空指针，也会转换为NULL类型的Json实例。</p>
+     *
      * @param map 要解析的Java Map实例
      * @param parser Json解析器，用于解析普通Java对象, 对于非空的key与value优先使用
      * @return 对应的JsonObject实例
@@ -176,7 +201,17 @@ public abstract class Json implements Cloneable
     }
     
     /**
-     * 将Java Collection实例解析为JsonArray实例，但忽略子Map内key为null的entry。
+     * <p>将Java Collection实例解析为JsonArray实例，但忽略子Map内key为null的entry。</p>
+     *
+     *<p>如果Collection的子元素是String、Number或者Boolean，则转换为相应的JsonPrimitive实例；
+     *如果是Jsonable实例，将调用方法generateJson转换；如果是Collection对象，
+     *则调用parseJavaCollection(Collection)转换；如果是Map对象，则递用parseJavaMap(Map)转换；
+     *如果Value是除String、Number、Boolean、Jsonable、Json、Collection与Map之外的类型，
+     *则会导致异常。</p> 
+     *
+     *<p>空指针会转换为NULL类型的Json实例，Jsonable实例的generateJson方法若返回空指针，
+     *也会转换为NULL类型的Json实例。</p>
+     *
      * @param collection 要解析的Java Collection实例
      * @return 对应的JsonArray实例
      * @throws JsonException 如果Collection内存在循环引用，或有无法解析的对象，则抛出异常。
@@ -188,7 +223,19 @@ public abstract class Json implements Cloneable
     }
     
     /**
-     * 将Java Collection实例解析为JsonArray实例，但忽略子Map内key为null的entry。
+     * <p>将Java Collection实例解析为JsonArray实例，但忽略子Map内key为null的entry。</p>
+     *
+     *<p>如果Collection的子元素能通过JsonParser的方法canToJson，则调用JsonParser
+     *的方法changeToJson转换为Json实例。对于JsonParser的方法canToJson不接受的子元素，
+     *如果是String、Number或者Boolean，则转换为相应的JsonPrimitive实例；
+     *如果是Jsonable实例，将调用方法generateJson转换；如果是Collection对象，
+     *则调用parseJavaCollection(Collection, JsonParser)转换；如果是Map对象，
+     *则递用parseJavaMap(Map, JsonParser)转换；如果子元素是除String、Number、
+     *Boolean、Jsonable、Json、Collection与Map之外的类型，则会导致异常。</p>
+     *
+     *<p>空指针会转换为NULL类型的Json实例，Jsonable实例的generateJson方法若返回空指针，
+     *也会转换为NULL类型的Json实例。</p>
+     *
      * @param collection 要解析的Java Collection实例
      * @param parser Json解析器，用于解析普通Java对象, 对于非空value优先使用
      * @return 对应的JsonArray实例
