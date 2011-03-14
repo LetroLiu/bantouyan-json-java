@@ -1,17 +1,20 @@
 package com.bantouyan.json.test;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 
 import com.bantouyan.json.*;
 import com.bantouyan.json.Json.JsonType;
 
 import org.junit.Test;
 import org.junit.Assert;
+import org.junit.Ignore;
 
-public class TestArray2
+public class TestJsonArray
 {
     @Test
-    public void jsonArray_new_count_isEmpty_getType_equals_iterator_getString_clone()
+    public void jsonArray_new_count_isEmpty_getType_equals_iterator_getString_clone_remove()
     {
         JsonArray ary = new JsonArray();
         JsonObject obj = new JsonObject();
@@ -89,6 +92,99 @@ public class TestArray2
             else
                 Assert.assertFalse(j2 == j3);
         }
+        
+        JsonArray ary4 = new JsonArray();
+        ary4.append(3);
+        ary4.append(4);
+        ary4.append(5);
+        Assert.assertEquals("[3,4,5]", ary4.generateJsonText());
+        ary4.remove(1);
+        Assert.assertEquals("[3,5]", ary4.generateJsonText());
+    }
+    
+    @Test
+    public void jsonArray_newCollection()
+    {
+        //invalid value
+        ArrayList<Object> list = new ArrayList<Object>();
+        list.add(new Date());
+        try
+        {
+            Json json = new JsonArray(list);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.indexOf("Cannot parse value: ") == 0);
+        }
+
+        try
+        {
+            Json json = new JsonArray(list, parser);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.indexOf("Cannot parse value: ") == 0);
+        }
+
+        //circle
+        list = new ArrayList<Object>();
+        list.add(list);
+        try
+        {
+            Json json = new JsonArray(list);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.equals("Circle reference exists in this Collection."));
+        }
+
+        try
+        {
+            Json json = new JsonArray(list, parser);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.equals("Circle reference exists in this Collection."));
+        }
+        
+        //normal
+
+        HashMap<Object, Object> map = new HashMap<Object, Object>();
+        list = new ArrayList<Object>();
+        list.add(null);
+        list.add(false);
+        list.add("\"String\"");
+        list.add(356);
+        list.add(4.2e-1);
+        list.add(map);
+        map.put("NULL", null);
+        
+        Json json = new JsonArray(list);
+        System.out.println("===================================");
+        String jsonStr = json.generateJsonText();
+        System.out.println(jsonStr);
+        Assert.assertEquals("[null,false,\"\\\"String\\\"\",356,0.42,{\"NULL\":null}]", jsonStr);
+        
+        //JsonParser
+        list = new ArrayList<Object>();
+        list.add("v1");
+        list.add("&&v2");
+        map = new HashMap<Object, Object>();
+        map.put("**name", "v1");
+        map.put("num", "&&30");
+        list.add(map);
+        
+        JsonArray jary = new JsonArray(list, parser);
+        System.out.println(jary);
+        Assert.assertEquals("[\"v1\",\"v2\",{\"num\":\"30\",\"name\":\"v1\"}]", jary.generateJsonText());
     }
     
     @Test
@@ -509,144 +605,187 @@ public class TestArray2
     }
     
     @Test
-    public void addAll_addAllJsonable()
+    public void appendAll_insertAll_exception()
     {
-        JsonArray subAry = new JsonArray();
-        JsonObject obj = new JsonObject();
-        JsonArray ary = new JsonArray();
-        ary.append();
-        ary.append(true);
-        ary.append(33);
-        ary.append(33.33);
-        ary.append("Str");
-        ary.append(new JsonArray());
-        ary.append(new JsonObject());
-        ArrayList<Json> jsonList = new ArrayList<Json>();
-        jsonList.add(ary.get(0)); //0 null
-        jsonList.add(ary.get(1)); //1 boolean
-        jsonList.add(ary.get(2));  //integer
-        jsonList.add(ary.get(3));  //float
-        jsonList.add(ary.get(4));  //string
-        jsonList.add(ary.get(5));  //array
-        jsonList.add(ary.get(6));  //object
-        jsonList.add(null);        //7 null
+        JsonArray jary = new JsonArray();
+        jary.append();
+        jary.append(true);
         
-        Jsonable jableObj = new Jsonable(){public Json generateJson(){return new JsonObject();}};
-        Jsonable jableNull = new Jsonable(){public Json generateJson()
-        {JsonArray jary = new JsonArray(); jary.append(); return jary.get(0);}};
-        ArrayList<Jsonable> ableList = new ArrayList<Jsonable>();
-        ableList.add(jableObj); //0 object
-        ableList.add(jableNull);  //1 null
-        ableList.add(null);  //2 null
+        //invalid value
+        ArrayList<Object> list = new ArrayList<Object>();
+        list.add(new Date());
+        try
+        {
+            jary.appendAll(list);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.indexOf("Cannot parse value: ") == 0);
+        }
         
-        Assert.assertEquals(JsonType.NULL, ary.getType(0));
-        Assert.assertEquals(JsonType.BOOLEAN, ary.getType(1));
-        Assert.assertEquals(true, ary.getBoolean(1));
-        Assert.assertEquals(JsonType.INTEGER, ary.getType(2));
-        Assert.assertEquals(33, ary.getLong(2));
-        Assert.assertEquals(JsonType.FLOAT, ary.getType(3));
-        Assert.assertEquals(33.33, ary.getDouble(3), 0.1e-10);
-        Assert.assertEquals(JsonType.STRING, ary.getType(4));
-        Assert.assertEquals("Str", ary.getString(4));
-        Assert.assertEquals(JsonType.ARRAY, ary.getType(5));
-        Assert.assertEquals(subAry, ary.getJsonArray(5));
-        Assert.assertEquals(JsonType.OBJECT, ary.getType(6));
-        Assert.assertEquals(obj, ary.getJsonObject(6));
+        try
+        {
+            jary.appendAll(list, parser);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.indexOf("Cannot parse value: ") == 0);
+        }
         
-        ary.addAll(jsonList);
-        ary.addAllJsonable(ableList);
+        try
+        {
+            jary.insertAll(0, list);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.indexOf("Cannot parse value: ") == 0);
+        }
+        
+        try
+        {
+            jary.insertAll(0, list, parser);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.indexOf("Cannot parse value: ") == 0);
+        }
 
-        Assert.assertEquals(JsonType.NULL, ary.getType(0));
-        Assert.assertEquals(JsonType.BOOLEAN, ary.getType(1));
-        Assert.assertEquals(true, ary.getBoolean(1));
-        Assert.assertEquals(JsonType.INTEGER, ary.getType(2));
-        Assert.assertEquals(33, ary.getLong(2));
-        Assert.assertEquals(JsonType.FLOAT, ary.getType(3));
-        Assert.assertEquals(33.33, ary.getDouble(3), 0.1e-10);
-        Assert.assertEquals(JsonType.STRING, ary.getType(4));
-        Assert.assertEquals("Str", ary.getString(4));
-        Assert.assertEquals(JsonType.ARRAY, ary.getType(5));
-        Assert.assertEquals(subAry, ary.getJsonArray(5));
-        Assert.assertEquals(JsonType.OBJECT, ary.getType(6));
-        Assert.assertEquals(obj, ary.getJsonObject(6));
-        
-        Assert.assertEquals(JsonType.NULL, ary.getType(7));
-        Assert.assertEquals(JsonType.BOOLEAN, ary.getType(8));
-        Assert.assertEquals(true, ary.getBoolean(8));
-        Assert.assertEquals(JsonType.INTEGER, ary.getType(9));
-        Assert.assertEquals(JsonType.INTEGER, ary.getType(9));
-        Assert.assertEquals(JsonType.FLOAT, ary.getType(10));
-        Assert.assertEquals(33.33, ary.getDouble(10), 0.1e-10);
-        Assert.assertEquals(JsonType.STRING, ary.getType(11));
-        Assert.assertEquals("Str", ary.getString(11));
-        Assert.assertEquals(JsonType.ARRAY, ary.getType(12));
-        Assert.assertEquals(subAry, ary.getJsonArray(12));
-        Assert.assertEquals(JsonType.OBJECT, ary.getType(13));
-        Assert.assertEquals(obj, ary.getJsonObject(13));
-        Assert.assertEquals(JsonType.NULL, ary.getType(14));
-        
-        Assert.assertEquals(JsonType.OBJECT, ary.getType(15));
-        Assert.assertEquals(obj, ary.getJsonObject(15));
-        Assert.assertEquals(JsonType.NULL, ary.getType(16));
-        Assert.assertEquals(JsonType.NULL, ary.getType(17));        
+        //circle
+        list = new ArrayList<Object>();
+        list.add(list);
+        try
+        {
+            jary.appendAll(list);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.equals("Circle reference exists in this Collection."));
+        }
 
-        
-        ary.addAll(0, jsonList);
-        ary.addAllJsonable(0, ableList);
-        
-        Assert.assertEquals(JsonType.OBJECT, ary.getType(0));
-        Assert.assertEquals(obj, ary.getJsonObject(0));
-        Assert.assertEquals(JsonType.NULL, ary.getType(1));
-        Assert.assertEquals(JsonType.NULL, ary.getType(2));
-        
-        Assert.assertEquals(JsonType.NULL, ary.getType(3));
-        Assert.assertEquals(JsonType.BOOLEAN, ary.getType(4));
-        Assert.assertEquals(true, ary.getBoolean(4));
-        Assert.assertEquals(JsonType.INTEGER, ary.getType(5));
-        Assert.assertEquals(33, ary.getLong(5));
-        Assert.assertEquals(JsonType.FLOAT, ary.getType(6));
-        Assert.assertEquals(33.33, ary.getDouble(6), 0.1e-10);
-        Assert.assertEquals(JsonType.STRING, ary.getType(7));
-        Assert.assertEquals("Str", ary.getString(7));
-        Assert.assertEquals(JsonType.ARRAY, ary.getType(8));
-        Assert.assertEquals(subAry, ary.getJsonArray(8));
-        Assert.assertEquals(JsonType.OBJECT, ary.getType(9));
-        Assert.assertEquals(obj, ary.getJsonObject(9));
-        Assert.assertEquals(JsonType.NULL, ary.getType(10)); 
+        try
+        {
+            jary.appendAll(list, parser);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.equals("Circle reference exists in this Collection."));
+        }
 
-        Assert.assertEquals(JsonType.NULL, ary.getType(11));
-        Assert.assertEquals(JsonType.BOOLEAN, ary.getType(12));
-        Assert.assertEquals(true, ary.getBoolean(12));
-        Assert.assertEquals(JsonType.INTEGER, ary.getType(13));
-        Assert.assertEquals(33, ary.getLong(13));
-        Assert.assertEquals(JsonType.FLOAT, ary.getType(14));
-        Assert.assertEquals(33.33, ary.getDouble(14), 0.1e-10);
-        Assert.assertEquals(JsonType.STRING, ary.getType(15));
-        Assert.assertEquals("Str", ary.getString(15));
-        Assert.assertEquals(JsonType.ARRAY, ary.getType(16));
-        Assert.assertEquals(subAry, ary.getJsonArray(16));
-        Assert.assertEquals(JsonType.OBJECT, ary.getType(17));
-        Assert.assertEquals(obj, ary.getJsonObject(17));
-        Assert.assertEquals(JsonType.NULL, ary.getType(18));
-        Assert.assertEquals(JsonType.BOOLEAN, ary.getType(19));
-        Assert.assertEquals(true, ary.getBoolean(19));
-        Assert.assertEquals(JsonType.INTEGER, ary.getType(20));
-        Assert.assertEquals(JsonType.INTEGER, ary.getType(20));
-        Assert.assertEquals(JsonType.FLOAT, ary.getType(21));
-        Assert.assertEquals(33.33, ary.getDouble(21), 0.1e-10);
-        Assert.assertEquals(JsonType.STRING, ary.getType(22));
-        Assert.assertEquals("Str", ary.getString(22));
-        Assert.assertEquals(JsonType.ARRAY, ary.getType(23));
-        Assert.assertEquals(subAry, ary.getJsonArray(23));
-        Assert.assertEquals(JsonType.OBJECT, ary.getType(24));
-        Assert.assertEquals(obj, ary.getJsonObject(24));
-        Assert.assertEquals(JsonType.NULL, ary.getType(25));
-        Assert.assertEquals(JsonType.OBJECT, ary.getType(26));
-        Assert.assertEquals(obj, ary.getJsonObject(26));
-        Assert.assertEquals(JsonType.NULL, ary.getType(27));
-        Assert.assertEquals(JsonType.NULL, ary.getType(28));     
+        try
+        {
+            jary.insertAll(0, list);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.equals("Circle reference exists in this Collection."));
+        }
+
+        try
+        {
+            jary.insertAll(0, list, parser);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.equals("Circle reference exists in this Collection."));
+        }
     }
     
+    @Test
+    public void appendAll_insertAll_normal()
+    {
+        Jsonable jableObj = new Jsonable(){public Json generateJson(){return new JsonObject();}};
+        Jsonable jableNull = new Jsonable(){public Json generateJson(){return new JsonPrimitive();}};
+        JsonArray subAry = new JsonArray();
+        JsonObject jobj = new JsonObject();
+        JsonArray jary = new JsonArray();
+        jary.append();
+        jary.append(true);
+        jary.append(33);
+        jary.append(33.33);
+        jary.append("Str");
+        jary.append(new JsonArray());
+        jary.append(new JsonObject());
+        ArrayList<Object> list = new ArrayList();
+        list.add(null);
+        list.add(true);
+        list.add(33);
+        list.add(33.33);
+        list.add("Str");
+        list.add(new JsonArray());
+        list.add(new JsonObject());
+        list.add(jableNull);
+        list.add(jableObj);
+        JsonArray jary2 = jary.clone();
+        jary2.append(jableNull);
+        jary2.append(jableObj);
+        
+        //append JsonArray
+        JsonArray ary = new JsonArray();
+        ary.appendAll(jary);
+        Assert.assertEquals(jary, ary);
+        
+        //insert JsonArray
+        ary.clear();
+        ary.append();
+        ary.insertAll(0, jary);
+        int pos = jary.count();
+        Assert.assertEquals(JsonType.NULL, ary.getType(pos));
+        ary.remove(pos);
+        Assert.assertEquals(jary, ary);
+        
+        //append Collection
+        ary.clear();
+        ary.appendAll(list);
+        Assert.assertEquals(jary2, ary);
+        
+        //insert Collection
+        ary.clear();
+        ary.append();
+        ary.insertAll(0, list);
+        pos = list.size();
+        Assert.assertEquals(JsonType.NULL, ary.getType(pos));
+        ary.remove(pos);
+        Assert.assertEquals(jary2, ary);
+        
+        // for parser
+        list = new ArrayList<Object>();
+        list.add("v1");
+        list.add("&&v2");
+        HashMap map = new HashMap<Object, Object>();
+        map.put("**name", "v1");
+        map.put("num", "&&30");
+        list.add(map);
+
+        //append parser
+        ary.clear();
+        ary.appendAll(list, parser);
+        System.out.println(ary);
+        Assert.assertEquals("[\"v1\",\"v2\",{\"num\":\"30\",\"name\":\"v1\"}]", ary.generateJsonText());
+        
+        //insert parser
+        ary.clear();
+        ary.append();
+        ary.insertAll(0, list, parser);
+        System.out.println(ary);
+        Assert.assertEquals("[\"v1\",\"v2\",{\"num\":\"30\",\"name\":\"v1\"},null]", ary.generateJsonText());
+    }
+        
     @Test
     public void double_NaN_Infinity()
     {
@@ -685,4 +824,59 @@ public class TestArray2
         Assert.assertEquals("-Infinity", ary.getString(1));
         Assert.assertEquals("NaN", ary.getString(2));
     }
+
+    public static JsonParser parser = new JsonParser(){
+        
+        @Override
+        public boolean canToJson(Object obj)
+        {
+            if(obj instanceof String && ((String)obj).startsWith("&&"))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        
+        @Override
+        public Json changeToJson(Object obj) throws JsonException
+        {
+            if(obj instanceof String && ((String)obj).startsWith("&&"))
+            {
+                return new JsonPrimitive(((String)obj).substring(2));
+            }
+            else
+            {
+                throw new JsonException();
+            }
+        }
+        
+        @Override
+        public boolean canToName(Object obj)
+        {
+            if(obj instanceof String && ((String)obj).startsWith("**"))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        
+        @Override
+        public String changeToName(Object obj) throws JsonException
+        {
+            if(obj instanceof String && ((String)obj).startsWith("**"))
+            {
+                return ((String)obj).substring(2);
+            }
+            else
+            {
+                throw new JsonException();
+            }
+        }
+    };
 }

@@ -82,7 +82,7 @@ public class TestParseJava
         {
             String msg = e.getMessage();
             System.out.println(msg + "\n-----------------------------------");
-            Assert.assertTrue(msg.equals("Java map is referenced again."));
+            Assert.assertTrue(msg.equals("Circle reference exists in this Map."));
             throw e;
         }
     }
@@ -90,21 +90,21 @@ public class TestParseJava
     @Test(expected = JsonException.class)
     public void mapCircleB() throws JsonException
     {
+        HashMap<Object, Object> map = new HashMap<Object, Object>();
         ArrayList<Object> list = new ArrayList<Object>();
-        HashMap<String, Object> map = new HashMap<String, Object>();
-        list.add("element");
-        list.add(map);
         map.put("key", "value");
-        map.put("self", map);
+        map.put("list", list);
+        list.add("element");
+        list.add(list);
         try
         {
-            Json json = Json.parseJavaCollection(list);
+            Json json = Json.parseJavaMap(map);
         }
         catch(JsonException e)
         {
             String msg = e.getMessage();
             System.out.println(msg + "\n-----------------------------------");
-            Assert.assertTrue(msg.equals("Java map is referenced again."));
+            Assert.assertTrue(msg.equals("Circle reference exists in this Map."));
             throw e;
         }
     }
@@ -126,7 +126,7 @@ public class TestParseJava
         {
             String msg = e.getMessage();
             System.out.println(msg + "\n-----------------------------------");
-            Assert.assertTrue(msg.equals("Java map is referenced again."));
+            Assert.assertTrue(msg.equals("Circle reference exists in this Map."));
             throw e;
         }
     }
@@ -144,7 +144,7 @@ public class TestParseJava
         {
             String msg = e.getMessage();
             System.out.println(msg + "\n-----------------------------------");
-            Assert.assertTrue(msg.equals("Java colloection is referenced again."));
+            Assert.assertTrue(msg.equals("Circle reference exists in this Collection."));
             throw e;
         }
     }
@@ -152,21 +152,21 @@ public class TestParseJava
     @Test(expected = JsonException.class)
     public void collectionCircleB() throws JsonException
     {
-        HashMap<Object, Object> map = new HashMap<Object, Object>();
         ArrayList<Object> list = new ArrayList<Object>();
-        map.put("key", "value");
-        map.put("list", list);
+        HashMap<String, Object> map = new HashMap<String, Object>();
         list.add("element");
-        list.add(list);
+        list.add(map);
+        map.put("key", "value");
+        map.put("self", map);
         try
         {
-            Json json = Json.parseJavaMap(map);
+            Json json = Json.parseJavaCollection(list);
         }
         catch(JsonException e)
         {
             String msg = e.getMessage();
             System.out.println(msg + "\n-----------------------------------");
-            Assert.assertTrue(msg.equals("Java colloection is referenced again."));
+            Assert.assertTrue(msg.equals("Circle reference exists in this Collection."));
             throw e;
         }
     }
@@ -188,7 +188,7 @@ public class TestParseJava
         {
             String msg = e.getMessage();
             System.out.println(msg + "\n-----------------------------------");
-            Assert.assertTrue(msg.equals("Java colloection is referenced again."));
+            Assert.assertTrue(msg.equals("Circle reference exists in this Collection."));
             throw e;
         }
     }
@@ -271,60 +271,6 @@ public class TestParseJava
     @Test
     public void testJsonParser()
     {
-        JsonParser parser = new JsonParser(){
-            
-            @Override
-            public boolean canToJson(Object obj)
-            {
-                if(obj instanceof String && ((String)obj).startsWith("&&"))
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            
-            @Override
-            public Json changeToJson(Object obj) throws JsonException
-            {
-                if(obj instanceof String && ((String)obj).startsWith("&&"))
-                {
-                    return new JsonPrimitive(((String)obj).substring(2));
-                }
-                else
-                {
-                    throw new JsonException();
-                }
-            }
-            
-            @Override
-            public boolean canToName(Object obj)
-            {
-                if(obj instanceof String && ((String)obj).startsWith("**"))
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            
-            @Override
-            public String changeToName(Object obj) throws JsonException
-            {
-                if(obj instanceof String && ((String)obj).startsWith("**"))
-                {
-                    return ((String)obj).substring(2);
-                }
-                else
-                {
-                    throw new JsonException();
-                }
-            }
-        };
         ArrayList<Object> list = new ArrayList<Object>();
         list.add("v1");
         list.add("&&v2");
@@ -339,4 +285,59 @@ public class TestParseJava
         System.out.println(jobj);
         Assert.assertEquals("{\"num\":\"30\",\"name\":\"v1\"}", jobj.generateJsonText());
     }
+    
+    public static JsonParser parser = new JsonParser(){
+        
+        @Override
+        public boolean canToJson(Object obj)
+        {
+            if(obj instanceof String && ((String)obj).startsWith("&&"))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        
+        @Override
+        public Json changeToJson(Object obj) throws JsonException
+        {
+            if(obj instanceof String && ((String)obj).startsWith("&&"))
+            {
+                return new JsonPrimitive(((String)obj).substring(2));
+            }
+            else
+            {
+                throw new JsonException();
+            }
+        }
+        
+        @Override
+        public boolean canToName(Object obj)
+        {
+            if(obj instanceof String && ((String)obj).startsWith("**"))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        
+        @Override
+        public String changeToName(Object obj) throws JsonException
+        {
+            if(obj instanceof String && ((String)obj).startsWith("**"))
+            {
+                return ((String)obj).substring(2);
+            }
+            else
+            {
+                throw new JsonException();
+            }
+        }
+    };
 }

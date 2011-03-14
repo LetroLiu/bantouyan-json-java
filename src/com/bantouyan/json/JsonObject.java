@@ -11,6 +11,8 @@ import java.util.Set;
  * <p>用来表示Json对象实例。Json对象是由子元素（即Name Value对）的无序集合构成，
  * 可以通过Name存取对应子元素的Value。</p>
  * 
+ * <p>JsonObject不存在Name为null的子元素。</p>
+ * 
  * <p><strong>创建JsonObject实例</strong>，
  * 除了可以通过调用Json类的parse开头的方法创建JsonObject实例外，
  * 还可以直接创建空的JsonObject实例，或从Json实例集合创建包含子元素的JsonObject实例。
@@ -60,23 +62,58 @@ public final class JsonObject extends Json
      */
     public JsonObject(int initialCapicity)
     {
-        this.elements = new HashMap<String, Json>(initialCapicity);
+        //HashMap 默认的负载因子是0.75，故将初始容量的大小
+        //设置为其四分之三等于initialCapicity
+        int capicity = initialCapicity * 4 / 3 + 1;
+        this.elements = new HashMap<String, Json>(capicity);
     }
     
     /**
      * 根据已有的Map创建包含子元素的JsonObject实例。
-     * @param map 创建JsonObject的源数据，但忽略掉map中key为null的key vlaue对
+     * @param map 创建JsonObject的源数据，但忽略掉map中key为null的entry对
+     * @throws JsonException 如果Map内存在循环引用，或有无法解析的对象，则抛出异常。
      */
-    public JsonObject(Map<String, ? extends Json> map)
+    public JsonObject(Map<?, ?> map) throws JsonException
+    {
+        this(map, null);
+    }
+    
+    /**
+     * 根据已有的Map创建包含子元素的JsonObject实例。
+     * @param map 创建JsonObject的源数据，但忽略掉map中key为null的entry对
+     * @param parser Json解析器，用于解析普通Java对象, 对于非空的key与value优先使用
+     * @throws JsonException 如果Map内存在循环引用，或有无法解析的对象，则抛出异常。
+     */
+    public JsonObject(Map<?, ?> map, JsonParser parser) throws JsonException
     {
         map.remove(null);
-        this.elements = new HashMap<String, Json>(map);
-        
-        //Change null to Json.nullJson
-        for(String name: this.elements.keySet())
+        IdentityStack parentRef = new IdentityStack();
+        if(Json.haveCircle(map, parentRef))
         {
-            if(this.elements.get(name) == null)
-                this.elements.put(name, Json.nullJson);
+            throw new JsonException("Circle reference exists in this Map.");
+        }
+        
+        this.elements = new HashMap<String, Json>(map.size() * 4 / 3 + 1);
+        Set<?> keys = map.keySet();
+        for(Object key: keys)
+        {
+            String nameStr = null;
+            if(parser != null && parser.canToName(key))
+            {
+                nameStr = parser.changeToName(key);
+            }
+            else if(key instanceof String || key instanceof Number || key instanceof Boolean)
+            {
+                nameStr = key.toString();
+            }
+            else
+            {
+                throw new JsonException("Map key cannot cast to string.");
+            }
+            
+            Object value = map.get(key);
+            Json jsonValue = Json.changeToJson(value, parser);
+            this.elements.put(nameStr, jsonValue);
         }
     }
     
@@ -424,99 +461,59 @@ public final class JsonObject extends Json
     
     /**
      * 批量添加子元素，值为null的value当做类型为NULL的Json实例处理。
-     * @param map 批量元素
-     * @throws JsonException 如果有试图加入同名子元素，或加入Name为null的子元素，则抛出异常
+     * @param map 包含批量子元素的Map
+     * @throws JsonException 如果Map内含有循环引用或无法解析的对象，
+     *  或试图加入同名子元素， 或加入Name为null的子元素，则抛出异常
      */
-    public void addAll(Map<String, ? extends Json> map) throws JsonException
+    public void addAll(Map<?, ?> map) throws JsonException
     {
-        String conflictNames = "";
-        Set<String> names = map.keySet();
-        
-        for(String name: names)
-        {
-            if(this.elements.containsKey(name))
-                conflictNames += ", " + name;
-        }
-        
-        if(conflictNames.equals("") && (! map.containsKey(null)))
-        {
-            this.elements.putAll(map);
-            //change null to Json.nullJson
-            for(String name: names)
-            {
-                if(this.elements.get(name) == null)
-                    this.elements.put(name, Json.nullJson);
-            }
-        }
-        else
-        {
-            String msg = "";
-            if(map.containsKey(null))
-                msg = "Try to add element with name is null";
-            if(! conflictNames.equals(""))
-            {
-                if(msg.equals("")) 
-                    msg = "Try to add exists names \"";
-                else
-                    msg += " and exists names \"";
-                msg += conflictNames.substring(2) + "\"";
-            }
-            msg += " to this JsonObject.";
-            throw new JsonException(msg);
-        }
+        if(map.containsKey(null))
+            throw new JsonException("Try to add element with name is null.");
+        JsonObject jobj = Json.parseJavaMap(map);
+        this.addAll(jobj);
     }
-
+    
     /**
      * 批量添加子元素，值为null的value当做类型为NULL的Json实例处理。
-     * @param map 批量元素
-     * @throws JsonException 如果有试图加入同名子元素，或加入Name为null的子元素，则抛出异常
+     * @param map 包含批量子元素的Map
+     * @param parser Json解析器，用于解析普通Java对象, 对于非空的key与value优先使用
+     * @throws JsonException 如果Map内含有循环引用或无法解析的对象，
+     *  或试图加入同名子元素， 或加入Name为null的子元素，则抛出异常
      */
-    public void addAllJsonable(Map<String, ? extends Jsonable> map) throws JsonException
+    public void addAll(Map<? ,?> map, JsonParser parser) throws JsonException
     {
-        HashMap<String, Json> jsonMap = new HashMap<String, Json>(map.size());
+        if(map.containsKey(null))
+            throw new JsonException("Try to add element with name is null.");
+        JsonObject jobj = Json.parseJavaMap(map, parser);
+        this.addAll(jobj);
+    }
+    
+    /**
+     * 批量添加子元素，子元素来自另外一个JsonObject实例
+     * @param jobj 批量子元素的来源
+     * @throws JsonException 如果有试图加入同名子元素，则抛出异常
+     */
+    public void addAll(JsonObject jobj) throws JsonException
+    {
         String conflictNames = "";
-        Set<String> names = map.keySet();
+        Set<String> names = jobj.nameSet();
         
         for(String name: names)
         {
             if(this.elements.containsKey(name))
                 conflictNames += ", " + name;
-            Jsonable jsonable = map.get(name);
-            //change null to Json.nullJson
-            if(jsonable == null)
-            {
-                jsonMap.put(name, Json.nullJson);
-            }
-            else
-            {
-                Json json = jsonable.generateJson();
-                if(json == null)
-                    jsonMap.put(name, Json.nullJson);
-                else
-                    jsonMap.put(name, json);
-            }
         }
         
-        if(conflictNames.equals("") && (! map.containsKey(null)))
+        if(conflictNames.equals(""))
         {
-            this.elements.putAll(jsonMap);
+            this.elements.putAll(jobj.elements);
         }
         else
         {
-            String msg = "";
-            if(map.containsKey(null))
-                msg = "Try to add element with name is null";
-            if(! conflictNames.equals(""))
-            {
-                if(msg.equals("")) 
-                    msg = "Try to add exists names \"";
-                else
-                    msg += " and exists names \"";
-                msg += conflictNames.substring(2) + "\"";
-            }
-            msg += " to this JsonObject.";
+            String msg = "Try to add exists names \""
+                 + conflictNames.substring(2) + "\" to this JsonObject.";
             throw new JsonException(msg);
-        }
+        }     
     }
     
     /**
@@ -608,50 +605,38 @@ public final class JsonObject extends Json
     }
 
     /**
-     * 批量设置子元素，值为null的value当做类型为NULL的Json实例处理，但忽略name为null的entry。
-     * @param map 批量子元素
+     * 批量设置子元素，值为null的value当做类型为NULL的Json实例处理，
+     * 如果存在同名Name则覆盖原来的Value。
+     * @param map 批量子元素，忽略name为null的entry
+     * @throws JsonException 如果Map内存在循环引用，或有无法解析的对象，则抛出异常
      */
-    public void setAll(Map<String, ? extends Json> map)
+    public void setAll(Map<?, ?> map) throws JsonException
     {
-        map.remove(null);
-        Set<String> names = map.keySet();
-        
-        this.elements.putAll(map);
-        //change null to Json.nullJson
-        for(String name: names)
-        {
-            if(this.elements.get(name) == null)
-                this.elements.put(name, Json.nullJson);
-        }
+        JsonObject nobj = Json.parseJavaMap(map);
+        this.elements.putAll(nobj.elements);
     }
-
+    
     /**
-     * 批量设置子元素，值为null的value当做类型为NULL的Json实例处理，但忽略name为null的entry。
-     * @param map 批量子元素
+     * 批量设置子元素，值为null的value当做类型为NULL的Json实例处理，
+     * 如果存在同名Name则覆盖原来的Value。
+     * @param map 包含批量子元素的Map实例，忽略name为null的entry
+     * @param parser Json解析器，用于解析普通Java对象, 对于非空的key与value优先使用
+     * @throws JsonException 如果Map内存在循环引用，或有无法解析的对象，则抛出异常
      */
-    public void setAllJsonable(Map<String, ? extends Jsonable> map)
-    { 
-        map.remove(null);
-        HashMap<String, Json> jsonMap = new HashMap<String, Json>(map.size());
-        Set<String> names = map.keySet();
-        for(String name: names)
-        {
-            Jsonable jsonable = map.get(name);
-            //change null to Json.nullJson
-            if(jsonable == null)
-            {
-                jsonMap.put(name, Json.nullJson);
-            }
-            else
-            {
-                Json json= jsonable.generateJson();
-                if(json == null)
-                    jsonMap.put(name, Json.nullJson);
-                else
-                    jsonMap.put(name, json);
-            }
-        }
-        this.elements.putAll(jsonMap);
+    public void setAll(Map<?, ?> map, JsonParser parser) throws JsonException
+    {
+        JsonObject nobj = Json.parseJavaMap(map, parser);
+        this.elements.putAll(nobj.elements);
+    }
+    
+    /**
+     * 批量添加子元素， 子元素来自另外一个JsonObject实例，
+     * 如果存在同名Name则覆盖原来的Value。
+     * @param jobj 包含新子元素的JsonObject实例
+     */
+    public void setAll(JsonObject jobj)
+    {
+        this.elements.putAll(jobj.elements);
     }
     
     /**

@@ -60,17 +60,33 @@ public final class JsonArray extends Json implements Iterable<Json>
     
     /**
      * 根据Json集合创建包含子元素的JsonArray实例。
-     * @param collection 源Json集合
+     * @param collection 创建JsonArray的源数据
+     * @throws JsonException 如果Map内存在循环引用，或有无法解析的对象，则抛出异常。
      */
-    public JsonArray(Collection<? extends Json> collection)
+    public JsonArray(Collection<?> collection) throws JsonException
     {
-        this.elements = new ArrayList<Json>(collection);
-        
-        //Change null to Json.nullJson
-        for(int i=0; i<this.elements.size(); i++)
+        this(collection, null);
+    }
+    
+    /**
+     * 根据Json集合创建包含子元素的JsonArray实例。
+     * @param collection 创建JsonArray的源数据
+     * @param parser Json解析器，用于解析普通Java对象, 对于非空的key与value优先使用
+     * @throws JsonException 如果Map内存在循环引用，或有无法解析的对象，则抛出异常。
+     */
+    public JsonArray(Collection<?> collection, JsonParser parser) throws JsonException
+    {
+        IdentityStack parentRef = new IdentityStack();
+        if(Json.haveCircle(collection, parentRef))
         {
-            if(this.elements.get(i) == null)
-                this.elements.set(i, Json.nullJson);
+            throw new JsonException("Circle reference exists in this Collection.");
+        }
+        
+        this.elements = new ArrayList<Json>(collection.size());
+        for(Object value: collection)
+        {
+            Json element = Json.changeToJson(value, parser);
+            this.elements.add(element);
         }
     }
         
@@ -349,6 +365,38 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
+     * 向Json数组末尾批量添加子元素
+     * @param list 包含要添加子元素的的Collection实例
+     * @throws JsonException 如果list内含有循环引用，或无法解析的Java对象，则抛出异常
+     */
+    public void appendAll(Collection<?> list) throws JsonException
+    {
+        JsonArray jary = Json.parseJavaCollection(list);
+        this.elements.addAll(jary.elements);
+    }
+    
+    /**
+     * 向Json数组末尾批量添加子元素
+     * @param list 包含要添加子元素的的Collection实例
+     * @param parser Json解析器，用于解析普通Java对象, 对于非空的key与value优先使用
+     * @throws JsonException 如果list内含有循环引用，或无法解析的Java对象，则抛出异常
+     */
+    public void appendAll(Collection<?> list, JsonParser parser) throws JsonException
+    {
+        JsonArray jary = Json.parseJavaCollection(list, parser);
+        this.elements.addAll(jary.elements);
+    }
+    
+    /**
+     * 向Json数组末尾批量添加子元素
+     * @param jary 包含要添加子元素的的JsonArray实例
+     */
+    public void appendAll(JsonArray jary)
+    {
+        this.elements.addAll(jary.elements);
+    }
+    
+    /**
      * 在指定下标向Json数组添加一个新子元素，原来的子元素依次后移。
      * @param index 新元素的插入下标
      * @param element 要添加的新子元素, null被作为类型为NULL的Json实例处理
@@ -430,75 +478,35 @@ public final class JsonArray extends Json implements Iterable<Json>
     }
     
     /**
-     * 向Json数组末尾批量添加子元素。
-     * @param list 要添加的子元素，值为null的子元素被作为类型为NULL的Json实例处理
+     * 向Json数组末尾批量添加子元素
+     * @param list 包含要添加子元素的的Collection实例
+     * @throws JsonException 如果list内含有循环引用，或无法解析的Java对象，则抛出异常
      */
-    public void addAll(Collection<? extends Json> list)
+    public void insertAll(int index, Collection<?> list) throws JsonException
     {
-        ArrayList<Json> jsonList = new ArrayList<Json>(list.size());
-        for(Json json: list)
-        {
-            if(json == null)
-                jsonList.add(Json.nullJson);
-            else
-                jsonList.add(json);
-        }
-        this.elements.addAll(jsonList);
+        JsonArray jary = Json.parseJavaCollection(list);
+        this.elements.addAll(index, jary.elements);
     }
     
     /**
-     * 在指定下标向Json数组批量添加子元素，原来的子元素依次后移。
-     * @param index 指定的下标
-     * @param list 要添加的子元素集合，值为null的子元素被作为类型为NULL的Json实例处理
+     * 在指定下标向Json数组末尾批量添加子元素
+     * @param list 包含要添加子元素的的Collection实例
+     * @param parser Json解析器，用于解析普通Java对象, 对于非空的key与value优先使用
+     * @throws JsonException 如果list内含有循环引用，或无法解析的Java对象，则抛出异常
      */
-    public void addAll(int index, Collection<? extends Json> list)
+    public void insertAll(int index, Collection<?> list, JsonParser parser) throws JsonException
     {
-        ArrayList<Json> jsonList = new ArrayList<Json>(list.size());
-        for(Json json: list)
-        {
-            if(json == null)
-                jsonList.add(Json.nullJson);
-            else
-                jsonList.add(json);
-        }
-        this.elements.addAll(index, jsonList);
+        JsonArray jary = Json.parseJavaCollection(list, parser);
+        this.elements.addAll(index, jary.elements);
     }
     
     /**
-     * 向Json数组末尾批量添加子元素。
-     * @param list 要添加的子元素集合，值为null的子元素被作为类型为NULL的Json实例处理
+     * 在指定下标向Json数组末尾批量添加子元素
+     * @param jary 包含要添加子元素的的JsonArray实例
      */
-    public void addAllJsonable(Collection<? extends Jsonable> list)
+    public void insertAll(int index, JsonArray jary)
     {
-        ArrayList<Json> jsonList = new ArrayList<Json>(list.size());
-        for(Jsonable jsonable: list)
-        {
-            Json json = (jsonable == null)? Json.nullJson: jsonable.generateJson();
-            if(json == null)
-                jsonList.add(Json.nullJson);
-            else
-                jsonList.add(json);
-        }
-        this.elements.addAll(jsonList);
-    }
-    
-    /**
-     * 在指定下标向Json数组批量添加子元素，原来的子元素依次后移。
-     * @param index 指定的下标
-     * @param list 要添加的子元素集合，值为null的子元素被作为类型为NULL的Json实例处理
-     */
-    public void addAllJsonable(int index, Collection<? extends Jsonable> list)
-    {
-        ArrayList<Json> jsonList = new ArrayList<Json>(list.size());
-        for(Jsonable jsonable: list)
-        {
-            Json json = (jsonable == null)? Json.nullJson: jsonable.generateJson();
-            if(json == null)
-                jsonList.add(Json.nullJson);
-            else
-                jsonList.add(json);
-        }
-        this.elements.addAll(index, jsonList);
+        this.elements.addAll(index, jary.elements);
     }
     
     /**

@@ -14,7 +14,7 @@ import org.junit.Assert;
 public class TestParseString
 {
     @Test(expected = JsonException.class)
-    public void textIsBlank() throws IOException, JsonException
+    public void textIsBlank() throws JsonException
     {
         String jsonText = "  ";
         System.out.println("--------------------------------------");
@@ -33,7 +33,7 @@ public class TestParseString
     }
 
     @Test(expected = JsonException.class)
-    public void textIllegalBegin() throws IOException, JsonException
+    public void textIllegalBegin() throws JsonException
     {
         String jsonText = "  begin{}";
         System.out.println("--------------------------------------");
@@ -52,7 +52,7 @@ public class TestParseString
     }
 
     @Test(expected = JsonException.class)
-    public void textIllegalEnd_object() throws IOException, JsonException
+    public void textIllegalEnd_object() throws JsonException
     {
         String jsonText = "  {} end";
         System.out.println("--------------------------------------");
@@ -71,7 +71,7 @@ public class TestParseString
     }
 
     @Test(expected = JsonException.class)
-    public void textIllegalEnd_array() throws IOException, JsonException
+    public void textIllegalEnd_array() throws JsonException
     {
         String jsonText = "  [null] end";
         System.out.println("--------------------------------------");
@@ -90,7 +90,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void objectElementNameRepeat() throws IOException, JsonException
+    public void objectElementNameRepeat() throws JsonException
     {
         String jsonText = "{name: 'v', name:'v2'}";
         System.out.println("--------------------------------------");
@@ -109,7 +109,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void objectNotEnd_WithEOF_HaveElement() throws IOException, JsonException
+    public void objectNotEnd_WithEOF_HaveElement() throws JsonException
     {
         String jsonText = "{name1: true, name2: false , ";
         System.out.println("--------------------------------------");
@@ -128,7 +128,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void objectNotEnd_WithEOF_NoElement() throws IOException, JsonException
+    public void objectNotEnd_WithEOF_NoElement() throws JsonException
     {
         String jsonText = "{  ";
         System.out.println("--------------------------------------");
@@ -147,7 +147,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void objectNoElementName_Colon() throws IOException, JsonException
+    public void objectNoElementName_Colon() throws JsonException
     {
         String jsonText = "{name1: true, : false , ";
         System.out.println("--------------------------------------");
@@ -166,7 +166,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void objectNoElementName_Comma() throws IOException, JsonException
+    public void objectNoElementName_Comma() throws JsonException
     {
         String jsonText = "{, , ";
         System.out.println("--------------------------------------");
@@ -185,7 +185,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void objectNoElementName_EndObj() throws IOException, JsonException
+    public void objectNoElementName_EndObj() throws JsonException
     {
         String jsonText = "{name1: true, }";
         System.out.println("--------------------------------------");
@@ -204,7 +204,7 @@ public class TestParseString
     }
 
     @Test(expected = JsonException.class)
-    public void objectNoElementName_IllegalChar() throws IOException, JsonException
+    public void objectNoElementName_IllegalChar() throws JsonException
     {
         String jsonText = "{name1: true, +}";
         System.out.println("--------------------------------------");
@@ -223,7 +223,7 @@ public class TestParseString
     }
 
     @Test(expected = JsonException.class)
-    public void objectIllegalElementName_IllegalChar() throws IOException, JsonException
+    public void objectIllegalElementName_IllegalChar() throws JsonException
     {
         String jsonText = "{name1: true, _-ss}";
         System.out.println("--------------------------------------");
@@ -242,7 +242,7 @@ public class TestParseString
     }
 
     @Test(expected = JsonException.class)
-    public void objectIllegalElementName_JsKey() throws IOException, JsonException
+    public void objectIllegalElementName_JsKey() throws JsonException
     {
         String jsonText = "{name1: true, class: 'object'}";
         System.out.println("--------------------------------------");
@@ -261,7 +261,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void objectIllegalElementName_Sufix_char() throws IOException, JsonException
+    public void objectIllegalElementName_Sufix_char() throws JsonException
     {
         String jsonText = "{name1: true, name2 'v2': 'object'}";
         System.out.println("--------------------------------------");
@@ -280,7 +280,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void objectIllegalElementName_Sufix_EOF() throws IOException, JsonException
+    public void objectIllegalElementName_Sufix_EOF() throws JsonException
     {
         String jsonText = "{name1: true, 'name2'";
         System.out.println("--------------------------------------");
@@ -299,7 +299,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void objectNoElementValue_IllegalCharA() throws IOException, JsonException
+    public void objectNoElementValue_IllegalCharA() throws JsonException
     {
         String jsonText = "{name1: *, }";
         System.out.println("--------------------------------------");
@@ -318,7 +318,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void objectNoElementValue_IllegalCharB() throws IOException, JsonException
+    public void objectNoElementValue_IllegalCharB() throws JsonException
     {
         String jsonText = "{name1: www, }";
         System.out.println("--------------------------------------");
@@ -337,7 +337,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void objectNoElementValue_Colon() throws IOException, JsonException
+    public void objectNoElementValue_Colon() throws JsonException
     {
         String jsonText = "{name1: :, }";
         System.out.println("--------------------------------------");
@@ -356,7 +356,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void objectNoElementValue_Comma() throws IOException, JsonException
+    public void objectNoElementValue_Comma() throws JsonException
     {
         String jsonText = "{name1: , }";
         System.out.println("--------------------------------------");
@@ -375,7 +375,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void objectIllegalElementValue_SUFX() throws IOException, JsonException
+    public void objectIllegalElementValue_SUFX() throws JsonException
     {
         String jsonText = "{name1: 'V2' ss} ";
         System.out.println("--------------------------------------");
@@ -394,7 +394,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void objectIllegalElementValue_EOF() throws IOException, JsonException
+    public void objectIllegalElementValue_EOF() throws JsonException
     {
         String jsonText = "{name1: 'V2' ";
         System.out.println("--------------------------------------");
@@ -413,7 +413,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void arrayNotEnd_WithEOF_HaveElement() throws IOException, JsonException
+    public void arrayNotEnd_WithEOF_HaveElement() throws JsonException
     {
         String jsonText = "[ 1, true , ";
         System.out.println("--------------------------------------");
@@ -432,7 +432,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void arrayNotEnd_WithEOF_NoElement() throws IOException, JsonException
+    public void arrayNotEnd_WithEOF_NoElement() throws JsonException
     {
         String jsonText = "[  ";
         System.out.println("--------------------------------------");
@@ -451,7 +451,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void arrayNoValue_Comma() throws IOException, JsonException
+    public void arrayNoValue_Comma() throws JsonException
     {
         String jsonText = "[ 12, ,] ";
         System.out.println("--------------------------------------");
@@ -470,7 +470,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void arrayNoValue_EndAry() throws IOException, JsonException
+    public void arrayNoValue_EndAry() throws JsonException
     {
         String jsonText = "[ null , ] ";
         System.out.println("--------------------------------------");
@@ -489,7 +489,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void arrayInvalidValue_Sufix() throws IOException, JsonException
+    public void arrayInvalidValue_Sufix() throws JsonException
     {
         String jsonText = "[ 'v1', 'v2', 'v3' 'v4'] ";
         System.out.println("--------------------------------------");
@@ -508,7 +508,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void arrayInvalidValue_EOF() throws IOException, JsonException
+    public void arrayInvalidValue_EOF() throws JsonException
     {
         String jsonText = "[ 'v1', 'v2', 'v3' ";
         System.out.println("--------------------------------------");
@@ -527,7 +527,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void string_Less0X20() throws IOException, JsonException
+    public void string_Less0X20() throws JsonException
     {
         String jsonText = "{name: \"value \u0007 value\"}";
         System.out.println("--------------------------------------");
@@ -546,7 +546,7 @@ public class TestParseString
     }
 
     @Test(expected = JsonException.class)
-    public void string_IllegalUnicodeEscapeA() throws IOException, JsonException
+    public void string_IllegalUnicodeEscapeA() throws JsonException
     {
         String jsonText = "['String\\us0ss0String']";
         System.out.println("--------------------------------------");
@@ -565,7 +565,7 @@ public class TestParseString
     }
 
     @Test(expected = JsonException.class)
-    public void string_IllegalUnicodeEscapeB() throws IOException, JsonException
+    public void string_IllegalUnicodeEscapeB() throws JsonException
     {
         String jsonText = "['String\\us000LString']";
         System.out.println("--------------------------------------");
@@ -584,7 +584,7 @@ public class TestParseString
     }
 
     @Test(expected = JsonException.class)
-    public void string_IllegalEscageCharacterA() throws IOException, JsonException
+    public void string_IllegalEscageCharacterA() throws JsonException
     {
         String jsonText = "['String\\U0303String']";
         System.out.println("--------------------------------------");
@@ -603,7 +603,7 @@ public class TestParseString
     }
 
     @Test(expected = JsonException.class)
-    public void string_IllegalEscageCharacterB() throws IOException, JsonException
+    public void string_IllegalEscageCharacterB() throws JsonException
     {
         String jsonText = "['String\\x0303String']";
         System.out.println("--------------------------------------");
@@ -622,7 +622,7 @@ public class TestParseString
     }
 
     @Test(expected = JsonException.class)
-    public void string_NotEndS() throws IOException, JsonException
+    public void string_NotEndS() throws JsonException
     {
         String jsonText = "[null, true, 90.3, \"uu\", 'String 79, {}]";
         System.out.println("--------------------------------------");
@@ -641,7 +641,7 @@ public class TestParseString
     }
 
     @Test(expected = JsonException.class)
-    public void string_NotEndD() throws IOException, JsonException
+    public void string_NotEndD() throws JsonException
     {
         String jsonText = "[null, true, 90.3, \"uu\", \"String 79, {}]";
         System.out.println("--------------------------------------");
@@ -660,7 +660,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void number_LeadingZero() throws IOException, JsonException
+    public void number_LeadingZero() throws JsonException
     {
         String jsonText = "[-00.4]";
         System.out.println("--------------------------------------");
@@ -679,7 +679,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void number_HeadPlus() throws IOException, JsonException
+    public void number_HeadPlus() throws JsonException
     {
         String jsonText = "[+40]";
         System.out.println("--------------------------------------");
@@ -698,7 +698,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void number_NoDigit_AfterMinus() throws IOException, JsonException
+    public void number_NoDigit_AfterMinus() throws JsonException
     {
         String jsonText = "[-.4]";
         System.out.println("--------------------------------------");
@@ -717,7 +717,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void number_NoDigit_AfterDot() throws IOException, JsonException
+    public void number_NoDigit_AfterDot() throws JsonException
     {
         String jsonText = "[-234.E]";
         System.out.println("--------------------------------------");
@@ -736,7 +736,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void number_NoDigit_After_e() throws IOException, JsonException
+    public void number_NoDigit_After_e() throws JsonException
     {
         String jsonText = "[-234.3eL]";
         System.out.println("--------------------------------------");
@@ -755,7 +755,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void number_NoDigit_After_eplus() throws IOException, JsonException
+    public void number_NoDigit_After_eplus() throws JsonException
     {
         String jsonText = "[-234.3e+L]";
         System.out.println("--------------------------------------");
@@ -774,7 +774,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void number_NoDigit_After_eminus() throws IOException, JsonException
+    public void number_NoDigit_After_eminus() throws JsonException
     {
         String jsonText = "[-234.3e-L]";
         System.out.println("--------------------------------------");
@@ -793,7 +793,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void number_NoDigit_After_E() throws IOException, JsonException
+    public void number_NoDigit_After_E() throws JsonException
     {
         String jsonText = "[-234.3EL]";
         System.out.println("--------------------------------------");
@@ -812,7 +812,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void number_NoDigit_After_Eplus() throws IOException, JsonException
+    public void number_NoDigit_After_Eplus() throws JsonException
     {
         String jsonText = "[-234.3E+L]";
         System.out.println("--------------------------------------");
@@ -831,7 +831,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void number_NoDigit_After_Eminus() throws IOException, JsonException
+    public void number_NoDigit_After_Eminus() throws JsonException
     {
         String jsonText = "[-234.3E-L]";
         System.out.println("--------------------------------------");
@@ -850,7 +850,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void number_Sufix() throws IOException, JsonException
+    public void number_Sufix() throws JsonException
     {
         String jsonText = "[359, -234.3E-23L, 230]";
         System.out.println("--------------------------------------");
@@ -869,7 +869,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void constant_true_invalidCase() throws IOException, JsonException
+    public void constant_true_invalidCase() throws JsonException
     {
         String jsonText = "[tRue}";
         System.out.println("--------------------------------------");
@@ -888,7 +888,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void constant_true_invalidChar() throws IOException, JsonException
+    public void constant_true_invalidChar() throws JsonException
     {
         String jsonText = "[tsue]";
         System.out.println("--------------------------------------");
@@ -907,7 +907,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void constant_true_sufix() throws IOException, JsonException
+    public void constant_true_sufix() throws JsonException
     {
         String jsonText = "[true34]";
         System.out.println("--------------------------------------");
@@ -926,7 +926,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void constant_false_invalidCase() throws IOException, JsonException
+    public void constant_false_invalidCase() throws JsonException
     {
         String jsonText = "[faLse}";
         System.out.println("--------------------------------------");
@@ -945,7 +945,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void constant_false_invalidChar() throws IOException, JsonException
+    public void constant_false_invalidChar() throws JsonException
     {
         String jsonText = "[falss]";
         System.out.println("--------------------------------------");
@@ -964,7 +964,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void constant_false_sufix() throws IOException, JsonException
+    public void constant_false_sufix() throws JsonException
     {
         String jsonText = "[false34]";
         System.out.println("--------------------------------------");
@@ -983,7 +983,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void constant_null_invalidCase() throws IOException, JsonException
+    public void constant_null_invalidCase() throws JsonException
     {
         String jsonText = "[nuLL}";
         System.out.println("--------------------------------------");
@@ -1002,7 +1002,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void constant_null_invalidChar() throws IOException, JsonException
+    public void constant_null_invalidChar() throws JsonException
     {
         String jsonText = "[nWll]";
         System.out.println("--------------------------------------");
@@ -1021,7 +1021,7 @@ public class TestParseString
     }
     
     @Test(expected = JsonException.class)
-    public void constant_null_sufix() throws IOException, JsonException
+    public void constant_null_sufix() throws JsonException
     {
         String jsonText = "[null34]";
         System.out.println("--------------------------------------");
