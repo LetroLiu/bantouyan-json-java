@@ -11,7 +11,7 @@ import java.util.Set;
  * <p>用来表示Json对象实例。Json对象是由子元素（即Name Value对）的无序集合构成，
  * 可以通过Name存取对应子元素的Value。</p>
  * 
- * <p>JsonObject不存在Name为null的子元素。</p>
+ * <p>JsonObject不存在也不允许存在Name为null的子元素。</p>
  * 
  * <p><strong>创建JsonObject实例</strong>，
  * 除了可以通过调用Json类的parse开头的方法创建JsonObject实例外，
