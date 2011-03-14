@@ -122,9 +122,7 @@ public abstract class Json implements Cloneable
      */
     public static JsonObject parseJavaMap(Map<?, ?> map) throws JsonException
     {
-        map.remove(null);
-        IdentityStack parentRef = new IdentityStack();
-        return Json.parseJavaMap(map, null, parentRef);
+        return Json.parseJavaMap(map, null);
     }
     
     /**
@@ -154,27 +152,12 @@ public abstract class Json implements Cloneable
     {
         map.remove(null);
         IdentityStack parentRef = new IdentityStack();
-        return Json.parseJavaMap(map, parser, parentRef);
-    }
-    
-    /**
-     * 将Java Map实例解析为JsonObject实例，但忽略key为null的entry。
-     * @param map 要解析的Java Map实例
-     * @param parser Json解析器，用于解析普通Java对象, 对于非空的key与value优先使用
-     * @param parentRef 上级对象的堆栈，用于检测循环引用
-     * @return 对应的JsonObject实例
-     * @throws JsonException 如果Map元素已被（上级对象）引用，或有无法解析的对象，则抛出异常。
-     */
-    private static JsonObject parseJavaMap(Map<?, ?> map, JsonParser parser, IdentityStack parentRef)
-    throws JsonException
-    {
-        if(parentRef.contains(map))
+        if(Json.haveCircle(map, parentRef))
         {
-            throw new JsonException("Java map is referenced again.");
+            throw new JsonException("Circle reference exists in this Map.");
         }
         
         JsonObject json = new JsonObject(map.size());
-        parentRef.push(map);
         Set<?> keys = map.keySet();
         for(Object key: keys)
         {
@@ -193,10 +176,9 @@ public abstract class Json implements Cloneable
             }
             
             Object value = map.get(key);
-            Json jsonValue = Json.changeToJson(value, parser, parentRef);
+            Json jsonValue = Json.changeToJson(value, parser);
             json.add(nameStr, jsonValue);
         }
-        parentRef.pop();
         return json;
     }
     
@@ -218,8 +200,7 @@ public abstract class Json implements Cloneable
      */
     public static JsonArray parseJavaCollection(Collection<?> collection) throws JsonException
     {
-        IdentityStack parentRef = new IdentityStack();
-        return Json.parseJavaCollection(collection, null, parentRef);
+        return Json.parseJavaCollection(collection, null);
     }
     
     /**
@@ -246,33 +227,17 @@ public abstract class Json implements Cloneable
     throws JsonException
     {
         IdentityStack parentRef = new IdentityStack();
-        return Json.parseJavaCollection(collection, parser, parentRef);
-    }
-    
-    /**
-     * 将Java Collection实例解析为JsonArray实例，但忽略子Map内key为null的entry。
-     * @param collection 要解析的Java Collection实例
-     * @param parser Json解析器，用于解析普通Java对象, 对于非空value优先使用
-     * @param parentRef 上级对象的堆栈，用于检测循环引用
-     * @return 对应的JsonArray实例
-     * @throws JsonException 如果Collection内存在循环引用，或有无法解析的对象，则抛出异常。
-     */
-    private static JsonArray parseJavaCollection(Collection<?> collection, JsonParser parser, IdentityStack parentRef)
-    throws JsonException
-    {
-        if(parentRef.contains(collection))
+        if(Json.haveCircle(collection, parentRef))
         {
-            throw new JsonException("Java colloection is referenced again.");
+            throw new JsonException("Circle reference exists in this Collection.");
         }
         
         JsonArray json = new JsonArray(collection.size());
-        parentRef.push(collection);
         for(Object value: collection)
         {
-            Json element = Json.changeToJson(value, parser, parentRef);
+            Json element = Json.changeToJson(value, parser);
             json.append(element);
         }
-        parentRef.pop();
         return json;
     }
     
@@ -280,11 +245,10 @@ public abstract class Json implements Cloneable
      * 将Java对象转换为Json实例，但忽略Map内key为null的entry。
      * @param value Java对象
      * @param parser Json解析器，用于解析普通Java对象, 对于非空value优先使用
-     * @param parentRef 上级对象的堆栈，用于检测循环引用
      * @return 对应的Json实例
-     * @throws JsonException 如果Java对象已被（上级Json实例）引用，或无法解析，则抛出异常
+     * @throws JsonException 如果Java对象无法解析，则抛出异常
      */
-    private static Json changeToJson(Object value, JsonParser parser, IdentityStack parentRef) 
+    protected static Json changeToJson(Object value, JsonParser parser) 
     throws JsonException
     {
         Json json = null;
@@ -319,11 +283,11 @@ public abstract class Json implements Cloneable
         }
         else if(value instanceof Map<?, ?>)
         {
-            json = Json.parseJavaMap((Map<?, ?>)value, parser, parentRef);
+            json = Json.parseJavaMap((Map<?, ?>)value, parser);
         }
         else if(value instanceof Collection<?>)
         {
-            json = Json.parseJavaCollection((Collection<?>)value, parser, parentRef);
+            json = Json.parseJavaCollection((Collection<?>)value, parser);
         }
         else
         {
@@ -331,6 +295,57 @@ public abstract class Json implements Cloneable
         }
         
         return json;
+    }
+    
+    /**
+     * 检测Map内是否存在循环引用
+     * @param map 被检测的Map
+     * @param parentRef 上级对象的堆栈，用于检测循环引用
+     * @return 如果存在循环引用，则返回true， 否则返回false
+     */
+    protected static boolean haveCircle(Map<?, ?> map, IdentityStack parentRef)
+    {
+        if(parentRef.contains(map)) return true;
+        parentRef.push(map);
+        Collection<?> values  = map.values();
+        for(Object value: values)
+        {
+            if(value instanceof Map<?, ?>)
+            {
+                return haveCircle((Map<?, ?>)value, parentRef);
+            }
+            else if(value instanceof Collection<?>)
+            {
+                return haveCircle((Collection<?>)value, parentRef);
+            }
+        }
+        parentRef.pop();
+        return false;
+    }
+    
+    /**
+     * 检测Collection内是否存在循环引用
+     * @param list 被检测的Collection
+     * @param parentRef 上级对象的堆栈，用于检测循环引用
+     * @return 如果存在循环引用，则返回true， 否则返回false
+     */
+    protected static boolean haveCircle(Collection<?> list, IdentityStack parentRef)
+    {
+        if(parentRef.contains(list)) return true;
+        parentRef.push(list);
+        for(Object value: list)
+        {
+            if(value instanceof Map<?, ?>)
+            {
+                return haveCircle((Map<?, ?>)value, parentRef);
+            }
+            else if(value instanceof Collection<?>)
+            {
+                return haveCircle((Collection<?>)value, parentRef);
+            }
+        }
+        parentRef.pop();
+        return false;
     }
 
     /**

@@ -71,7 +71,6 @@ public class TestTime
         System.out.println(str);
     }
     
-
     @Ignore
     @Test
     public void parseTextTime() throws IOException, JsonException

@@ -1,6 +1,8 @@
 package com.bantouyan.json.test;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map.Entry;
@@ -11,11 +13,12 @@ import com.bantouyan.json.Json.JsonType;
 
 import org.junit.Test;
 import org.junit.Assert;
+import org.junit.Ignore;
 
-public class TestObject2
+public class TestJsonObject
 {
     @Test
-    public void jsonObject_new_isEmpty_count_getType_equals_sets_getString_clone()
+    public void jsonObject_new_isEmpty_count_getType_equals_sets_getString_clone_remove()
     {
         JsonObject sobj = new JsonObject();
         JsonArray ary = new JsonArray();
@@ -89,6 +92,137 @@ public class TestObject2
         Assert.assertEquals(null, obj.getString(null));
         Assert.assertEquals(null, obj.getString("NoSuchName"));
         
+        obj = new JsonObject();
+        obj.add("a", "A");
+        obj.add("b", "B");
+        Assert.assertTrue(obj.containsName("a"));
+        Assert.assertTrue(obj.containsName("b"));
+        obj.remove("a");
+        Assert.assertFalse(obj.containsName("a"));
+        Assert.assertTrue(obj.containsName("b"));
+    }
+    
+    @Test
+    public void jsonObject_newMap()
+    {
+        // invalid name
+        HashMap<Object, Object> map = new HashMap<Object, Object>();
+        map.put(new Date(), "Date");
+        try
+        {
+            JsonObject json = new JsonObject(map);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.equals("Map key cannot cast to string."));
+        }
+        
+        try
+        {
+            JsonObject json = new JsonObject(map, parser);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.equals("Map key cannot cast to string."));
+        }
+        
+        //invalid value
+        map = new HashMap<Object, Object>();
+        map.put("Date", new Date());
+        try
+        {
+            JsonObject json = new JsonObject(map);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.indexOf("Cannot parse value: ") == 0);
+        }
+        
+        try
+        {
+            JsonObject json = new JsonObject(map, parser);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.indexOf("Cannot parse value: ") == 0);
+        }
+        
+        //circle
+        map = new HashMap<Object, Object>();
+        map.put("self", map);
+        try
+        {
+            JsonObject json = new JsonObject(map);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.equals("Circle reference exists in this Map."));
+        }
+        
+        try
+        {
+            JsonObject json = new JsonObject(map, parser);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.equals("Circle reference exists in this Map."));
+        }
+        
+        //normal
+        HashMap<Object, Object> map2 = new HashMap<Object, Object>();
+        ArrayList<Object> list = new ArrayList<Object>();
+        map2.put("NULL", null);
+        map2.put("INTEGER", 356);
+        map2.put("FLOAT", 34.1e2);
+        map2.put("BOOLEAN", true);
+        map2.put("STRING", "string");
+        map2.put("ARRAY", list);
+        map2.put("OBJECT", new HashMap<Object, Object>());
+        list.add(false);
+        list.add(null);
+        JsonObject json = new JsonObject(map2);
+        System.out.println("===================================");
+        String jsonStr = json.generateJsonText();
+        System.out.println(jsonStr);
+        Assert.assertEquals(7, json.count());
+        Assert.assertEquals(JsonType.NULL, json.getType("NULL"));
+        Assert.assertEquals(JsonType.INTEGER, json.getType("INTEGER"));
+        Assert.assertEquals(356, json.getLong("INTEGER"));
+        Assert.assertEquals(JsonType.FLOAT, json.getType("FLOAT"));
+        Assert.assertEquals(3410.0, json.getDouble("FLOAT"), 0.1e-9);
+        Assert.assertEquals(JsonType.BOOLEAN, json.getType("BOOLEAN"));
+        Assert.assertEquals(true, json.getBoolean("BOOLEAN"));
+        Assert.assertEquals(JsonType.STRING, json.getType("STRING"));
+        Assert.assertEquals("string", json.getString("STRING"));
+        Assert.assertEquals(JsonType.ARRAY, json.getType("ARRAY"));
+        Assert.assertEquals(JsonType.OBJECT, json.getType("OBJECT"));
+        
+        //JsonParser
+        ArrayList<Object> list2 = new ArrayList<Object>();
+        list2.add("v1");
+        list2.add("&&v2");
+        HashMap<Object, Object> map3 = new HashMap<Object, Object>();
+        map3.put("**name", "v1");
+        map3.put("num", "&&30");
+        map3.put("list", list2);
+        
+        JsonObject jobj = new JsonObject(map3, parser);
+        Assert.assertTrue(jobj.containsName("name"));
+        Assert.assertFalse(jobj.containsName("**name"));
+        Assert.assertEquals("30", jobj.getString("num"));
+        Assert.assertEquals(3, jobj.count());
     }
     
     @Test
@@ -492,200 +626,296 @@ public class TestObject2
     }
     
     @Test
-    public void addAll_setALL()
+    public void addAll_setAll_exception()
+    {
+        JsonObject obj = new JsonObject();
+        
+        // invalid name
+        HashMap<Object, Object> map = new HashMap<Object, Object>();
+        map.put(new Date(), "Date");
+        try
+        {
+            obj.addAll(map);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.equals("Map key cannot cast to string."));
+        }
+        
+        try
+        {
+            obj.addAll(map, parser);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.equals("Map key cannot cast to string."));
+        }
+        
+        try
+        {
+            obj.setAll(map);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.equals("Map key cannot cast to string."));
+        }
+        
+        try
+        {
+            obj.setAll(map, parser);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.equals("Map key cannot cast to string."));
+        }
+        
+        //invalid value
+        map = new HashMap<Object, Object>();
+        map.put("Date", new Date());
+        try
+        {
+            obj.addAll(map);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.indexOf("Cannot parse value: ") == 0);
+        }
+        
+        try
+        {
+            obj.addAll(map, parser);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.indexOf("Cannot parse value: ") == 0);
+        }
+
+        try
+        {
+            obj.setAll(map);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.indexOf("Cannot parse value: ") == 0);
+        }
+        
+        try
+        {
+            obj.setAll(map, parser);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.indexOf("Cannot parse value: ") == 0);
+        }
+        
+        //circle
+        map = new HashMap<Object, Object>();
+        map.put("self", map);
+        try
+        {
+            obj.addAll(map);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.equals("Circle reference exists in this Map."));
+        }
+        
+        try
+        {
+            obj.addAll(map, parser);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.equals("Circle reference exists in this Map."));
+        } 
+        
+        try
+        {
+            obj.setAll(map);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.equals("Circle reference exists in this Map."));
+        }
+        
+        try
+        {
+            obj.setAll(map, parser);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.equals("Circle reference exists in this Map."));
+        } 
+        
+        //null name
+        map = new HashMap<Object, Object>();
+        map.put(null, "NULL");
+        try
+        {
+            obj.addAll(map);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.equals("Try to add element with name is null."));
+        } 
+        
+        try
+        {
+            obj.addAll(map, parser);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.equals("Try to add element with name is null."));
+        } 
+        
+        //repeat name
+        obj.add("nameA", "valueA");
+        obj.add("nameB", "valueB");
+        map.clear();
+        map.put("nameA", "valueA_map");
+        map.put("nameB", "valueB_map");
+        try
+        {
+            obj.addAll(map);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.startsWith("Try to add exists names"));
+        }
+
+        try
+        {
+            obj.addAll(map, parser);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.startsWith("Try to add exists names"));
+        }
+        
+        JsonObject obj2 = new JsonObject(map);
+        try
+        {
+            obj.addAll(obj2);
+        }
+        catch(JsonException e)
+        {
+            String msg = e.getMessage();
+            System.out.println(msg + "\n-----------------------------------");
+            Assert.assertTrue(msg.startsWith("Try to add exists names"));
+        }
+    }
+    
+    @Test
+    public void addAll_setAll_normal()
     {
         System.out.println("==================================");
+        Jsonable jableObj = new Jsonable(){public Json generateJson(){return new JsonObject();}};
+        Jsonable jableNull = new Jsonable(){public Json generateJson(){return new JsonPrimitive();}};
+        JsonArray empAry = new JsonArray();
+        JsonObject empObj = new JsonObject();
         JsonObject sobj = new JsonObject();
-        sobj.set("str", "string");
-        sobj.set("int", 30);
-        sobj.set("float", 33.33);
-        sobj.set("bool", false);
-        sobj.set("nullj");
-        JsonArray ary = new JsonArray();
-        HashMap<String, Json> jsonMap = new HashMap<String, Json>();
-        jsonMap.put("nullp", null);
-        jsonMap.put("nullj", sobj.get("nullj"));
-        jsonMap.put("str", sobj.get("str"));
-        jsonMap.put("int", sobj.get("int"));
-        jsonMap.put("float", sobj.get("float"));
-        jsonMap.put("bool", sobj.get("bool"));
-        jsonMap.put("object", sobj);
-        jsonMap.put("array", ary);
+        sobj.set("NULL");
+        sobj.set("BOOLEAN", false);
+        sobj.set("INTEGER", 33);
+        sobj.set("FLOAT", 33.33);
+        sobj.set("STRING", "string");
+        sobj.set("OBJECT", new JsonObject());
+        sobj.set("ARRAY", new JsonArray());
+        sobj.set("NULL_able", jableNull);
+        sobj.set("OBJECT_able", jableObj);
         
-        Jsonable ableo = new Jsonable(){public Json generateJson(){return new JsonObject();}};
-        Jsonable ablen = new Jsonable(){public Json generateJson(){return null;}};
-        HashMap<String, Jsonable> ableMap = new HashMap<String, Jsonable>();
-        ableMap.put("anullp", null);
-        ableMap.put("aobjo", ableo);
-        ableMap.put("anullj", ablen);
+        HashMap<Object, Object> map = new HashMap<Object, Object>();
+        map.put("NULL", null);
+        map.put("BOOLEAN", false);
+        map.put("INTEGER", 33);
+        map.put("FLOAT", 33.33);
+        map.put("STRING", "string");
+        map.put("OBJECT", new JsonObject());
+        map.put("ARRAY", new JsonArray());
+        map.put("NULL_able", jableNull);
+        map.put("OBJECT_able", jableObj);
         
+        //JsonObject
         JsonObject obj = new JsonObject();
-        Assert.assertEquals(0, obj.count());
+        obj.addAll(sobj);
+        Assert.assertEquals(sobj, obj);
         
-        //test addAll exception
-        jsonMap.put(null, null);
-        obj.set("bool");
-        obj.set("array");
-        boolean error = false;
-        try
-        {
-            obj.addAll(jsonMap);
-        } 
-        catch (JsonException e)
-        {
-            String errStr = "Try to add element with name is null and exists names \"bool, array\" to this JsonObject.";
-            System.out.println(e.getMessage());
-            Assert.assertEquals(errStr, e.getMessage());
-            error = true;
-        }
-        Assert.assertTrue(error);
-        
-        jsonMap.remove(null);
-        error = false;
-        try
-        {
-            obj.addAll(jsonMap);
-        } 
-        catch (JsonException e)
-        {
-            String errStr = "Try to add exists names \"bool, array\" to this JsonObject.";
-            System.out.println(e.getMessage());
-            Assert.assertEquals(errStr, e.getMessage());
-            error = true;
-        }
-        Assert.assertTrue(error);
-        
-        jsonMap.put(null, null);
         obj.clear();
-        error = false;
-        try
-        {
-            obj.addAll(jsonMap);
-        } 
-        catch (JsonException e)
-        {
-            String errStr = "Try to add element with name is null to this JsonObject.";
-            System.out.println(e.getMessage());
-            Assert.assertEquals(errStr, e.getMessage());
-            error = true;
-        }
-        Assert.assertTrue(error);
-        jsonMap.remove(null);
+        obj.set("BOOLEAN", "str");
+        obj.set("ARRAY", 356);
+        obj.set("other");
+        obj.setAll(sobj);
+        sobj.set("other");
+        Assert.assertEquals(sobj, obj);
         
-        //test addAllJsonalbe exception
-        ableMap.put(null, null);
-        obj.set("anullj");
-        obj.set("anullp");
-        error = false;
-        try
-        {
-            obj.addAllJsonable(ableMap);
-        } 
-        catch (JsonException e)
-        {
-            String errStr = "Try to add element with name is null and exists names \"anullj, anullp\" to this JsonObject.";
-            System.out.println(e.getMessage());
-            Assert.assertEquals(errStr, e.getMessage());
-            error = true;
-        }
-        Assert.assertTrue(error);
-        
-        ableMap.remove(null);
-        error = false;
-        try
-        {
-            obj.addAllJsonable(ableMap);
-        } 
-        catch (JsonException e)
-        {
-            String errStr = "Try to add exists names \"anullj, anullp\" to this JsonObject.";
-            System.out.println(e.getMessage());
-            Assert.assertEquals(errStr, e.getMessage());
-            error = true;
-        }
-        Assert.assertTrue(error);
-        
-        ableMap.put(null, null);
+        //Map
         obj.clear();
-        error = false;
-        try
-        {
-            obj.addAllJsonable(ableMap);
-        } 
-        catch (JsonException e)
-        {
-            String errStr = "Try to add element with name is null to this JsonObject.";
-            System.out.println(e.getMessage());
-            Assert.assertEquals(errStr, e.getMessage());
-            error = true;
-        }
-        Assert.assertTrue(error);
-        ableMap.remove(null);
+        obj.addAll(map);
+        sobj.remove("other");
+        Assert.assertEquals(sobj, obj);
         
-        //test addAll addAllJsonable
         obj.clear();
-        obj.addAll(jsonMap);
-        obj.addAllJsonable(ableMap);
+        obj.set("BOOLEAN", "str");
+        obj.set("ARRAY", 356);
+        obj.set("other");
+        sobj.set("other");
+        obj.setAll(map);
+        Assert.assertEquals(sobj, obj);
         
-        Assert.assertEquals(11, obj.count());
-        Assert.assertEquals(JsonType.NULL, obj.getType("nullp"));
-        Assert.assertEquals(JsonType.NULL, obj.getType("nullj"));
-        Assert.assertEquals(JsonType.STRING, obj.getType("str"));
-        Assert.assertEquals("string", obj.getString("str"));
-        Assert.assertEquals(JsonType.INTEGER, obj.getType("int"));
-        Assert.assertEquals(30, obj.getLong("int"));
-        Assert.assertEquals(JsonType.FLOAT, obj.getType("float"));
-        Assert.assertEquals(33.33, obj.getDouble("float"), 0.1e-10);
-        Assert.assertEquals(JsonType.BOOLEAN, obj.getType("bool"));
-        Assert.assertEquals(false, obj.getBoolean("bool"));
-        Assert.assertEquals(JsonType.OBJECT, obj.getType("object"));
-        Assert.assertEquals(sobj, obj.getJsonObject("object"));
-        Assert.assertEquals(JsonType.ARRAY, obj.getType("array"));
-        Assert.assertEquals(ary, obj.getJsonArray("array"));
-        Assert.assertEquals(JsonType.NULL, obj.getType("anullp"));
-        Assert.assertEquals(JsonType.OBJECT, obj.getType("aobjo"));
-        Assert.assertEquals(ableo.generateJson(), obj.getJsonObject("aobjo"));
-        Assert.assertEquals(JsonType.NULL, obj.getType("anullj"));
+        // for parser
+        ArrayList<Object> list = new ArrayList<Object>();
+        list.add("v1");
+        list.add("&&v2");
+        HashMap map2 = new HashMap<Object, Object>();
+        map2.put("**name", "v1");
+        map2.put("num", "&&30");
+        map2.put("list", list);
         
+        //JsonParser
+        obj.clear();
+        obj.addAll(map2, parser);
+        Assert.assertTrue(obj.containsName("name"));
+        Assert.assertFalse(obj.containsName("**name"));
+        Assert.assertEquals("30", obj.getString("num"));
         
-        //test setAll setAllJsonable
-        obj.set("nullp", 3);
-        obj.set("nullj", 23);
-        obj.set("str");
-        obj.set("int", false);
-        obj.set("float", "string");
-        obj.set("bool", 96);
-        obj.set("object", "string");
-        obj.set("array", true);
-        obj.set("anullp", sobj);
-        obj.set("aobjo", 88);
-        obj.set("anullj", ary);
-        
-        jsonMap.put(null, ary);
-        ableMap.put(null, null);
-        obj.setAll(jsonMap);
-        obj.setAllJsonable(ableMap);
-        
-        Assert.assertEquals(11, obj.count());
-        Assert.assertEquals(JsonType.NULL, obj.getType("nullp"));
-        Assert.assertEquals(JsonType.NULL, obj.getType("nullj"));
-        Assert.assertEquals(JsonType.STRING, obj.getType("str"));
-        Assert.assertEquals("string", obj.getString("str"));
-        Assert.assertEquals(JsonType.INTEGER, obj.getType("int"));
-        Assert.assertEquals(30, obj.getLong("int"));
-        Assert.assertEquals(JsonType.FLOAT, obj.getType("float"));
-        Assert.assertEquals(33.33, obj.getDouble("float"), 0.1e-10);
-        Assert.assertEquals(JsonType.BOOLEAN, obj.getType("bool"));
-        Assert.assertEquals(false, obj.getBoolean("bool"));
-        Assert.assertEquals(JsonType.OBJECT, obj.getType("object"));
-        Assert.assertEquals(sobj, obj.getJsonObject("object"));
-        Assert.assertEquals(JsonType.ARRAY, obj.getType("array"));
-        Assert.assertEquals(ary, obj.getJsonArray("array"));
-        Assert.assertEquals(JsonType.NULL, obj.getType("anullp"));
-        Assert.assertEquals(JsonType.OBJECT, obj.getType("aobjo"));
-        Assert.assertEquals(ableo.generateJson(), obj.getJsonObject("aobjo"));
-        Assert.assertEquals(JsonType.NULL, obj.getType("anullj"));
-        
+        obj.clear();
+        obj.set("num", 999);
+        obj.setAll(map2, parser);
+        Assert.assertTrue(obj.containsName("name"));
+        Assert.assertFalse(obj.containsName("**name"));
+        Assert.assertEquals("30", obj.getString("num"));
     }
     
     @Test
@@ -720,4 +950,58 @@ public class TestObject2
         Assert.assertEquals("-Infinity", obj.getString("ni"));
     }
 
+    public static JsonParser parser = new JsonParser(){
+        
+        @Override
+        public boolean canToJson(Object obj)
+        {
+            if(obj instanceof String && ((String)obj).startsWith("&&"))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        
+        @Override
+        public Json changeToJson(Object obj) throws JsonException
+        {
+            if(obj instanceof String && ((String)obj).startsWith("&&"))
+            {
+                return new JsonPrimitive(((String)obj).substring(2));
+            }
+            else
+            {
+                throw new JsonException();
+            }
+        }
+        
+        @Override
+        public boolean canToName(Object obj)
+        {
+            if(obj instanceof String && ((String)obj).startsWith("**"))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        
+        @Override
+        public String changeToName(Object obj) throws JsonException
+        {
+            if(obj instanceof String && ((String)obj).startsWith("**"))
+            {
+                return ((String)obj).substring(2);
+            }
+            else
+            {
+                throw new JsonException();
+            }
+        }
+    };
 }

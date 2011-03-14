@@ -404,7 +404,7 @@ public final class JsonPrimitive extends Json
     @Override
     public boolean isEmpty()
     {
-        return false;
+        return true;
     }
 
     /**
