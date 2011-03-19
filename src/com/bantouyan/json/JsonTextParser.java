@@ -283,7 +283,7 @@ class JsonTextParser
             {
                 next(); // skip blank character
             }
-            if(ch == '{')
+            else if(ch == '{')
             {
                 json = parseObject();
                 break;
